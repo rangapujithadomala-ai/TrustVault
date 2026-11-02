@@ -34,4 +34,4 @@
 
 **Verification:** Ran `pytest -v`; all 10 tests passed.
 
-**Commit link:** To be added after committing this milestone.
+**Commit link:** https://github.com/rangapujithadomala-ai/TrustVault/commit/34ccd46
