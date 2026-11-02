@@ -15,4 +15,23 @@
 
 **Verification:** Checked the folder locations in VS Code Explorer.
 
-**Related GitHub commit:** To be added after committing this entry and the folder structure.
+**Related GitHub commit:** https://github.com/rangapujithadomala-ai/TrustVault/commit/1ad52bb
+
+
+
+
+### 2026-11-02 — Authentication and email verification
+
+**Work completed:** Implemented user registration, password validation and hashing, email verification using single-use tokens, login, and logout.
+
+**Prompt / AI assistance:** Asked AI for help designing and implementing Flask authentication, email verification, and automated tests.
+
+**AI output:** Suggested Flask routes, password hashing, verification-token handling, and pytest test cases.
+
+**What needed correction:** Some test code needed adjustment to work with Flask's test client and session handling.
+
+**What I did:** Reviewed and corrected the code, configured Gmail SMTP, tested registration and email verification, and added automated tests for invalid, expired and reused tokens, login failures, successful login, and logout.
+
+**Verification:** Ran `pytest -v`; all 10 tests passed.
+
+**Commit link:** To be added after committing this milestone.
