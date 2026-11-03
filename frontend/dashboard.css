@@ -1,0 +1,902 @@
+
+/* =================================
+   TRUSTVAULT VIEWER DASHBOARD
+================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+.dashboard-page {
+    margin: 0;
+    min-height: 100vh;
+    background: #F3F6FA;
+    color: #172B4D;
+    font-family: Arial, sans-serif;
+}
+
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* =================================
+   SIDEBAR
+================================= */
+
+.sidebar {
+    width: 250px;
+    min-width: 250px;
+    min-height: 100vh;
+    padding: 28px 18px;
+    background: #172B4D;
+    color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+}
+
+.brand {
+    padding: 0 12px 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.brand h2 {
+    margin: 0;
+    font-size: 25px;
+    letter-spacing: 0.5px;
+}
+
+.brand p {
+    margin: 7px 0 0;
+    font-size: 12px;
+    color: #B8C6DD;
+}
+
+.user-role {
+    margin: 24px 12px 12px;
+    color: #9DADC5;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    padding: 13px 14px;
+    border-radius: 7px;
+    color: #DCE5F2;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+    background: #29466F;
+    color: #FFFFFF;
+}
+
+.logout-link {
+    display: block;
+    margin-top: auto;
+    padding: 12px 14px;
+    border: 1px solid #607797;
+    border-radius: 7px;
+    color: #FFFFFF;
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.logout-link:hover {
+    background: #29466F;
+}
+
+/* =================================
+   MAIN CONTENT
+================================= */
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+    padding: 30px 38px;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #E0E6EF;
+}
+
+.topbar h1 {
+    margin: 0;
+    font-size: 27px;
+}
+
+.topbar p {
+    margin: 7px 0 0;
+    color: #718096;
+    font-size: 13px;
+}
+
+.topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.user-avatar {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #E5EDFF;
+    color: #356AE6;
+    font-weight: bold;
+}
+
+/* =================================
+   DASHBOARD SECTIONS
+================================= */
+
+.dashboard-section {
+    margin-top: 35px;
+}
+
+.dashboard-section > h2,
+.section-heading h2 {
+    margin: 0;
+    font-size: 19px;
+}
+
+.section-description {
+    margin: 7px 0 20px;
+    color: #718096;
+    font-size: 13px;
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.section-heading .section-description {
+    margin-bottom: 0;
+}
+
+.view-all {
+    color: #356AE6;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.view-all:hover {
+    text-decoration: underline;
+}
+
+/* =================================
+   STATISTICS CARDS
+================================= */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.stat-card {
+    min-width: 0;
+    padding: 21px;
+    background: #FFFFFF;
+    border: 1px solid #E8EDF4;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(23, 43, 77, 0.04);
+}
+
+.stat-icon {
+    margin-bottom: 14px;
+    font-size: 22px;
+}
+
+.stat-card h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.stat-card .stat-number {
+    margin: 12px 0 6px;
+    color: #356AE6;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.stat-card span {
+    color: #718096;
+    font-size: 12px;
+}
+
+/* =================================
+   DOCUMENT TABLE
+================================= */
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    background: #FFFFFF;
+    border: 1px solid #E8EDF4;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(23, 43, 77, 0.04);
+}
+
+table {
+    width: 100%;
+    min-width: 650px;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+thead {
+    background: #F7F9FC;
+}
+
+th,
+td {
+    padding: 16px 18px;
+    border-bottom: 1px solid #E8EDF4;
+    font-size: 13px;
+}
+
+th {
+    color: #718096;
+    font-weight: 600;
+}
+
+td {
+    color: #344563;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+tbody tr:hover {
+    background: #F8FAFD;
+}
+
+td a {
+    color: #356AE6;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+td a:hover {
+    text-decoration: underline;
+}
+
+.permission {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.permission.read {
+    background: #EAF0FF;
+    color: #356AE6;
+}
+
+.permission.edit {
+    background: #E6F7ED;
+    color: #16834A;
+}
+
+/* =================================
+   RECENT ACTIVITY
+================================= */
+
+.activity-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 12px;
+    padding: 17px 20px;
+    background: #FFFFFF;
+    border: 1px solid #E8EDF4;
+    border-radius: 9px;
+}
+
+.activity-card p {
+    margin: 0;
+    font-size: 13px;
+}
+
+.activity-card span {
+    color: #8793A5;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* =================================
+   RESPONSIVE DESIGN
+================================= */
+
+@media (max-width: 1000px) {
+    .main-content {
+        padding: 25px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 750px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        min-width: 0;
+        min-height: auto;
+        padding: 18px;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+    }
+
+    .sidebar-nav a {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .logout-link {
+        margin-top: 10px;
+    }
+
+    .main-content {
+        padding: 22px 16px;
+    }
+
+    .topbar h1 {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar {
+        align-items: flex-start;
+    }
+
+    .topbar-user {
+        gap: 6px;
+    }
+
+    .section-heading {
+        align-items: flex-start;
+    }
+
+    .activity-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+/* =================================
+   DARK MODE
+================================= */
+
+.dashboard-page.dark-mode {
+    background: #111827;
+    color: #E5E7EB;
+}
+
+.dark-mode .topbar {
+    border-color: #374151;
+}
+
+.dark-mode .topbar p,
+.dark-mode .section-description {
+    color: #AAB4C3;
+}
+
+.dark-mode .stat-card,
+.dark-mode .table-container,
+.dark-mode .activity-card {
+    background: #1F2937;
+    border-color: #374151;
+}
+
+.dark-mode .stat-card h3,
+.dark-mode .activity-card p {
+    color: #F9FAFB;
+}
+
+.dark-mode .stat-card span,
+.dark-mode .activity-card span {
+    color: #AAB4C3;
+}
+
+.dark-mode thead {
+    background: #273449;
+}
+
+.dark-mode th,
+.dark-mode td {
+    border-color: #374151;
+    color: #E5E7EB;
+}
+
+.dark-mode tbody tr:hover {
+    background: #273449;
+}
+
+/* =================================
+   PROFILE PAGE ADDITIONS
+================================= */
+
+.profile-information {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    margin: 28px 0;
+}
+
+.profile-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 15px 0;
+    border-bottom: 1px solid #E8EDF4;
+}
+
+.profile-info-item span {
+    color: #718096;
+    font-size: 13px;
+}
+
+.profile-info-item strong {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.status-verified,
+.allowed {
+    color: #16834A;
+}
+
+.not-allowed {
+    color: #C24141;
+}
+
+.conditional {
+    color: #B7791F;
+}
+
+.secondary-button {
+    margin-top: 20px;
+    padding: 11px 18px;
+    border: 1px solid #356AE6;
+    border-radius: 7px;
+    background: #FFFFFF;
+    color: #356AE6;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.secondary-button:hover {
+    background: #EAF0FF;
+}
+
+.permissions-list {
+    padding: 10px 25px;
+}
+
+.permission-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 17px 0;
+    border-bottom: 1px solid #E8EDF4;
+    font-size: 13px;
+}
+
+.permission-row:last-child {
+    border-bottom: none;
+}
+
+.permission-row strong {
+    text-align: right;
+    font-size: 12px;
+}
+
+.permission-note {
+    margin-top: 12px;
+    color: #718096;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Profile page dark mode */
+
+.dark-mode .profile-info-item,
+.dark-mode .permission-row {
+    border-color: #374151;
+}
+
+.dark-mode .profile-info-item span,
+.dark-mode .permission-note {
+    color: #AAB4C3;
+}
+
+.dark-mode .profile-info-item strong,
+.dark-mode .permission-row span {
+    color: #E5E7EB;
+}
+
+.dark-mode .secondary-button {
+    background: #1F2937;
+    color: #A9C2FF;
+    border-color: #6489DB;
+}
+
+@media (max-width: 600px) {
+    .profile-information {
+        grid-template-columns: 1fr;
+    }
+
+    .permission-row {
+        align-items: flex-start;
+    }
+}
+
+/* Professional Profile Styling */
+
+.profile-details h3 {
+    margin: 0;
+    font-size: 21px;
+    color: #172B4D;
+}
+
+.profile-details p {
+    margin: 8px 0 12px;
+    color: #718096;
+    font-size: 14px;
+}
+
+.role-label {
+    display: inline-block;
+    padding: 6px 13px;
+    border-radius: 5px;
+    background: #EAF0FF;
+    color: #356AE6;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.profile-edit-button {
+    padding: 10px 20px;
+    border: 1px solid #356AE6;
+    border-radius: 6px;
+    background: transparent;
+    color: #356AE6;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.profile-edit-button:hover {
+    background: #356AE6;
+    color: #FFFFFF;
+}
+
+.dark-mode .profile-details h3 {
+    color: #F9FAFB;
+}
+
+.dark-mode .profile-edit-button {
+    border-color: #6489DB;
+    color: #A9C2FF;
+}
+
+.dark-mode .profile-edit-button:hover {
+    background: #356AE6;
+    color: #FFFFFF;
+}
+
+/* =================================
+   SETTINGS PAGE
+================================= */
+
+.setting-divider {
+    height: 1px;
+    margin: 20px 0;
+    background: #E8EDF4;
+}
+
+.setting-row input[type="checkbox"] {
+    width: 19px;
+    height: 19px;
+    accent-color: #356AE6;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.settings-link {
+    padding: 9px 14px;
+    border: 1px solid #356AE6;
+    border-radius: 6px;
+    color: #356AE6;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.settings-link:hover {
+    background: #356AE6;
+    color: #FFFFFF;
+}
+
+.dark-mode .setting-divider {
+    background: #374151;
+}
+
+.dark-mode .settings-link {
+    border-color: #6489DB;
+    color: #A9C2FF;
+}
+
+.dark-mode .settings-link:hover {
+    background: #356AE6;
+    color: #FFFFFF;
+}
+.security-setting {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.security-setting h3,
+.security-setting p {
+    margin: 0;
+}
+
+.security-button {
+    margin-top: 8px;
+}
+
+.security-setting {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.security-setting h3,
+.security-setting p {
+    margin: 0;
+}
+
+.security-button {
+    margin-top: 8px;
+}
+
+/* =================================
+   COMMON CONTENT CARDS
+================================= */
+
+.content-card {
+    padding: 22px;
+    background: #FFFFFF;
+    border: 1px solid #E8EDF4;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(23, 43, 77, 0.04);
+}
+
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.setting-row h3 {
+    margin: 0;
+    font-size: 15px;
+}
+
+.setting-row p {
+    margin: 7px 0 0;
+    color: #718096;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.setting-row select {
+    padding: 10px 14px;
+    border: 1px solid #D5DDE8;
+    border-radius: 6px;
+    background: #FFFFFF;
+    color: #172B4D;
+    font-size: 13px;
+}
+
+/* =================================
+   DARK MODE - ALL VIEWER PAGES
+================================= */
+
+.dark-mode .content-card {
+    background: #1F2937;
+    border-color: #374151;
+}
+
+.dark-mode .content-card h3,
+.dark-mode .security-setting h3 {
+    color: #F9FAFB;
+}
+
+.dark-mode .content-card p,
+.dark-mode .setting-row p {
+    color: #AAB4C3;
+}
+
+.dark-mode .setting-row select {
+    background: #273449;
+    color: #F9FAFB;
+    border-color: #4B5563;
+}
+
+.dark-mode .setting-row select option {
+    background: #273449;
+    color: #F9FAFB;
+}
+
+.dark-mode .setting-row input[type="checkbox"] {
+    accent-color: #6489DB;
+}
+
+.dark-mode .profile-details p {
+    color: #AAB4C3;
+}
+
+.dark-mode .role-label {
+    background: #273B60;
+    color: #A9C2FF;
+}
+
+.dark-mode .status-verified,
+.dark-mode .allowed {
+    color: #6EE7A0;
+}
+
+.dark-mode .not-allowed {
+    color: #FCA5A5;
+}
+
+.dark-mode .conditional {
+    color: #FCD34D;
+}
+
+.dark-mode .permission.read {
+    background: #273B60;
+    color: #A9C2FF;
+}
+
+.dark-mode .permission.edit {
+    background: #16452F;
+    color: #86EFAC;
+}
+
+.dark-mode .permission-note {
+    color: #AAB4C3;
+}
+
+/* Dark Mode - Security Button */
+
+.dark-mode .security-button {
+    background: #273449;
+    color: #A9C2FF;
+    border-color: #6489DB;
+}
+
+.dark-mode .security-button:hover {
+    background: #356AE6;
+    color: #FFFFFF;
+}
+
+/* Responsive Settings Rows */
+
+@media (max-width: 600px) {
+    .setting-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .content-card {
+        padding: 17px;
+    }
+}
+
+/* Owner Dashboard */
+
+.owner-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+}
+
+.owner-actions a {
+    text-decoration: none;
+}
+
+.view-all-link {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.view-all-link:hover {
+    text-decoration: underline;
+}
+
+.permission-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.permission-badge.read {
+    background: #e0edff;
+    color: #1d4ed8;
+}
+
+.permission-badge.edit {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.dashboard-page.dark-mode .permission-badge.read {
+    background: #1e3a5f;
+    color: #bfdbfe;
+}
+
+.dashboard-page.dark-mode .permission-badge.edit {
+    background: #14532d;
+    color: #bbf7d0;
+}

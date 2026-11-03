@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustVault | Shared with Me</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard-container">
+
+        <aside class="sidebar">
+            <div class="brand">
+                <h2>TrustVault</h2>
+                <p>Secure Document Sharing</p>
+            </div>
+
+            <div class="user-role">VIEWER ACCOUNT</div>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard.html">Overview</a>
+                <a href="shared-with-me.html" class="active">Shared with Me</a>
+                <a href="activity.html">Activity</a>
+                <a href="profile.html">My Profile</a>
+                <a href="settings.html">Settings</a>
+            </nav>
+
+            <a href="login.html" class="logout-link">Logout</a>
+        </aside>
+
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <h1>Shared with Me</h1>
+                    <p>Access documents that owners have shared with you.</p>
+                </div>
+
+                <div class="topbar-user">
+                    <span class="user-avatar">V</span>
+                    <span>Viewer</span>
+                </div>
+            </header>
+
+            <section class="dashboard-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Your Shared Documents</h2>
+                        <p class="section-description">
+                            View your available documents and their permissions.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Document Name</th>
+                                <th>Shared By</th>
+                                <th>Permission</th>
+                                <th>Date Shared</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td>Project Report.pdf</td>
+                                <td>Owner Name</td>
+                                <td>
+                                    <span class="permission read">Read</span>
+                                </td>
+                                <td>03 Nov 2026</td>
+                                <td><a href="#" class="document-action">View</a></td>
+                            </tr>
+
+                            <tr>
+                                <td>Research Document.docx</td>
+                                <td>Owner Name</td>
+                                <td>
+                                    <span class="permission edit">Edit</span>
+                                </td>
+                                <td>02 Nov 2026</td>
+                                <td><a href="#" class="document-action">View</a></td>
+                            </tr>
+
+                            <tr>
+                                <td>Presentation.pptx</td>
+                                <td>Owner Name</td>
+                                <td>
+                                    <span class="permission read">Read</span>
+                                </td>
+                                <td>01 Nov 2026</td>
+                                <td><a href="#" class="document-action">View</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+<script src="settings.js"></script>
+</body>
+</html>

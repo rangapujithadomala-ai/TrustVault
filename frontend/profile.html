@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustVault | My Profile</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard-container">
+
+        <aside class="sidebar">
+            <div class="brand">
+                <h2>TrustVault</h2>
+                <p>Secure Document Sharing</p>
+            </div>
+
+            <div class="user-role">VIEWER ACCOUNT</div>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard.html">Overview</a>
+                <a href="shared-with-me.html">Shared with Me</a>
+                <a href="activity.html">Activity</a>
+                <a href="profile.html" class="active">My Profile</a>
+                <a href="settings.html">Settings</a>
+            </nav>
+
+            <a href="login.html" class="logout-link">Logout</a>
+        </aside>
+
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <h1>My Profile</h1>
+                    <p>View and manage your account information.</p>
+                </div>
+
+                <div class="topbar-user">
+                    <span class="user-avatar">V</span>
+                    <span>Viewer</span>
+                </div>
+            </header>
+
+       
+<!-- Personal Information -->
+<section class="dashboard-section">
+    <div class="section-heading">
+        <h2>Personal Information</h2>
+    </div>
+
+    <div class="content-card">
+        <div class="profile-details">
+            <h3>Viewer Name</h3>
+            <p>viewer@example.com</p>
+            <span class="role-label">Viewer</span>
+        </div>
+
+        <div class="profile-information">
+            <div class="profile-info-item">
+                <span>Full Name</span>
+                <strong>Viewer Name</strong>
+            </div>
+
+            <div class="profile-info-item">
+                <span>Email Address</span>
+                <strong>viewer@example.com</strong>
+            </div>
+
+            <div class="profile-info-item">
+                <span>Account ID</span>
+                <strong>TV-XXXXXXXX</strong>
+            </div>
+
+            <div class="profile-info-item">
+                <span>Account Role</span>
+                <strong>Viewer</strong>
+            </div>
+        </div>
+
+        <button class="profile-edit-button" type="button"
+            onclick="alert('Profile editing will be available after backend integration.')">
+            Edit Profile
+        </button>
+    </div>
+</section>
+
+
+            <!-- Account Security -->
+            <section class="dashboard-section">
+                <div class="section-heading">
+                    <div>
+                        <h2>Account Security</h2>
+                        <p class="section-description">
+                            Your account verification and security information.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="profile-info-item">
+                        <span>Email Verification</span>
+                        <strong class="status-verified">Verified</strong>
+                    </div>
+
+                    <div class="profile-info-item">
+                        <span>Account Status</span>
+                        <strong class="status-verified">Active</strong>
+                    </div>
+
+                    <div class="profile-info-item">
+                        <span>Account Created</span>
+                        <strong>Not available</strong>
+                    </div>
+
+                    <div class="profile-info-item">
+                        <span>Last Login</span>
+                        <strong>Not available</strong>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Account Permissions -->
+            <section class="dashboard-section">
+                <div class="section-heading">
+                    <div>
+                        <h2>Account Permissions</h2>
+                        <p class="section-description">
+                            Actions available under your Viewer role.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="content-card permissions-list">
+
+                    <div class="permission-row">
+                        <span>View shared documents</span>
+                        <strong class="allowed">When shared by owner</strong>
+                    </div>
+
+                    <div class="permission-row">
+                        <span>Download documents</span>
+                        <strong class="allowed">When permitted</strong>
+                    </div>
+
+                    <div class="permission-row">
+                        <span>Edit documents</span>
+                        <strong class="conditional">When granted</strong>
+                    </div>
+
+                    <div class="permission-row">
+                        <span>Upload documents</span>
+                        <strong class="not-allowed">Not allowed</strong>
+                    </div>
+
+                    <div class="permission-row">
+                        <span>Share documents</span>
+                        <strong class="not-allowed">Not allowed</strong>
+                    </div>
+
+                </div>
+
+                <p class="permission-note">
+                    *Document access is subject to the owner's permissions
+                    and the system's access rules.
+                </p>
+            </section>
+
+        </main>
+    </div>
+<script src="settings.js"></script>
+</body>
+</html>

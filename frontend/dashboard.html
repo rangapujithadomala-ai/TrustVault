@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustVault | Viewer Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard-container">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <h2>TrustVault</h2>
+                <p>Secure Document Sharing</p>
+            </div>
+
+            <div class="user-role">
+                <span>VIEWER ACCOUNT</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="active">Overview</a>
+                <a href="shared-with-me.html">Shared with Me</a>
+                <a href="activity.html">Activity</a>
+                <a href="profile.html">My Profile</a>
+                <a href="settings.html">Settings</a>
+            </nav>
+
+            <a href="login.html" class="logout-link">Logout</a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p>Welcome to your TrustVault workspace.</p>
+                </div>
+
+                <div class="topbar-user">
+                    <span class="user-avatar">V</span>
+                    <span>Viewer</span>
+                </div>
+            </header>
+
+            <!-- Overview -->
+            <section class="dashboard-section">
+                <h2>Overview</h2>
+                <p class="section-description">
+                    Here is a summary of the documents shared with you.
+                </p>
+
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+                        <div class="stat-icon">📄</div>
+                        <h3>Shared Documents</h3>
+                        <p class="stat-number">08</p>
+                        <span>Documents available to you</span>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">👁️</div>
+                        <h3>Viewed Documents</h3>
+                        <p class="stat-number">05</p>
+                        <span>Documents you have accessed</span>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">✏️</div>
+                        <h3>Edit Access</h3>
+                        <p class="stat-number">02</p>
+                        <span>Documents with edit permission</span>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Recent Documents -->
+            <section class="dashboard-section">
+                <div class="section-heading">
+                    <div>
+                        <h2>Recently Shared Documents</h2>
+                        <p class="section-description">
+                            Documents recently shared with your account.
+                        </p>
+                    </div>
+
+                    <a href="shared-with-me.html" class="view-all">
+                        View All
+                    </a>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Document Name</th>
+                                <th>Shared By</th>
+                                <th>Permission</th>
+                                <th>Date Shared</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td>Project Report.pdf</td>
+                                <td>Owner Name</td>
+                                <td><span class="permission read">Read</span></td>
+                                <td>03 Nov 2026</td>
+                                <td><a href="shared-with-me.html">View</a></td>
+                            </tr>
+
+                            <tr>
+                                <td>Research Document.docx</td>
+                                <td>Owner Name</td>
+                                <td><span class="permission edit">Edit</span></td>
+                                <td>02 Nov 2026</td>
+                                <td><a href="shared-with-me.html">View</a></td>
+                            </tr>
+
+                            <tr>
+                                <td>Presentation.pptx</td>
+                                <td>Owner Name</td>
+                                <td><span class="permission read">Read</span></td>
+                                <td>01 Nov 2026</td>
+                                <td><a href="shared-with-me.html">View</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Recent Activity -->
+            <section class="dashboard-section">
+                <div class="section-heading">
+                    <div>
+                        <h2>Recent Activity</h2>
+                        <p class="section-description">
+                            Your recent document access activity.
+                        </p>
+                    </div>
+
+                    <a href="activity.html" class="view-all">
+                        View All
+                    </a>
+                </div>
+
+                <div class="activity-card">
+                    <p><strong>Project Report.pdf</strong> was viewed.</p>
+                    <span>Today</span>
+                </div>
+
+                <div class="activity-card">
+                    <p><strong>Research Document.docx</strong> was shared with you.</p>
+                    <span>Yesterday</span>
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+<script src="settings.js"></script>
+</body>
+</html>
