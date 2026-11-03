@@ -35,3 +35,21 @@
 **Verification:** Ran `pytest -v`; all 10 tests passed.
 
 **Commit link:** https://github.com/rangapujithadomala-ai/TrustVault/commit/34ccd46
+
+
+
+## Entry 3 – November 3, 2026**
+
+**Task:** Developing the frontend pages for the Viewer role.
+
+**Prompt:** Asked AI to guide me in creating the Viewer dashboard, Shared with Me, Activity, Profile and Settings pages for TrustVault.
+
+**AI output:** AI provided HTML structures, CSS styling and JavaScript guidance for the Viewer pages, including navigation, document tables, profile information, account settings and dark-mode support.
+
+**What needed correction:** Some styling required adjustments for dark mode and consistent layouts. The Profile and Settings sections also needed clarification to keep role permissions and account controls separate.
+
+**What I did:** Reviewed the generated code, made the suggested corrections, added shared styling and connected the theme selection across Viewer pages using JavaScript and localStorage.
+
+**Verification:** Reviewed the five Viewer pages and checked the navigation, page structure and theme functionality. The pages currently use sample data and require backend integration.
+
+**Related GitHub commit:** To be added after committing the Viewer frontend changes.

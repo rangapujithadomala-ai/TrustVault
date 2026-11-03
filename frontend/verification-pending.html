@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email | TrustVault</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-card">
+
+            <div class="logo">
+                <h1>TrustVault</h1>
+                <p>Secure Document Sharing</p>
+            </div>
+
+            <div class="verification-pending-icon">
+                ✉
+            </div>
+
+            <h2>Check Your Inbox</h2>
+
+            <p class="verification-message">
+                We've sent a verification link to your email address.
+                Please check your inbox and click the link to activate
+                your TrustVault account.
+            </p>
+
+            <p id="email-display" class="email-display">
+                Your registered email address
+            </p>
+
+            <button type="button" id="resend-button" class="auth-button">
+                Resend Verification Email
+            </button>
+
+            <p id="resend-message" class="resend-message"></p>
+
+            <a href="login.html" class="back-to-login">
+                Back to Login
+            </a>
+
+        </div>
+    </div>
+<script src="verification-pending.js"></script>
+</body>
+</html>
