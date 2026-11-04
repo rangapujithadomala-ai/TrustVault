@@ -1,0 +1,403 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | TrustVault</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+
+    <style>
+        .profile-content {
+            padding: 25px;
+            max-width: 1000px;
+        }
+
+        .profile-header {
+            margin-bottom: 25px;
+        }
+
+        .profile-header p {
+            color: #777;
+            margin-top: 8px;
+        }
+
+        .profile-card {
+            background: var(--card-bg, white);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .profile-card h2 {
+            font-size: 19px;
+            margin-bottom: 10px;
+        }
+
+        .card-description {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 22px;
+        }
+
+        .profile-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 7px;
+            font-size: 14px;
+            background: transparent;
+            color: inherit;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form-group input:disabled {
+            background: #f1f1f1;
+            color: #777;
+            cursor: not-allowed;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3157c8;
+        }
+
+        .field-error {
+            color: #d32f2f;
+            font-size: 12px;
+            min-height: 15px;
+        }
+
+        .profile-button {
+            padding: 11px 20px;
+            border: none;
+            border-radius: 7px;
+            background: #3157c8;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 22px;
+        }
+
+        .profile-button:hover {
+            background: #2445a8;
+        }
+
+        .security-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .security-info p {
+            color: #777;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .security-button {
+            padding: 11px 18px;
+            border: 1px solid #3157c8;
+            border-radius: 7px;
+            background: transparent;
+            color: #3157c8;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .security-button:hover {
+            background: #3157c8;
+            color: white;
+        }
+
+        .profile-message {
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 650px) {
+            .profile-form {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-content {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard-container">
+
+        <!-- Existing TrustVault Sidebar -->
+        <aside class="sidebar">
+
+            <div class="sidebar-brand">
+                <h2>TrustVault</h2>
+                <span>Document Owner</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="owner-dashboard.html">Overview</a>
+                <a href="my-documents.html">My Documents</a>
+                <a href="owner-shared-documents.html">Shared Documents</a>
+                <a href="owner-activity.html">Activity</a>
+                <a href="owner-profile.html" class="active">My Profile</a>
+                <a href="owner-settings.html">Settings</a>
+                <a href="login.html">Logout</a>
+            </nav>
+
+        </aside>
+
+        <main class="main-content">
+
+            <section class="profile-content">
+
+                <div class="profile-header">
+                    <h1>My Profile</h1>
+                    <p>View and manage your personal account information.</p>
+                </div>
+
+                <!-- Personal Information -->
+                <div class="profile-card">
+
+                    <h2>Personal Information</h2>
+
+                    <p class="card-description">
+                        Update your personal details. Your registered email
+                        address cannot be changed here.
+                    </p>
+
+                    <form id="profileForm" novalidate>
+
+                        <div class="profile-form">
+
+                            <div class="form-group">
+                                <label for="fullName">Full Name</label>
+
+                                <input
+                                    type="text"
+                                    id="fullName"
+                                    placeholder="Enter your full name"
+                                    maxlength="80"
+                                    autocomplete="name"
+                                    required
+                                >
+
+                                <span class="field-error" id="nameError"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Registered Email Address</label>
+
+                                <input
+                                    type="email"
+                                    id="email"
+                                    placeholder="Registered email address"
+                                    disabled
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Indian Phone Number</label>
+
+                                <input
+                                    type="tel"
+                                    id="phone"
+                                    placeholder="Enter 10-digit mobile number"
+                                    maxlength="10"
+                                    inputmode="numeric"
+                                    autocomplete="tel-national"
+                                    required
+                                >
+
+                                <span class="field-error" id="phoneError"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="role">Account Role</label>
+
+                                <input
+                                    type="text"
+                                    id="role"
+                                    value="Document Owner"
+                                    disabled
+                                >
+                            </div>
+
+                        </div>
+
+                        <button type="submit" class="profile-button">
+                            Save Changes
+                        </button>
+
+                        <p id="profileMessage" class="profile-message"></p>
+
+                    </form>
+
+                </div>
+
+                <!-- Password and Security -->
+                <div class="profile-card">
+
+                    <div class="security-section">
+
+                        <div class="security-info">
+                            <h2>Password & Security</h2>
+
+                            <p>
+                                Request a secure password reset link
+                                to your registered email address.
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="security-button"
+                            id="resetPasswordButton"
+                        >
+                            Send Password Reset Link
+                        </button>
+
+                    </div>
+
+                    <p id="securityMessage" class="profile-message"></p>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script>
+        const profileForm = document.getElementById("profileForm");
+
+        const fullName = document.getElementById("fullName");
+        const phone = document.getElementById("phone");
+
+        const nameError = document.getElementById("nameError");
+        const phoneError = document.getElementById("phoneError");
+
+        const profileMessage =
+            document.getElementById("profileMessage");
+
+        // Full name validation
+        function validateName() {
+            const name = fullName.value.trim();
+
+            const namePattern =
+                /^[A-Za-z]+(?:[ .][A-Za-z]+)*\.?$/;
+
+            if (name === "") {
+                nameError.textContent = "Full name is required.";
+                return false;
+            }
+
+            if (!namePattern.test(name)) {
+                nameError.textContent =
+                    "Use only letters, spaces and full stops. Do not use numbers or special characters.";
+                return false;
+            }
+
+            nameError.textContent = "";
+            return true;
+        }
+
+        // Phone number validation
+        function validatePhone() {
+            const mobile = phone.value;
+
+            const phonePattern = /^[6-9][0-9]{9}$/;
+
+            if (mobile === "") {
+                phoneError.textContent =
+                    "Phone number is required.";
+                return false;
+            }
+
+            if (!phonePattern.test(mobile)) {
+                phoneError.textContent =
+                    "Enter exactly 10 digits starting with 6, 7, 8 or 9.";
+                return false;
+            }
+
+            phoneError.textContent = "";
+            return true;
+        }
+
+        // Allow only letters, spaces and full stops in name
+        fullName.addEventListener("input", function() {
+            this.value = this.value.replace(/[^A-Za-z .]/g, "");
+            validateName();
+        });
+
+        // Allow only numbers in phone
+        phone.addEventListener("input", function() {
+            this.value = this.value.replace(/[^0-9]/g, "").slice(0, 10);
+            validatePhone();
+        });
+
+        // Save profile
+        profileForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            profileMessage.textContent = "";
+
+            const validName = validateName();
+            const validPhone = validatePhone();
+
+            if (!validName || !validPhone) {
+                profileMessage.textContent =
+                    "Please correct the errors before saving.";
+                profileMessage.style.color = "red";
+                return;
+            }
+
+            profileMessage.textContent =
+                "Profile details are valid. Backend connection is pending.";
+
+            profileMessage.style.color = "#3157c8";
+        });
+
+        // Password reset button
+        document.getElementById("resetPasswordButton")
+            .addEventListener("click", function() {
+
+                const message =
+                    document.getElementById("securityMessage");
+
+                message.textContent =
+                    "Password reset email functionality will be available after backend and email configuration.";
+
+                message.style.color = "#3157c8";
+            });
+    </script>
+
+    <script src="settings.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,1685 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Documents | TrustVault</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+
+    <style>
+        /* UPLOAD PAGE */
+
+        .upload-page {
+            max-width: 1150px;
+            margin: 0 auto;
+        }
+
+        .page-intro {
+            margin: 28px 0;
+        }
+
+        .page-intro h2 {
+            margin: 0 0 8px;
+            font-size: 25px;
+        }
+
+        .page-intro p {
+            margin: 0;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .upload-section {
+            margin-bottom: 25px;
+            padding: 24px;
+            background: #FFFFFF;
+            border: 1px solid #E8EDF4;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(23,43,77,.04);
+        }
+
+        .section-title {
+            margin: 0 0 7px;
+            font-size: 18px;
+        }
+
+        .section-subtitle {
+            margin: 0 0 20px;
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* UPLOAD AREA */
+
+        .upload-dropzone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 205px;
+            padding: 30px 20px;
+            border: 2px dashed #B7C7DF;
+            border-radius: 10px;
+            background: #F7F9FC;
+            text-align: center;
+            transition: .2s;
+            cursor: pointer;
+        }
+
+        .upload-dropzone:hover,
+        .upload-dropzone.dragging {
+            border-color: #356AE6;
+            background: #EEF4FF;
+        }
+
+        .upload-icon {
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 13px;
+            border-radius: 12px;
+            background: #E5EDFF;
+            color: #356AE6;
+            font-size: 25px;
+        }
+
+        .upload-dropzone h3 {
+            margin: 0 0 7px;
+            font-size: 16px;
+            color: #172B4D;
+        }
+
+        .upload-dropzone p {
+            margin: 0 0 14px;
+            color: #718096;
+            font-size: 13px;
+        }
+
+        .upload-dropzone input {
+            display: none;
+        }
+
+        .browse-button {
+            display: inline-block;
+            padding: 9px 17px;
+            border-radius: 6px;
+            background: #356AE6;
+            color: #FFFFFF;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .upload-guidelines {
+            margin-top: 13px;
+            color: #8793A5;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* BUTTONS */
+
+        .tv-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 10px 16px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .tv-primary {
+            background: #356AE6;
+            color: #FFFFFF;
+        }
+
+        .tv-primary:hover {
+            background: #2855C5;
+        }
+
+        .tv-secondary {
+            background: #FFFFFF;
+            color: #356AE6;
+            border-color: #C9D7F1;
+        }
+
+        .tv-secondary:hover {
+            background: #EEF4FF;
+        }
+
+        .tv-danger {
+            background: #FFF1F0;
+            color: #C24141;
+            border-color: #FAD4D1;
+        }
+
+        .tv-danger:hover {
+            background: #FDE5E3;
+        }
+
+        .tv-small {
+            padding: 7px 11px;
+            font-size: 12px;
+        }
+
+        button:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        /* DOCUMENT CARDS */
+
+        .document-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .document-card {
+            padding: 20px;
+            border: 1px solid #E4EAF2;
+            border-radius: 9px;
+            background: #FFFFFF;
+        }
+
+        .document-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .document-identity {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            min-width: 0;
+        }
+
+        .file-icon {
+            width: 43px;
+            height: 46px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 7px;
+            background: #EEF4FF;
+            color: #356AE6;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .document-name {
+            margin: 0 0 6px;
+            font-size: 15px;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+            color: #172B4D;
+        }
+
+        .document-meta {
+            margin: 0;
+            color: #8793A5;
+            font-size: 12px;
+        }
+
+        .document-divider {
+            height: 1px;
+            margin: 18px 0;
+            background: #E8EDF4;
+        }
+
+        .sharing-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 13px;
+        }
+
+        .sharing-heading h4 {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .private-label {
+            padding: 5px 9px;
+            border-radius: 15px;
+            background: #F1F4F8;
+            color: #64748B;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .shared-label {
+            padding: 5px 9px;
+            border-radius: 15px;
+            background: #E6F7ED;
+            color: #16834A;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .share-entry {
+            display: grid;
+            grid-template-columns: minmax(0,1fr) 130px auto;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #EDF0F5;
+        }
+
+        .share-email {
+            min-width: 0;
+            overflow-wrap: anywhere;
+            font-size: 13px;
+            color: #344563;
+        }
+
+        .share-entry select,
+        .bulk-row select {
+            width: 100%;
+            padding: 8px 9px;
+            border: 1px solid #D5DDE8;
+            border-radius: 6px;
+            background: #FFFFFF;
+            color: #172B4D;
+            font-size: 12px;
+        }
+
+        .share-entry:last-child {
+            border-bottom: none;
+        }
+
+        .form-label {
+            display: block;
+            margin: 16px 0 7px;
+            color: #344563;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #D5DDE8;
+            border-radius: 6px;
+            background: #FFFFFF;
+            color: #172B4D;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .form-control:focus,
+        .share-entry select:focus,
+        .bulk-row select:focus {
+            border-color: #356AE6;
+            box-shadow: 0 0 0 3px rgba(53,106,230,.10);
+        }
+
+        .add-member-row {
+            display: grid;
+            grid-template-columns: minmax(0,1fr) 145px auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .add-member-row .form-label {
+            margin-top: 0;
+        }
+
+        .private-message {
+            margin: 0 0 14px;
+            color: #8793A5;
+            font-size: 12px;
+        }
+
+        /* BULK SHARING */
+
+        .bulk-intro {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .bulk-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #E5EDFF;
+            color: #356AE6;
+            font-size: 19px;
+        }
+
+        .bulk-intro h3 {
+            margin: 0 0 5px;
+            font-size: 15px;
+        }
+
+        .bulk-intro p {
+            margin: 0;
+            color: #718096;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .bulk-list {
+            border: 1px solid #E8EDF4;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .bulk-row {
+            display: grid;
+            grid-template-columns: 25px minmax(0,1fr) 140px;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 15px;
+            border-bottom: 1px solid #EDF0F5;
+        }
+
+        .bulk-row:last-child {
+            border-bottom: none;
+        }
+
+        .bulk-row input {
+            width: 17px;
+            height: 17px;
+            accent-color: #356AE6;
+            cursor: pointer;
+        }
+
+        .bulk-file-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #344563;
+            overflow-wrap: anywhere;
+        }
+
+        .bulk-file-size {
+            display: block;
+            margin-top: 4px;
+            color: #8793A5;
+            font-size: 11px;
+        }
+
+        .bulk-row select:disabled {
+            background: #F1F4F8;
+            color: #A0AAB8;
+        }
+
+        .bulk-controls {
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid #E8EDF4;
+        }
+
+        .bulk-count {
+            margin: 0 0 14px;
+            color: #356AE6;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* REVIEW */
+
+        .review-grid {
+            display: grid;
+            grid-template-columns: repeat(4,minmax(0,1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .review-stat {
+            padding: 16px;
+            border: 1px solid #E8EDF4;
+            border-radius: 8px;
+            background: #F8FAFD;
+        }
+
+        .review-stat span {
+            display: block;
+            margin-bottom: 9px;
+            color: #718096;
+            font-size: 11px;
+        }
+
+        .review-stat strong {
+            font-size: 22px;
+            color: #172B4D;
+        }
+
+        .review-details {
+            border-top: 1px solid #E8EDF4;
+            padding-top: 12px;
+        }
+
+        .review-document {
+            padding: 12px 0;
+            border-bottom: 1px solid #EDF0F5;
+        }
+
+        .review-document:last-child {
+            border-bottom: none;
+        }
+
+        .review-document strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .review-document p {
+            margin: 4px 0;
+            color: #718096;
+            font-size: 12px;
+        }
+
+        .review-notice {
+            margin-top: 18px;
+            padding: 13px 15px;
+            border: 1px solid #D8E5FC;
+            border-radius: 7px;
+            background: #F3F7FF;
+            color: #36527E;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .empty-state {
+            padding: 30px 15px;
+            text-align: center;
+            color: #8793A5;
+            font-size: 13px;
+        }
+
+        .empty-state strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #344563;
+        }
+
+        .page-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .status-message {
+            margin-top: 15px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .status-success {
+            color: #16834A;
+        }
+
+        .status-error {
+            color: #C24141;
+        }
+
+        /* DARK MODE */
+
+        .dark-mode .page-intro p,
+        .dark-mode .section-subtitle {
+            color: #AAB4C3;
+        }
+
+        .dark-mode .upload-section,
+        .dark-mode .document-card {
+            background: #1F2937;
+            border-color: #374151;
+        }
+
+        .dark-mode .upload-dropzone {
+            background: #273449;
+            border-color: #526783;
+        }
+
+        .dark-mode .upload-dropzone:hover,
+        .dark-mode .upload-dropzone.dragging {
+            background: #263B5E;
+            border-color: #6489DB;
+        }
+
+        .dark-mode .upload-dropzone h3,
+        .dark-mode .document-name,
+        .dark-mode .sharing-heading h4,
+        .dark-mode .bulk-intro h3 {
+            color: #F9FAFB;
+        }
+
+        .dark-mode .upload-dropzone p,
+        .dark-mode .document-meta,
+        .dark-mode .private-message,
+        .dark-mode .bulk-intro p,
+        .dark-mode .bulk-file-size {
+            color: #AAB4C3;
+        }
+
+        .dark-mode .file-icon,
+        .dark-mode .upload-icon,
+        .dark-mode .bulk-icon {
+            background: #273B60;
+            color: #A9C2FF;
+        }
+
+        .dark-mode .document-divider,
+        .dark-mode .review-details,
+        .dark-mode .bulk-controls {
+            border-color: #374151;
+            background-color: transparent;
+        }
+
+        .dark-mode .share-entry {
+            border-color: #374151;
+        }
+
+        .dark-mode .share-email,
+        .dark-mode .bulk-file-name,
+        .dark-mode .form-label {
+            color: #E5E7EB;
+        }
+
+        .dark-mode .form-control,
+        .dark-mode .share-entry select,
+        .dark-mode .bulk-row select {
+            background: #273449;
+            border-color: #4B5563;
+            color: #F9FAFB;
+        }
+
+        .dark-mode .bulk-list {
+            border-color: #374151;
+        }
+
+        .dark-mode .bulk-row {
+            border-color: #374151;
+        }
+
+        .dark-mode .bulk-row select:disabled {
+            background: #1F2937;
+            color: #718096;
+        }
+
+        .dark-mode .review-stat {
+            background: #273449;
+            border-color: #374151;
+        }
+
+        .dark-mode .review-stat span,
+        .dark-mode .review-document p {
+            color: #AAB4C3;
+        }
+
+        .dark-mode .review-stat strong,
+        .dark-mode .review-document strong {
+            color: #F9FAFB;
+        }
+
+        .dark-mode .review-document {
+            border-color: #374151;
+        }
+
+        .dark-mode .review-notice {
+            background: #273B60;
+            border-color: #405A82;
+            color: #D5E3FF;
+        }
+
+        .dark-mode .tv-secondary {
+            background: #273449;
+            color: #A9C2FF;
+            border-color: #526783;
+        }
+
+        .dark-mode .tv-danger {
+            background: #442B31;
+            color: #FCA5A5;
+            border-color: #70434A;
+        }
+
+        .dark-mode .private-label {
+            background: #374151;
+            color: #D1D5DB;
+        }
+
+        .dark-mode .empty-state strong {
+            color: #E5E7EB;
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width: 1000px) {
+            .review-grid {
+                grid-template-columns: repeat(2,minmax(0,1fr));
+            }
+        }
+
+        @media(max-width: 750px) {
+            .upload-section {
+                padding: 18px;
+            }
+
+            .add-member-row {
+                grid-template-columns: 1fr 130px;
+            }
+
+            .add-member-row button {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media(max-width: 520px) {
+            .document-top {
+                flex-direction: column;
+            }
+
+            .document-top > button {
+                align-self: flex-end;
+            }
+
+            .share-entry {
+                grid-template-columns: 1fr 110px;
+            }
+
+            .share-entry button {
+                grid-column: 1 / -1;
+                justify-self: start;
+            }
+
+            .add-member-row {
+                grid-template-columns: 1fr;
+            }
+
+            .bulk-row {
+                grid-template-columns: 22px minmax(0,1fr);
+            }
+
+            .bulk-row select {
+                grid-column: 2;
+            }
+
+            .review-grid {
+                grid-template-columns: repeat(2,minmax(0,1fr));
+            }
+
+            .page-actions {
+                flex-direction: column;
+            }
+
+            .page-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-page">
+
+<div class="dashboard-container">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h2>TrustVault</h2>
+            <p>Secure Document Sharing</p>
+        </div>
+
+        <p class="user-role">DOCUMENT OWNER</p>
+
+        <nav class="sidebar-nav">
+            <a href="owner-dashboard.html">Dashboard</a>
+            <a href="my-documents.html">My Documents</a>
+            <a href="upload-document.html" class="active">Upload Documents</a>
+            <a href="profile.html">My Profile</a>
+            <a href="settings.html">Settings</a>
+        </nav>
+
+        <a href="login.html" class="logout-link">Logout</a>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <h1>Upload Documents</h1>
+                <p>Upload, organise and manage document access.</p>
+            </div>
+
+            <div class="topbar-user">
+                <div class="user-avatar">O</div>
+                <span>Document Owner</span>
+            </div>
+        </header>
+
+        <div class="upload-page">
+
+            <div class="page-intro">
+                <h2>Upload your documents</h2>
+                <p>Select files and decide who can access each document.</p>
+            </div>
+
+            <!-- STEP 1 -->
+            <section class="upload-section">
+
+                <h3 class="section-title">Select Documents</h3>
+
+                <p class="section-subtitle">
+                    Choose files from your device or drag and drop them below.
+                </p>
+
+                <label class="upload-dropzone" id="dropzone"
+                    for="fileInput">
+
+                    <div class="upload-icon">↑</div>
+
+                    <h3>Drag and drop your files here</h3>
+
+                    <p>or browse files from your computer</p>
+
+                    <span class="browse-button">Browse Files</span>
+
+                    <input
+                        type="file"
+                        id="fileInput"
+                        multiple
+                        accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png"
+                    >
+
+                </label>
+
+                <p class="upload-guidelines">
+                    PDF, DOC, DOCX, PPT, PPTX, TXT, JPG, JPEG, PNG
+                    · Maximum 20 MB per file
+                </p>
+
+                <p id="selectionHint" class="upload-guidelines">
+                    No files selected yet.
+                </p>
+
+            </section>
+
+            <!-- STEP 2 -->
+            <section class="upload-section">
+
+                <div class="section-heading">
+                    <div>
+                        <h3 class="section-title">Selected Documents</h3>
+                        <p class="section-subtitle">
+                            Each document keeps its original filename.
+                        </p>
+                    </div>
+
+                    <button type="button"
+                        class="tv-btn tv-danger tv-small"
+                        id="clearAllButton">
+                        Clear All
+                    </button>
+                </div>
+
+                <div id="documentCards" class="document-list">
+
+                    <div class="empty-state">
+                        <strong>No documents selected</strong>
+                        Your selected files will appear here.
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- STEP 3 -->
+            <section class="upload-section">
+
+                <div class="bulk-intro">
+
+                    <div class="bulk-icon">⇄</div>
+
+                    <div>
+                        <h3>Share Multiple Documents</h3>
+
+                        <p>
+                            Share several documents with one member.
+                            Enter their email once and assign a different
+                            permission to each selected document.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div id="bulkDocumentList" class="bulk-list">
+
+                    <div class="empty-state">
+                        Select documents above to use bulk sharing.
+                    </div>
+
+                </div>
+
+                <div id="bulkControls" class="bulk-controls hidden">
+
+                    <p id="selectedCount" class="bulk-count">
+                        0 documents selected
+                    </p>
+
+                    <label class="form-label" for="bulkEmail">
+                        Member's Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="bulkEmail"
+                        class="form-control"
+                        placeholder="Enter registered member's email"
+                    >
+
+                    <p class="upload-guidelines" style="text-align:left">
+                        Choose Read Only or Edit separately for each document.
+                    </p>
+
+                    <div class="page-actions">
+
+                        <button type="button"
+                            class="tv-btn tv-secondary"
+                            id="clearBulkSelectionButton">
+                            Clear Selection
+                        </button>
+
+                        <button type="button"
+                            class="tv-btn tv-primary"
+                            id="bulkShareButton">
+                            Share Selected Documents
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- STEP 4 -->
+            <section class="upload-section">
+
+                <h3 class="section-title">Final Review</h3>
+
+                <p class="section-subtitle">
+                    Check your documents and sharing permissions before confirming.
+                </p>
+
+                <div class="review-grid">
+
+                    <div class="review-stat">
+                        <span>Total Documents</span>
+                        <strong id="totalDocuments">0</strong>
+                    </div>
+
+                    <div class="review-stat">
+                        <span>Private Documents</span>
+                        <strong id="privateDocuments">0</strong>
+                    </div>
+
+                    <div class="review-stat">
+                        <span>Shared Documents</span>
+                        <strong id="sharedDocuments">0</strong>
+                    </div>
+
+                    <div class="review-stat">
+                        <span>Sharing Entries</span>
+                        <strong id="totalShares">0</strong>
+                    </div>
+
+                </div>
+
+                <div id="reviewDetails" class="review-details">
+                    <div class="empty-state">
+                        Your review summary will appear here.
+                    </div>
+                </div>
+
+                <div class="review-notice">
+                    <strong>Security reminder:</strong>
+                    Documents are private by default. Only the members
+                    explicitly granted access should be able to read or
+                    edit them. Actual member verification, file uploading
+                    and permission enforcement require backend integration.
+                </div>
+
+                <div class="page-actions">
+
+                    <button type="button"
+                        class="tv-btn tv-secondary"
+                        id="cancelButton">
+                        Clear Page
+                    </button>
+
+                    <button type="button"
+                        class="tv-btn tv-primary"
+                        id="submitButton">
+                        Review and Confirm
+                    </button>
+
+                </div>
+
+                <p id="statusMessage" class="status-message"
+                    role="status" aria-live="polite"></p>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+    const fileInput = document.getElementById("fileInput");
+    const dropzone = document.getElementById("dropzone");
+    const documentCards = document.getElementById("documentCards");
+    const bulkDocumentList = document.getElementById("bulkDocumentList");
+
+    let documents = [];
+    let nextDocumentId = 1;
+
+    const MAX_FILE_SIZE = 20 * 1024 * 1024;
+
+    const allowedExtensions = [
+        "pdf", "doc", "docx", "ppt", "pptx",
+        "txt", "jpg", "jpeg", "png"
+    ];
+
+    function formatSize(bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024)
+            return (bytes / 1024).toFixed(1) + " KB";
+
+        return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+    }
+
+    function getExtension(filename) {
+        return filename.split(".").pop().toLowerCase();
+    }
+
+    function isValidEmail(email) {
+        return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/.test(email);
+    }
+
+    function escapeHTML(value) {
+        return String(value).replace(/[&<>"']/g, char => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[char]);
+    }
+
+    function showStatus(message, type = "success") {
+        const status = document.getElementById("statusMessage");
+
+        status.textContent = message;
+        status.className = "status-message " +
+            (type === "error" ? "status-error" : "status-success");
+    }
+
+    function addFiles(files) {
+        let addedCount = 0;
+        let rejectedCount = 0;
+
+        for (const file of files) {
+
+            const extension = getExtension(file.name);
+
+            if (!allowedExtensions.includes(extension)) {
+                alert(file.name + " has an unsupported file format.");
+                rejectedCount++;
+                continue;
+            }
+
+            if (file.size > MAX_FILE_SIZE) {
+                alert(file.name + " exceeds the 20 MB file size limit.");
+                rejectedCount++;
+                continue;
+            }
+
+            const duplicate = documents.some(doc =>
+                doc.file.name === file.name &&
+                doc.file.size === file.size &&
+                doc.file.lastModified === file.lastModified
+            );
+
+            if (duplicate) {
+                alert(file.name + " is already selected.");
+                rejectedCount++;
+                continue;
+            }
+
+            documents.push({
+                id: nextDocumentId++,
+                file: file,
+                name: file.name,
+                users: [],
+                bulkSelected: false,
+                bulkPermission: "read"
+            });
+
+            addedCount++;
+        }
+
+        renderAll();
+
+        document.getElementById("selectionHint").textContent =
+            addedCount + " file(s) added" +
+            (rejectedCount ? " · " + rejectedCount + " file(s) not added." : ".");
+
+        fileInput.value = "";
+
+        if (addedCount > 0) {
+            showStatus(addedCount + " document(s) added successfully.");
+
+            document.getElementById("documentCards").scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    }
+
+    fileInput.addEventListener("change", function () {
+        addFiles(this.files);
+    });
+
+    /* DRAG AND DROP */
+
+    ["dragenter", "dragover"].forEach(eventName => {
+        dropzone.addEventListener(eventName, event => {
+            event.preventDefault();
+            dropzone.classList.add("dragging");
+        });
+    });
+
+    ["dragleave", "drop"].forEach(eventName => {
+        dropzone.addEventListener(eventName, event => {
+            event.preventDefault();
+            dropzone.classList.remove("dragging");
+        });
+    });
+
+    dropzone.addEventListener("drop", event => {
+        addFiles(event.dataTransfer.files);
+    });
+
+    /* INDIVIDUAL SHARING */
+
+    function addUser(documentId) {
+        const emailInput = document.getElementById("email-" + documentId);
+        const permissionInput = document.getElementById("permission-" + documentId);
+
+        const email = emailInput.value.trim().toLowerCase();
+        const permission = permissionInput.value;
+
+        if (!isValidEmail(email)) {
+            alert("Please enter a valid email address.");
+            return;
+        }
+
+        const doc = documents.find(item => item.id === documentId);
+
+        if (!doc) return;
+
+        if (doc.users.some(user => user.email === email)) {
+            alert("This member already has access to this document.");
+            return;
+        }
+
+        doc.users.push({ email, permission });
+
+        renderAll();
+        showStatus("Member added to " + doc.name + ".");
+    }
+
+    function removeUser(documentId, userIndex) {
+        const doc = documents.find(item => item.id === documentId);
+
+        if (!doc) return;
+
+        doc.users.splice(userIndex, 1);
+
+        renderAll();
+        showStatus("Member access entry removed.");
+    }
+
+    function updateUserPermission(documentId, userIndex, permission) {
+        const doc = documents.find(item => item.id === documentId);
+
+        if (!doc || !doc.users[userIndex]) return;
+
+        doc.users[userIndex].permission = permission;
+
+        renderAll();
+        showStatus("Permission updated for " + doc.name + ".");
+    }
+
+    function removeDocument(documentId) {
+        documents = documents.filter(doc => doc.id !== documentId);
+
+        renderAll();
+        showStatus("Document removed from the selection.");
+    }
+
+    /* BULK SHARING */
+
+    function updateBulkSelection(documentId, checked) {
+        const doc = documents.find(item => item.id === documentId);
+
+        if (!doc) return;
+
+        doc.bulkSelected = checked;
+
+        renderBulkSharing();
+    }
+
+    function updateBulkPermission(documentId, permission) {
+        const doc = documents.find(item => item.id === documentId);
+
+        if (!doc) return;
+
+        doc.bulkPermission = permission;
+    }
+
+    function addBulkSharing() {
+        const email = document.getElementById("bulkEmail")
+            .value.trim().toLowerCase();
+
+        if (!isValidEmail(email)) {
+            alert("Please enter a valid member email address.");
+            return;
+        }
+
+        const selectedDocuments = documents.filter(doc => doc.bulkSelected);
+
+        if (selectedDocuments.length === 0) {
+            alert("Please select at least one document.");
+            return;
+        }
+
+        /*
+          Existing access is updated instead of creating
+          duplicate entries for the same member.
+        */
+
+        selectedDocuments.forEach(doc => {
+
+            const existingUser = doc.users.find(
+                user => user.email === email
+            );
+
+            if (existingUser) {
+                existingUser.permission = doc.bulkPermission;
+            } else {
+                doc.users.push({
+                    email: email,
+                    permission: doc.bulkPermission
+                });
+            }
+
+            doc.bulkSelected = false;
+        });
+
+        document.getElementById("bulkEmail").value = "";
+
+        renderAll();
+
+        showStatus(
+            "Sharing permissions added or updated for " +
+            selectedDocuments.length + " document(s)."
+        );
+    }
+
+    function clearBulkSelection() {
+        documents.forEach(doc => {
+            doc.bulkSelected = false;
+        });
+
+        renderBulkSharing();
+    }
+
+    /* RENDER DOCUMENTS */
+
+    function renderDocuments() {
+
+        if (documents.length === 0) {
+            documentCards.innerHTML = `
+                <div class="empty-state">
+                    <strong>No documents selected</strong>
+                    Your selected files will appear here.
+                </div>`;
+            return;
+        }
+
+        documentCards.innerHTML = documents.map((doc, index) => `
+
+            <article class="document-card">
+
+                <div class="document-top">
+
+                    <div class="document-identity">
+
+                        <div class="file-icon">
+                            ${escapeHTML(getExtension(doc.name))}
+                        </div>
+
+                        <div>
+                            <h3 class="document-name">
+                                ${escapeHTML(doc.name)}
+                            </h3>
+
+                            <p class="document-meta">
+                                Document ${index + 1}
+                                &nbsp; · &nbsp;
+                                ${formatSize(doc.file.size)}
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <button type="button"
+                        class="tv-btn tv-danger tv-small"
+                        data-action="remove-document"
+                        data-id="${doc.id}">
+                        Remove
+                    </button>
+
+                </div>
+
+                <div class="document-divider"></div>
+
+                <div class="sharing-heading">
+
+                    <h4>Sharing Settings</h4>
+
+                    <span class="${doc.users.length ? "shared-label" : "private-label"}">
+                        ${doc.users.length ? "Shared" : "Private"}
+                    </span>
+
+                </div>
+
+                ${doc.users.length === 0
+                    ? `<p class="private-message">
+                        This document is private. No members have access.
+                       </p>`
+                    : doc.users.map((user, userIndex) => `
+
+                        <div class="share-entry">
+
+                            <span class="share-email">
+                                ${escapeHTML(user.email)}
+                            </span>
+
+                            <select
+                                aria-label="Permission for ${escapeHTML(user.email)}"
+                                data-action="individual-permission"
+                                data-id="${doc.id}"
+                                data-index="${userIndex}">
+
+                                <option value="read"
+                                    ${user.permission === "read" ? "selected" : ""}>
+                                    Read Only
+                                </option>
+
+                                <option value="edit"
+                                    ${user.permission === "edit" ? "selected" : ""}>
+                                    Edit
+                                </option>
+
+                            </select>
+
+                            <button type="button"
+                                class="tv-btn tv-danger tv-small"
+                                data-action="remove-user"
+                                data-id="${doc.id}"
+                                data-index="${userIndex}">
+                                Remove
+                            </button>
+
+                        </div>
+
+                    `).join("")
+                }
+
+                <div class="document-divider"></div>
+
+                <div class="add-member-row">
+
+                    <div>
+                        <label class="form-label"
+                            for="email-${doc.id}">
+                            Member Email
+                        </label>
+
+                        <input
+                            type="email"
+                            class="form-control"
+                            id="email-${doc.id}"
+                            placeholder="Enter registered member's email">
+                    </div>
+
+                    <div>
+                        <label class="form-label"
+                            for="permission-${doc.id}">
+                            Permission
+                        </label>
+
+                        <select class="form-control"
+                            id="permission-${doc.id}">
+
+                            <option value="read">Read Only</option>
+                            <option value="edit">Edit</option>
+
+                        </select>
+                    </div>
+
+                    <button type="button"
+                        class="tv-btn tv-secondary"
+                        data-action="add-user"
+                        data-id="${doc.id}">
+                        + Add Member
+                    </button>
+
+                </div>
+
+            </article>
+
+        `).join("");
+    }
+
+    /* DOCUMENT CARD EVENTS */
+
+    documentCards.addEventListener("click", event => {
+
+        const button = event.target.closest("[data-action]");
+
+        if (!button) return;
+
+        const id = Number(button.dataset.id);
+        const action = button.dataset.action;
+
+        if (action === "remove-document") {
+            removeDocument(id);
+        }
+
+        if (action === "add-user") {
+            addUser(id);
+        }
+
+        if (action === "remove-user") {
+            removeUser(id, Number(button.dataset.index));
+        }
+    });
+
+    documentCards.addEventListener("change", event => {
+
+        if (event.target.dataset.action === "individual-permission") {
+
+            updateUserPermission(
+                Number(event.target.dataset.id),
+                Number(event.target.dataset.index),
+                event.target.value
+            );
+        }
+    });
+
+    /* RENDER BULK SHARING */
+
+    function renderBulkSharing() {
+
+        if (documents.length === 0) {
+
+            bulkDocumentList.innerHTML = `
+                <div class="empty-state">
+                    Select documents above to use bulk sharing.
+                </div>`;
+
+            document.getElementById("bulkControls")
+                .classList.add("hidden");
+
+            return;
+        }
+
+        bulkDocumentList.innerHTML = documents.map(doc => `
+
+            <div class="bulk-row">
+
+                <input
+                    type="checkbox"
+                    aria-label="Select ${escapeHTML(doc.name)}"
+                    data-action="bulk-checkbox"
+                    data-id="${doc.id}"
+                    ${doc.bulkSelected ? "checked" : ""}
+                >
+
+                <div>
+                    <span class="bulk-file-name">
+                        ${escapeHTML(doc.name)}
+                    </span>
+
+                    <span class="bulk-file-size">
+                        ${formatSize(doc.file.size)}
+                    </span>
+                </div>
+
+                <select
+                    data-action="bulk-permission"
+                    data-id="${doc.id}"
+                    ${doc.bulkSelected ? "" : "disabled"}>
+
+                    <option value="read"
+                        ${doc.bulkPermission === "read" ? "selected" : ""}>
+                        Read Only
+                    </option>
+
+                    <option value="edit"
+                        ${doc.bulkPermission === "edit" ? "selected" : ""}>
+                        Edit
+                    </option>
+
+                </select>
+
+            </div>
+
+        `).join("");
+
+        const selectedCount = documents.filter(
+            doc => doc.bulkSelected
+        ).length;
+
+        document.getElementById("selectedCount").textContent =
+            selectedCount + " document(s) selected";
+
+        document.getElementById("bulkControls")
+            .classList.toggle("hidden", selectedCount === 0);
+    }
+
+    bulkDocumentList.addEventListener("change", event => {
+
+        const id = Number(event.target.dataset.id);
+
+        if (event.target.dataset.action === "bulk-checkbox") {
+            updateBulkSelection(id, event.target.checked);
+        }
+
+        if (event.target.dataset.action === "bulk-permission") {
+            updateBulkPermission(id, event.target.value);
+        }
+    });
+
+    /* FINAL REVIEW */
+
+    function renderReview() {
+
+        const privateCount = documents.filter(
+            doc => doc.users.length === 0
+        ).length;
+
+        const sharedCount = documents.length - privateCount;
+
+        const totalShares = documents.reduce(
+            (total, doc) => total + doc.users.length, 0
+        );
+
+        document.getElementById("totalDocuments").textContent =
+            documents.length;
+
+        document.getElementById("privateDocuments").textContent =
+            privateCount;
+
+        document.getElementById("sharedDocuments").textContent =
+            sharedCount;
+
+        document.getElementById("totalShares").textContent =
+            totalShares;
+
+        const reviewDetails = document.getElementById("reviewDetails");
+
+        if (documents.length === 0) {
+
+            reviewDetails.innerHTML = `
+                <div class="empty-state">
+                    Your review summary will appear here.
+                </div>`;
+
+            return;
+        }
+
+        reviewDetails.innerHTML = documents.map(doc => `
+
+            <div class="review-document">
+
+                <strong>${escapeHTML(doc.name)}</strong>
+
+                ${doc.users.length === 0
+                    ? `<p>Private · No members have access</p>`
+                    : doc.users.map(user => `
+                        <p>
+                            ${escapeHTML(user.email)}
+                            — ${user.permission === "read" ? "Read Only" : "Edit"}
+                        </p>
+                    `).join("")
+                }
+
+            </div>
+
+        `).join("");
+    }
+
+    function renderAll() {
+        renderDocuments();
+        renderBulkSharing();
+        renderReview();
+    }
+
+    /* BUTTON EVENTS */
+
+    document.getElementById("bulkShareButton")
+        .addEventListener("click", addBulkSharing);
+
+    document.getElementById("clearBulkSelectionButton")
+        .addEventListener("click", clearBulkSelection);
+
+    document.getElementById("clearAllButton")
+        .addEventListener("click", function () {
+
+            if (documents.length === 0) return;
+
+            if (confirm("Remove all selected documents and sharing settings?")) {
+
+                documents = [];
+                renderAll();
+
+                document.getElementById("selectionHint").textContent =
+                    "No files selected yet.";
+
+                showStatus("All selected documents have been removed.");
+            }
+        });
+
+    document.getElementById("cancelButton")
+        .addEventListener("click", function () {
+
+            if (documents.length === 0) return;
+
+            if (confirm("Clear all documents and sharing settings?")) {
+
+                documents = [];
+                renderAll();
+
+                document.getElementById("selectionHint").textContent =
+                    "No files selected yet.";
+
+                showStatus("The page has been cleared.");
+            }
+        });
+
+    document.getElementById("submitButton")
+        .addEventListener("click", function () {
+
+            if (documents.length === 0) {
+                showStatus("Please select at least one document.", "error");
+                return;
+            }
+
+            const pendingBulk = documents.some(doc => doc.bulkSelected);
+
+            if (pendingBulk) {
+                showStatus(
+                    "Complete or clear your bulk selection before confirming.",
+                    "error"
+                );
+                return;
+            }
+
+            showStatus(
+                "Review successful! Your documents and sharing settings are ready. " +
+                "Actual uploading and sharing will be enabled after backend integration."
+            );
+
+            document.getElementById("reviewDetails").scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+        });
+
+    renderAll();
+
+</script>
+
+<script src="settings.js"></script>
+
+</body>
+</html>

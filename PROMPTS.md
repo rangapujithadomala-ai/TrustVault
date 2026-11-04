@@ -52,4 +52,23 @@
 
 **Verification:** Reviewed the five Viewer pages and checked the navigation, page structure and theme functionality. The pages currently use sample data and require backend integration.
 
-**Related GitHub commit:** To be added after committing the Viewer frontend changes.
+**Commit Link:** https://github.com/rangapujithadomala-ai/TrustVault/commit/becdd1d
+
+
+
+
+## Entry 4 – November 4, 2026
+
+**Task:** Developing the frontend pages for the Owner role.
+
+**Prompt:** Asked AI to guide me in creating the Owner dashboard, My Documents, Upload Document, Shared Documents, Activity, Profile and Settings pages for TrustVault.
+
+**AI output:** AI provided HTML structures, CSS styling and JavaScript guidance for the Owner pages, including document management, individual document-sharing permissions, sharing history, activity tracking, profile validation, account settings and appearance modes.
+
+**What needed correction:** The dark mode did not update text colors correctly, and the Shared Documents and Activity tables occupied excessive space. The Settings page initially contained only the Appearance section instead of all six agreed sections.
+
+**What I did:** Reviewed the generated code, corrected dark-mode text visibility, added compact table styling and expanded the Settings page to include Appearance, Notifications, Security, Privacy, Document Preferences and Account Preferences.
+
+**Verification:** Reviewed the Owner frontend pages and their navigation and appearance settings. Further visual testing and backend integration are still pending. Notification, security and privacy controls are currently frontend preferences.
+
+**Commit Link:** Pending

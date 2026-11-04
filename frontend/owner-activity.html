@@ -1,0 +1,226 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity | TrustVault</title>
+    <link rel="stylesheet" href="dashboard.css">
+
+    <style>
+        .activity-content {
+            padding: 25px;
+        }
+
+        .activity-header {
+            margin-bottom: 25px;
+        }
+
+        .activity-header h1 {
+            margin-bottom: 8px;
+        }
+
+        .activity-header p {
+            color: #777;
+        }
+
+        .activity-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .activity-controls input,
+        .activity-controls select {
+            padding: 11px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--card-bg, white);
+            color: inherit;
+        }
+
+        .activity-controls input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .activity-table-container {
+            background: var(--card-bg, white);
+            border-radius: 12px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+
+        .activity-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+
+        .activity-table th,
+        .activity-table td {
+            padding: 16px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .activity-table th {
+            color: #777;
+            font-size: 13px;
+        }
+
+        .activity-table td {
+            font-size: 14px;
+        }
+
+        .activity-type {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            background: #e8f0ff;
+            color: #2458a6;
+        }
+
+        .empty-message {
+            text-align: center !important;
+            padding: 30px !important;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .activity-content {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard-container">
+
+        <!-- Existing TrustVault Sidebar -->
+        <aside class="sidebar">
+
+            <div class="sidebar-brand">
+                <h2>TrustVault</h2>
+                <span>Document Owner</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="owner-dashboard.html">Overview</a>
+                <a href="my-documents.html">My Documents</a>
+                <a href="owner-shared-documents.html">Shared Documents</a>
+                <a href="owner-activity.html" class="active">Activity</a>
+                <a href="owner-profile.html">My Profile</a>
+                <a href="owner-settings.html">Settings</a>
+                <a href="login.html">Logout</a>
+            </nav>
+
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <section class="activity-content">
+
+                <div class="activity-header">
+                    <h1>Activity Log</h1>
+                    <p>Track who accessed your documents and what actions they performed.</p>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="activity-controls">
+
+                    <input
+                        type="text"
+                        id="activitySearch"
+                        placeholder="Search document or user..."
+                    >
+
+                    <select id="activityFilter">
+                        <option value="all">All Activities</option>
+                        <option value="viewed">Viewed</option>
+                        <option value="downloaded">Downloaded</option>
+                        <option value="edited">Edited</option>
+                        <option value="shared">Shared</option>
+                        <option value="revoked">Access Revoked</option>
+                    </select>
+
+                </div>
+
+                <!-- Activity Table -->
+                <div class="activity-table-container">
+
+                    <table class="activity-table">
+
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Document</th>
+                                <th>Activity</th>
+                                <th>Date & Time</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="activityTableBody">
+                            <tr>
+                                <td colspan="4" class="empty-message">
+                                    No activity recorded yet.
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script>
+        const activitySearch = document.getElementById("activitySearch");
+        const activityFilter = document.getElementById("activityFilter");
+
+        function filterActivities() {
+            const searchText = activitySearch.value.toLowerCase();
+            const selectedType = activityFilter.value;
+
+            const rows = document.querySelectorAll(
+                "#activityTableBody tr"
+            );
+
+            rows.forEach(row => {
+                const rowText = row.textContent.toLowerCase();
+                const activityCell = row.cells[2];
+
+                if (!activityCell) return;
+
+                const activityText = activityCell.textContent
+                    .trim()
+                    .toLowerCase();
+
+                const matchesSearch = rowText.includes(searchText);
+                const matchesType =
+                    selectedType === "all" ||
+                    activityText === selectedType;
+
+                row.style.display =
+                    matchesSearch && matchesType ? "" : "none";
+            });
+        }
+
+        activitySearch.addEventListener("input", filterActivities);
+        activityFilter.addEventListener("change", filterActivities);
+    </script>
+
+    <script src="settings.js"></script>
+
+</body>
+</html>

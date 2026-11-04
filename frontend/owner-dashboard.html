@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustVault | Owner Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body class="dashboard-page">
+    <div class="dashboard-container">
+
+        <aside class="sidebar">
+            <div class="brand">
+                <h2>TrustVault</h2>
+                <p>Secure Document Sharing</p>
+            </div>
+
+            <div class="user-role">DOCUMENT OWNER</div>
+
+            <nav class="sidebar-nav">
+                <a href="owner-dashboard.html" class="active">Overview</a>
+                <a href="my-documents.html">My Documents</a>
+                <a href="shared-documents.html">Shared Documents</a>
+                <a href="owner-activity.html">Activity</a>
+                <a href="owner-profile.html">My Profile</a>
+                <a href="owner-settings.html">Settings</a>
+            </nav>
+
+            <a href="login.html" class="logout-link">Logout</a>
+        </aside>
+
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <h1>Owner Dashboard</h1>
+                    <p>Manage your documents and sharing permissions.</p>
+                </div>
+
+                <div class="topbar-user">
+                    <span>Document Owner</span>
+                </div>
+            </header>
+
+            <!-- Summary Cards -->
+            <section class="stats-grid">
+
+                <div class="stat-card">
+                    <p>Total Documents</p>
+                    <h2>12</h2>
+                </div>
+
+                <div class="stat-card">
+                    <p>Shared Documents</p>
+                    <h2>08</h2>
+                </div>
+
+                <div class="stat-card">
+                    <p>Documents with Edit Access</p>
+                    <h2>03</h2>
+                </div>
+
+                <div class="stat-card">
+                    <p>Pending Access Requests</p>
+                    <h2>02</h2>
+                </div>
+
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="dashboard-section">
+                <div class="section-heading">
+                    <div>
+                        <h2>Quick Actions</h2>
+                        <p class="section-description">
+                            Manage your documents easily.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="owner-actions">
+                        <a href="my-documents.html" class="primary-button">
+                            Upload Document
+                        </a>
+
+                        <a href="my-documents.html" class="secondary-button">
+                            Manage Documents
+                        </a>
+
+                        <a href="shared-documents.html" class="secondary-button">
+                            Manage Sharing
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Documents -->
+            <section class="dashboard-section">
+                <div class="section-heading">
+                    <div>
+                        <h2>My Recent Documents</h2>
+                        <p class="section-description">
+                            Recently uploaded documents and their permissions.
+                        </p>
+                    </div>
+
+                    <a href="my-documents.html" class="view-all-link">
+                        View All
+                    </a>
+                </div>
+
+                <div class="table-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Document Name</th>
+                                <th>Date Uploaded</th>
+                                <th>Shared With</th>
+                                <th>Permission</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td>Project Report.pdf</td>
+                                <td>28 Oct 2026</td>
+                                <td>2 Users</td>
+                                <td><span class="permission-badge read">Read</span></td>
+                                <td><a href="my-documents.html">Manage</a></td>
+                            </tr>
+
+                            <tr>
+                                <td>Research Document.docx</td>
+                                <td>27 Oct 2026</td>
+                                <td>1 User</td>
+                                <td><span class="permission-badge edit">Edit</span></td>
+                                <td><a href="my-documents.html">Manage</a></td>
+                            </tr>
+
+                            <tr>
+                                <td>Presentation.pptx</td>
+                                <td>25 Oct 2026</td>
+                                <td>3 Users</td>
+                                <td><span class="permission-badge read">Read</span></td>
+                                <td><a href="my-documents.html">Manage</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Recent Activity -->
+            <section class="dashboard-section">
+                <div class="section-heading">
+                    <div>
+                        <h2>Recent Activity</h2>
+                        <p class="section-description">
+                            Recent actions performed on your documents.
+                        </p>
+                    </div>
+
+                    <a href="owner-activity.html" class="view-all-link">
+                        View All
+                    </a>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-item">
+                        <div>
+                            <strong>Document uploaded</strong>
+                            <p>Project Report.pdf was uploaded.</p>
+                        </div>
+                        <span>Today</span>
+                    </div>
+
+                    <div class="activity-item">
+                        <div>
+                            <strong>Document shared</strong>
+                            <p>Research Document.docx was shared with a viewer.</p>
+                        </div>
+                        <span>Yesterday</span>
+                    </div>
+
+                    <div class="activity-item">
+                        <div>
+                            <strong>Permission updated</strong>
+                            <p>Edit access was granted to a viewer.</p>
+                        </div>
+                        <span>2 days ago</span>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="settings.js"></script>
+</body>
+</html>

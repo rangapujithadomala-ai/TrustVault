@@ -900,3 +900,268 @@ td a:hover {
     background: #14532d;
     color: #bbf7d0;
 }
+/* Upload Document Link Button */
+.owner-actions a.primary-button {
+    display: inline-block;
+    padding: 11px 18px;
+    background: #356AE6;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 7px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.owner-actions a.primary-button:hover {
+    background: #2855BD;
+}
+/* My Documents - Upload Button */
+.main-content .owner-actions .primary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    background-color: #356AE6;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.main-content .owner-actions .primary-button:hover {
+    background-color: #2855BD;
+}
+/* Upload Document Button - My Documents */
+.owner-actions .primary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    background: #356AE6;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 7px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.owner-actions .primary-button:hover {
+    background: #2855BD;
+}
+
+/* =====================================
+   TRUSTVAULT - COMPLETE DARK MODE FIX
+   Applies to all Owner dashboard pages
+===================================== */
+
+body.dashboard-page.dark-mode {
+    background-color: #111827 !important;
+    color: #e5e7eb !important;
+}
+
+/* Make all text readable in dark mode */
+body.dashboard-page.dark-mode * {
+    color: #e5e7eb !important;
+}
+
+/* Main content backgrounds */
+body.dashboard-page.dark-mode .main-content {
+    background-color: #111827 !important;
+}
+
+/* Cards, tables and content sections */
+body.dashboard-page.dark-mode .content-card,
+body.dashboard-page.dark-mode .stat-card,
+body.dashboard-page.dark-mode .table-container,
+body.dashboard-page.dark-mode .activity-card,
+body.dashboard-page.dark-mode .profile-card,
+body.dashboard-page.dark-mode .settings-card {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+}
+
+/* Headings */
+body.dashboard-page.dark-mode h1,
+body.dashboard-page.dark-mode h2,
+body.dashboard-page.dark-mode h3,
+body.dashboard-page.dark-mode h4,
+body.dashboard-page.dark-mode .topbar h1 {
+    color: #f9fafb !important;
+}
+
+/* Paragraphs and descriptions */
+body.dashboard-page.dark-mode p,
+body.dashboard-page.dark-mode label,
+body.dashboard-page.dark-mode span,
+body.dashboard-page.dark-mode small {
+    color: #d1d5db !important;
+}
+
+/* Tables */
+body.dashboard-page.dark-mode table {
+    background-color: #1f2937 !important;
+}
+
+body.dashboard-page.dark-mode th {
+    background-color: #273449 !important;
+    color: #f9fafb !important;
+}
+
+body.dashboard-page.dark-mode td {
+    color: #e5e7eb !important;
+    border-color: #374151 !important;
+}
+
+/* Inputs and text areas */
+body.dashboard-page.dark-mode input,
+body.dashboard-page.dark-mode textarea,
+body.dashboard-page.dark-mode select {
+    background-color: #273449 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+
+body.dashboard-page.dark-mode input::placeholder,
+body.dashboard-page.dark-mode textarea::placeholder {
+    color: #9ca3af !important;
+    opacity: 1;
+}
+
+body.dashboard-page.dark-mode select option {
+    background-color: #273449 !important;
+    color: #f9fafb !important;
+}
+
+/* Links */
+body.dashboard-page.dark-mode a {
+    color: #93c5fd !important;
+}
+
+/* Buttons */
+body.dashboard-page.dark-mode button {
+    color: #f9fafb !important;
+}
+
+/* Search fields and document sections */
+body.dashboard-page.dark-mode .document-search input {
+    background-color: #273449 !important;
+    color: #f9fafb !important;
+}
+
+/* Sidebar */
+body.dashboard-page.dark-mode .sidebar {
+    background-color: #172033 !important;
+}
+
+body.dashboard-page.dark-mode .sidebar a,
+body.dashboard-page.dark-mode .sidebar h2,
+body.dashboard-page.dark-mode .sidebar span {
+    color: #f9fafb !important;
+}
+
+/* Smooth theme transition */
+body.dashboard-page,
+body.dashboard-page * {
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* =====================================
+   TRUSTVAULT - COMPACT TABLE DESIGN
+   Shared Documents and Activity
+===================================== */
+
+.table-container,
+.table-wrapper,
+.shared-table-container,
+.activity-table-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 !important;
+    margin-top: 18px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: none !important;
+    overflow-x: auto;
+}
+
+/* Compact table spacing */
+.table-container table,
+.table-wrapper table,
+.shared-table-container table,
+.activity-table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.table-container th,
+.table-wrapper th,
+.shared-table-container th,
+.activity-table-container th,
+.table-container td,
+.table-wrapper td,
+.shared-table-container td,
+.activity-table-container td {
+    padding: 12px 14px !important;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.table-container th,
+.table-wrapper th,
+.shared-table-container th,
+.activity-table-container th {
+    background: #f3f4f6;
+    font-weight: 600;
+}
+
+.table-container tr,
+.table-wrapper tr,
+.shared-table-container tr,
+.activity-table-container tr {
+    height: auto;
+}
+
+/* Dark mode table appearance */
+body.dark-mode .table-container,
+body.dark-mode .table-wrapper,
+body.dark-mode .shared-table-container,
+body.dark-mode .activity-table-container {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+}
+
+body.dark-mode .table-container th,
+body.dark-mode .table-wrapper th,
+body.dark-mode .shared-table-container th,
+body.dark-mode .activity-table-container th {
+    background: #273449 !important;
+}
+
+body.dark-mode .table-container td,
+body.dark-mode .table-wrapper td,
+body.dark-mode .shared-table-container td,
+body.dark-mode .activity-table-container td {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+}
+
+/* Keep empty messages compact */
+.table-container p,
+.table-wrapper p,
+.shared-table-container p,
+.activity-table-container p {
+    padding: 16px;
+    margin: 0;
+}

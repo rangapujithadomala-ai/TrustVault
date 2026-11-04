@@ -1,0 +1,195 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Documents | TrustVault</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <style>
+        .shared-content {
+            padding: 30px;
+            width: 100%;
+        }
+
+        .shared-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .shared-header h1 {
+            margin: 0 0 8px;
+        }
+
+        .shared-header p {
+            color: var(--muted-text, #777);
+            margin: 0;
+        }
+
+        .shared-search {
+            width: 100%;
+            max-width: 350px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .shared-table-container {
+            width: 100%;
+            overflow-x: auto;
+            background: var(--card-bg, #fff);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .shared-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        .shared-table th,
+        .shared-table td {
+            padding: 16px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .shared-table th {
+            color: #777;
+            font-size: 13px;
+        }
+
+        .shared-table td {
+            font-size: 14px;
+        }
+
+        .permission {
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 12px;
+            background: #e8f0ff;
+            color: #2458a6;
+        }
+
+        .revoke-button {
+            padding: 8px 13px;
+            border: none;
+            border-radius: 6px;
+            background: #ffe8e8;
+            color: #c62828;
+            cursor: pointer;
+        }
+
+        .revoke-button:hover {
+            background: #ffd4d4;
+        }
+
+        .empty-message {
+            text-align: center !important;
+            padding: 30px !important;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .shared-content {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard-container">
+
+        
+<aside class="sidebar">
+
+    <div class="sidebar-brand">
+        <h2>TrustVault</h2>
+        <span>Document Owner</span>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a href="owner-dashboard.html">Overview</a>
+        <a href="my-documents.html">My Documents</a>
+        <a href="owner-shared-documents.html" class="active">Shared Documents</a>
+        <a href="owner-activity.html">Activity</a>
+        <a href="owner-profile.html">My Profile</a>
+        <a href="owner-settings.html">Settings</a>
+        <a href="login.html">Logout</a>
+    </nav>
+
+</aside>
+
+
+        <main class="main-content">
+            <section class="shared-content">
+
+                <div class="shared-header">
+                    <div>
+                        <h1>Shared Documents</h1>
+                        <p>Manage documents you have shared with other members.</p>
+                    </div>
+                </div>
+
+                <input
+                    type="text"
+                    id="sharedSearch"
+                    class="shared-search"
+                    placeholder="Search document or recipient..."
+                >
+
+                <div class="shared-table-container">
+                    <table class="shared-table">
+                        <thead>
+                            <tr>
+                                <th>Document Name</th>
+                                <th>Shared With</th>
+                                <th>Permission</th>
+                                <th>Date Shared</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="sharedTableBody">
+                            <tr>
+                                <td colspan="6" class="empty-message">
+                                    No shared documents available yet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+        </main>
+
+    </div>
+
+    <script>
+        const searchInput = document.getElementById("sharedSearch");
+
+        searchInput.addEventListener("input", function () {
+            const searchValue = this.value.toLowerCase();
+            const rows = document.querySelectorAll("#sharedTableBody tr");
+
+            rows.forEach(function (row) {
+                const rowText = row.textContent.toLowerCase();
+                row.style.display = rowText.includes(searchValue) ? "" : "none";
+            });
+        });
+    </script>
+
+    <script src="settings.js"></script>
+
+</body>
+</html>
