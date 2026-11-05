@@ -1,229 +1,302 @@
 
-// ==================================
-// GET HTML ELEMENTS
-// ==================================
+document.addEventListener("DOMContentLoaded", function () {
 
-const registerForm = document.getElementById("registerForm");
+    // Form elements
+    const registerForm = document.getElementById("registerForm");
 
-const fullName = document.getElementById("fullName");
-const email = document.getElementById("email");
-const password = document.getElementById("password");
-const confirmPassword = document.getElementById("confirmPassword");
+    const fullNameInput = document.getElementById("fullName");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const confirmPasswordInput = document.getElementById("confirmPassword");
 
-const togglePassword = document.getElementById("togglePassword");
-const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
+    const togglePassword = document.getElementById("togglePassword");
+    const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
 
-const strengthIndicator = document.getElementById("strengthIndicator");
-const strengthText = document.getElementById("strengthText");
+    const message = document.getElementById("message");
+    const submitButton = document.getElementById("submitButton");
+const passwordMatchMessage = document.getElementById("confirmPasswordMessage");
+    const strengthBar = document.querySelector(".strength-bar span");
+    const strengthText = document.querySelector(".password-strength p");
 
-const message = document.getElementById("message");
-const submitButton = document.getElementById("submitButton");
+    if (!registerForm) {
+        console.error("Registration form not found.");
+        return;
+    }
 
-// ==================================
-// EYE ICONS
-// ==================================
+    // Display messages
+    function showMessage(text, type) {
+        message.textContent = text;
+        message.className = "message " + type;
+    }
 
-const eyeIcon = `
-<svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
-    <circle cx="12" cy="12" r="3"/>
-</svg>
-`;
+    // Show/hide password
+    function setupPasswordToggle(button, input) {
 
-const eyeOffIcon = `
-<svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M3 3l18 18"/>
-    <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/>
-    <path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6.5 0 10 7 10 7a15.5 15.5 0 0 1-3.1 3.8"/>
-    <path d="M6.2 6.2C3.5 8 2 12 2 12s3.5 7 10 7c1.1 0 2.1-.2 3-.5"/>
-</svg>
-`;
+        if (!button || !input) return;
 
-// ==================================
-// PASSWORD SHOW / HIDE FUNCTION
-// ==================================
+        button.addEventListener("click", function () {
 
-function setupPasswordToggle(button, input, fieldName) {
-    button.addEventListener("click", function () {
-        const isHidden = input.type === "password";
+            const isPassword = input.type === "password";
 
-        if (isHidden) {
-            input.type = "text";
-            button.innerHTML = eyeOffIcon;
-            button.setAttribute("aria-label", "Hide " + fieldName);
-            button.setAttribute("aria-pressed", "true");
-        } else {
-            input.type = "password";
-            button.innerHTML = eyeIcon;
-            button.setAttribute("aria-label", "Show " + fieldName);
-            button.setAttribute("aria-pressed", "false");
+            input.type = isPassword ? "text" : "password";
+
+            button.setAttribute(
+                "aria-label",
+                isPassword ? "Hide password" : "Show password"
+            );
+        });
+    }
+
+    setupPasswordToggle(togglePassword, passwordInput);
+    setupPasswordToggle(toggleConfirmPassword, confirmPasswordInput);
+
+
+    // Password strength calculation
+    function calculatePasswordStrength(password) {
+
+        let strength = 0;
+
+        if (password.length >= 8) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        return strength;
+    }
+
+
+    // Update password strength indicator
+    function updatePasswordStrength() {
+
+        const password = passwordInput.value;
+        const strength = calculatePasswordStrength(password);
+
+        const strengthLabels = [
+            "Enter a password",
+            "Very weak",
+            "Weak",
+            "Fair",
+            "Good",
+            "Strong"
+        ];
+
+        const strengthColors = [
+            "#e9eaf0",
+            "#dc3545",
+            "#fd7e14",
+            "#ffc107",
+            "#0d9488",
+            "#16a34a"
+        ];
+
+        if (strengthBar) {
+            strengthBar.style.width = (strength * 20) + "%";
+            strengthBar.style.background = strengthColors[strength];
         }
+
+        if (strengthText) {
+            strengthText.textContent = strengthLabels[strength];
+        }
+    }
+
+
+    passwordInput.addEventListener("input", function () {
+        updatePasswordStrength();
+        checkPasswordMatch();
     });
-}
 
-setupPasswordToggle(togglePassword, password, "password");
 
-setupPasswordToggle(
-    toggleConfirmPassword,
-    confirmPassword,
-    "confirm password"
-);
+    // Check password confirmation
+    function checkPasswordMatch() {
 
-// ==================================
-// PASSWORD STRENGTH CHECKER
-// ==================================
+        if (!confirmPasswordInput.value) {
 
-password.addEventListener("input", function () {
-    const value = password.value;
-    let score = 0;
+            if (passwordMatchMessage) {
+                passwordMatchMessage.textContent = "";
+                passwordMatchMessage.className = "password-match-message";
+            }
 
-    if (value.length >= 8) score++;
-    if (/[A-Z]/.test(value)) score++;
-    if (/[a-z]/.test(value)) score++;
-    if (/[0-9]/.test(value)) score++;
-    if (/[^A-Za-z0-9]/.test(value)) score++;
+            return false;
+        }
 
-    if (value.length === 0) {
-        strengthIndicator.style.width = "0";
-        strengthIndicator.style.background = "transparent";
-        strengthText.textContent = "Use at least 8 characters";
-    } else if (score <= 2) {
-        strengthIndicator.style.width = "25%";
-        strengthIndicator.style.background = "#e74c3c";
-        strengthText.textContent = "Weak password";
-    } else if (score <= 4) {
-        strengthIndicator.style.width = "65%";
-        strengthIndicator.style.background = "#f39c12";
-        strengthText.textContent = "Medium password";
-    } else {
-        strengthIndicator.style.width = "100%";
-        strengthIndicator.style.background = "#16a34a";
-        strengthText.textContent = "Strong password";
-    }
-});
+        if (passwordInput.value === confirmPasswordInput.value) {
 
-// ==================================
-// LIVE PASSWORD MATCH CHECK
-// ==================================
+            if (passwordMatchMessage) {
+                passwordMatchMessage.textContent = "Passwords match.";
+                passwordMatchMessage.className =
+                    "password-match-message success";
+            }
 
-const confirmPasswordMessage = document.getElementById(
-    "confirmPasswordMessage"
-);
+            return true;
 
-function checkPasswordMatch() {
-    const originalPassword = password.value;
-    const confirmValue = confirmPassword.value;
+        } else {
 
-    if (confirmValue.length === 0) {
-        confirmPasswordMessage.textContent = "";
-        confirmPasswordMessage.className = "password-match-message";
-        return;
+            if (passwordMatchMessage) {
+                passwordMatchMessage.textContent = "Passwords do not match.";
+                passwordMatchMessage.className =
+                    "password-match-message error";
+            }
+
+            return false;
+        }
     }
 
-    if (originalPassword === confirmValue) {
-        confirmPasswordMessage.textContent = "✓ Passwords match";
-        confirmPasswordMessage.className =
-            "password-match-message success";
-    } else {
-        confirmPasswordMessage.textContent = "✕ Passwords do not match";
-        confirmPasswordMessage.className =
-            "password-match-message error";
-    }
-}
 
-confirmPassword.addEventListener("input", checkPasswordMatch);
-password.addEventListener("input", checkPasswordMatch);
+    confirmPasswordInput.addEventListener("input", checkPasswordMatch);
 
-// ==================================
-// MESSAGE FUNCTION
-// ==================================
 
-function showMessage(text, type) {
-    message.textContent = text;
-    message.className = "message " + type;
-}
+    // Registration form submission
+    registerForm.addEventListener("submit", async function (event) {
 
-// ==================================
-// REGISTRATION FORM VALIDATION
-// ==================================
+        event.preventDefault();
 
-registerForm.addEventListener("submit", function (event) {
-    event.preventDefault();
+        message.className = "message";
 
-    const nameValue = fullName.value.trim();
-    const emailValue = email.value.trim();
-    const passwordValue = password.value;
-    const confirmValue = confirmPassword.value;
+        const name = fullNameInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
 
-    // Check empty fields
-    if (
-        !nameValue ||
-        !emailValue ||
-        !passwordValue ||
-        !confirmValue
-    ) {
-        showMessage("Please fill in all the fields.", "error");
-        return;
-    }
+        const namePattern = /^[A-Za-z]+(?:[ .'-][A-Za-z]+)*$/;
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    // Validate full name
-    // Allows letters, spaces and full stops only
-    const namePattern = /^[A-Za-z]+(?:[ .][A-Za-z]+)*\.?$/;
+        // Name validation
+        if (!name) {
+            showMessage("Please enter your full name.", "error");
+            fullNameInput.focus();
+            return;
+        }
 
-    if (!namePattern.test(nameValue)) {
-        showMessage(
-            "Name can contain only letters, spaces and full stops.",
-            "error"
-        );
-        return;
-    }
+        if (!namePattern.test(name)) {
+            showMessage("Please enter a valid full name.", "error");
+            fullNameInput.focus();
+            return;
+        }
 
-    // Validate email
-   const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z][A-Za-z0-9-]*(?:\.[A-Za-z][A-Za-z0-9-]*)*\.[A-Za-z]{2,}$/;
-    if (!emailPattern.test(emailValue)) {
-        showMessage(
-            "Please enter a valid email address.",
-            "error"
-        );
-        return;
-    }
+        // Email validation
+        if (!email) {
+            showMessage("Please enter your email address.", "error");
+            emailInput.focus();
+            return;
+        }
 
-    // Check password length
-    if (passwordValue.length < 8) {
-        showMessage(
-            "Password must contain at least 8 characters.",
-            "error"
-        );
-        return;
-    }
+        if (!emailPattern.test(email)) {
+            showMessage("Please enter a valid email address.", "error");
+            emailInput.focus();
+            return;
+        }
 
-    // Check password requirements
-    const strongPassword =
-        /[A-Z]/.test(passwordValue) &&
-        /[a-z]/.test(passwordValue) &&
-        /[0-9]/.test(passwordValue) &&
-        /[^A-Za-z0-9]/.test(passwordValue);
+        // Password validation
+        if (
+            password.length < 8 ||
+            !/[A-Z]/.test(password) ||
+            !/[a-z]/.test(password) ||
+            !/[0-9]/.test(password) ||
+            !/[^A-Za-z0-9]/.test(password)
+        ) {
+            showMessage(
+                "Password must contain at least 8 characters, uppercase, lowercase, number and special character.",
+                "error"
+            );
 
-    if (!strongPassword) {
-        showMessage(
-            "Use uppercase, lowercase, a number and a special character.",
-            "error"
-        );
-        return;
-    }
+            passwordInput.focus();
+            return;
+        }
 
-    // Check matching passwords
-    if (passwordValue !== confirmValue) {
-        showMessage(
-            "Passwords do not match. Please try again.",
-            "error"
-        );
-        return;
-    }
+        // Confirm password validation
+        if (!confirmPassword) {
+            showMessage("Please confirm your password.", "error");
+            confirmPasswordInput.focus();
+            return;
+        }
 
-    // Frontend validation completed
-    showMessage(
-        "Details validated! Account creation will be available after backend connection.",
-        "success"
-    );
+        if (password !== confirmPassword) {
+            showMessage("Passwords do not match.", "error");
+            confirmPasswordInput.focus();
+            return;
+        }
+
+        // Get CSRF token
+        const csrfToken = document.querySelector(
+            'meta[name="csrf-token"]'
+        )?.content;
+
+        if (!csrfToken) {
+            showMessage(
+                "Security token missing. Please refresh the page.",
+                "error"
+            );
+            return;
+        }
+
+        // Disable submit button
+        const originalButtonText = submitButton.textContent;
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Creating Account...";
+
+        try {
+
+            // Send registration request to Flask
+            const response = await fetch("/auth/register", {
+
+                method: "POST",
+
+                credentials: "same-origin",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    password: password,
+                    confirm_password: confirmPassword
+                })
+
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+
+                showMessage(
+                    data.message || "Registration failed. Please try again.",
+                    "error"
+                );
+
+                return;
+            }
+
+            showMessage(
+                data.message || "Account created. Please check your email for verification instructions.",
+                "success"
+            );
+
+            // Follow a redirect only if Flask explicitly provides one
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+
+        } catch (error) {
+
+            console.error("Registration error:", error);
+
+            showMessage(
+                "Unable to connect to the server. Please try again.",
+                "error"
+            );
+
+        } finally {
+
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+
+        }
+
+    });
+
 });

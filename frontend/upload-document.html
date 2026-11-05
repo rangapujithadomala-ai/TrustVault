@@ -737,6 +737,30 @@
                 width: 100%;
             }
         }
+        /* Back Navigation */
+.back-navigation {
+    margin-bottom: 15px;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #356AE6;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.back-link:hover {
+    color: #2855C5;
+    transform: translateX(-3px);
+}
+
+.dark-mode .back-link {
+    color: #A9C2FF;
+}
     </style>
 </head>
 
@@ -781,9 +805,15 @@
             </div>
         </header>
 
-        <div class="upload-page">
+       <div class="upload-page">
 
-            <div class="page-intro">
+    <div class="back-navigation">
+        <a href="my-documents.html" class="back-link">
+            ← Back to My Documents
+        </a>
+    </div>
+
+    <div class="page-intro">
                 <h2>Upload your documents</h2>
                 <p>Select files and decide who can access each document.</p>
             </div>

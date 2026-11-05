@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accept Owner Invitation | TrustVault</title>
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #f4f6fa;
+            font-family: Arial, sans-serif;
+        }
+
+        .invitation-card {
+            width: 100%;
+            max-width: 430px;
+            padding: 35px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 25px;
+        }
+
+        p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        label {
+            display: block;
+            margin: 18px 0 8px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 22px;
+            padding: 13px;
+            border: none;
+            border-radius: 7px;
+            background: #253b70;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="invitation-card">
+
+    <h1>Welcome to TrustVault</h1>
+
+    <p>
+        Your Owner invitation is ready. Create a password to activate
+        your TrustVault Owner account.
+    </p>
+
+    <form id="invitationForm">
+
+        <label for="password">Create Password</label>
+        <input
+            type="password"
+            id="password"
+            autocomplete="new-password"
+            required
+        >
+
+        <label for="confirmPassword">Confirm Password</label>
+        <input
+            type="password"
+            id="confirmPassword"
+            autocomplete="new-password"
+            required
+        >
+
+        <button type="submit">Activate Owner Account</button>
+
+    </form>
+
+    <p id="message" role="status"></p>
+
+</div>
+
+<script>
+    const invitationToken = {{ token | tojson }};
+
+    const invitationForm = document.getElementById("invitationForm");
+    const message = document.getElementById("message");
+
+    invitationForm.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+
+        const button = invitationForm.querySelector("button");
+        const csrfToken = document.querySelector(
+            'meta[name="csrf-token"]'
+        ).content;
+
+        button.disabled = true;
+        button.textContent = "Activating...";
+
+        try {
+            const response = await fetch(
+                `/auth/accept-owner-invitation/${encodeURIComponent(invitationToken)}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrfToken
+                    },
+                    body: JSON.stringify({
+                        password: password,
+                        confirm_password: confirmPassword
+                    })
+                }
+            );
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || "Unable to activate account.");
+            }
+
+            message.textContent = result.message;
+
+            invitationForm.reset();
+
+            setTimeout(function() {
+                window.location.href = result.redirect;
+            }, 1800);
+
+        } catch (error) {
+            message.textContent = error.message;
+        } finally {
+            button.disabled = false;
+            button.textContent = "Activate Owner Account";
+        }
+    });
+</script>
+
+</body>
+</html>

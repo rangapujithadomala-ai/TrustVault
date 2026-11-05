@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Alerts | TrustVault</title>
+
+    <link rel="stylesheet" href="/dashboard.css">
+
+    <style>
+        .admin-content {
+            max-width: 1200px;
+        }
+
+        /* Consistent Admin Sidebar */
+
+        body.dashboard-page .sidebar {
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.dashboard-page .sidebar .sidebar-brand {
+            position: relative;
+            flex: 0 0 auto;
+            display: block;
+            margin: 0 0 28px;
+            padding: 0;
+            transform: none;
+        }
+
+        body.dashboard-page .sidebar .sidebar-brand h2 {
+            margin: 0;
+            padding: 0;
+            line-height: 1.3;
+        }
+
+        body.dashboard-page .sidebar .sidebar-brand span {
+            display: block;
+            position: static;
+            margin-top: 9px;
+            padding: 0;
+            line-height: 1.4;
+        }
+
+        body.dashboard-page .sidebar .sidebar-nav {
+            flex: 0 0 auto;
+            margin-top: 0;
+        }
+
+        /* Security Alerts page */
+
+        .page-heading {
+            margin-bottom: 24px;
+        }
+
+        .page-heading p {
+            color: #6b7280;
+            margin-top: 7px;
+        }
+
+        .content-section {
+            margin-top: 24px;
+        }
+
+        .table-container td.empty-state {
+            text-align: center;
+            padding: 25px 15px;
+            color: #6b7280;
+        }
+
+        .security-note {
+            margin-top: 20px;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+            color: #4b5563;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        body.dark-mode .page-heading p,
+        body.dark-mode .content-section > p {
+            color: #d1d5db;
+        }
+
+        body.dark-mode .table-container td.empty-state {
+            color: #aab4c3;
+        }
+
+        body.dark-mode .security-note {
+            background: #1f2937;
+            border-color: #374151;
+            color: #d1d5db;
+        }
+
+        @media (max-width: 650px) {
+            .content-section {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard-container">
+
+        <aside class="sidebar">
+
+            <div class="sidebar-brand">
+                <h2>TrustVault</h2>
+                <span>Administrator</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard">Overview</a>
+                <a href="/admin/users">User Management</a>
+                <a href="/admin/documents">Document Overview</a>
+                <a href="/admin/audit-logs">Audit Logs</a>
+                <a href="/admin/security-alerts" class="active">Security Alerts</a>
+                <a href="/admin/notifications">Notifications</a>
+                <a href="/admin/settings">Settings</a>
+                <a href="/login.html">Logout</a>
+            </nav>
+
+        </aside>
+
+        <main class="main-content">
+
+            <div class="admin-content">
+
+                <div class="page-heading">
+                    <h1>Security Alerts</h1>
+                    <p>Monitor suspicious activities and potential security risks.</p>
+                </div>
+
+                <div class="stats-container">
+
+                    <div class="stat-card">
+                        <h3>Total Alerts</h3>
+                        <p>{{ alerts|length }}</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>High Severity</h3>
+                        <p>--</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>Unresolved Alerts</h3>
+                        <p>--</p>
+                    </div>
+
+                </div>
+
+                <section class="content-section">
+
+                    <h2>Security Event History</h2>
+
+                    <p>
+                        Alerts will be generated from actual authentication
+                        and document access events.
+                    </p>
+
+                    <div class="filter-container">
+
+                        <input
+                            type="search"
+                            id="alertSearch"
+                            placeholder="Search user or event..."
+                        >
+
+                        <select id="severityFilter">
+                            <option value="">All Severities</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+
+                        <select id="alertStatusFilter">
+                            <option value="">All Statuses</option>
+                            <option value="Unresolved">Unresolved</option>
+                            <option value="Resolved">Resolved</option>
+                        </select>
+
+                    </div>
+
+                    <div class="table-container">
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Alert ID</th>
+                                    <th>User</th>
+                                    <th>Security Event</th>
+                                    <th>Severity</th>
+                                    <th>Date &amp; Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="alertTableBody">
+
+                                {% for alert in alerts %}
+                                <tr class="alert-row">
+
+                                    <td>{{ alert.id }}</td>
+
+                                    <td>{{ alert.actor_id or "System" }}</td>
+
+                                    <td>
+                                        {{ alert.action or "Security event recorded" }}
+                                    </td>
+
+                                    <td>Unclassified</td>
+
+                                    <td>
+                                        {% if alert.created_at %}
+                                            {{ alert.created_at.strftime("%d %b %Y, %I:%M %p") }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        {{ alert.outcome or "Recorded" }}
+                                    </td>
+
+                                </tr>
+
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" class="empty-state">
+                                        No security alerts available yet.
+                                        Alerts will appear here when actual
+                                        security events are recorded.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                </section>
+
+                <p class="security-note">
+                    Security alerts require backend event monitoring.
+                    Alert records and their statuses will be connected
+                    to the database later.
+                </p>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script src="/settings.js"></script>
+
+    <script>
+        const alertSearch = document.getElementById("alertSearch");
+        const severityFilter = document.getElementById("severityFilter");
+        const alertStatusFilter = document.getElementById("alertStatusFilter");
+
+        const alertRows = document.querySelectorAll(".alert-row");
+
+        function filterAlerts() {
+            const searchValue = alertSearch.value.toLowerCase().trim();
+            const selectedSeverity = severityFilter.value.toLowerCase();
+            const selectedStatus = alertStatusFilter.value.toLowerCase();
+
+            alertRows.forEach(row => {
+                const rowText = row.textContent.toLowerCase();
+                const severity = row.cells[3].textContent.toLowerCase();
+                const status = row.cells[5].textContent.toLowerCase();
+
+                const matchesSearch = rowText.includes(searchValue);
+                const matchesSeverity =
+                    selectedSeverity === "" || severity.includes(selectedSeverity);
+                const matchesStatus =
+                    selectedStatus === "" || status.includes(selectedStatus);
+
+                row.style.display =
+                    matchesSearch && matchesSeverity && matchesStatus
+                        ? ""
+                        : "none";
+            });
+        }
+
+        alertSearch.addEventListener("input", filterAlerts);
+        severityFilter.addEventListener("change", filterAlerts);
+        alertStatusFilter.addEventListener("change", filterAlerts);
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Settings | TrustVault</title>
+
+    <link rel="stylesheet" href="/dashboard.css">
+
+    <style>
+        .admin-content {
+            max-width: 1200px;
+        }
+
+        /* Consistent Admin Sidebar */
+
+        body.dashboard-page .sidebar {
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.dashboard-page .sidebar .sidebar-brand {
+            position: relative;
+            flex: 0 0 auto;
+            display: block;
+            margin: 0 0 28px;
+            padding: 0;
+            transform: none;
+        }
+
+        body.dashboard-page .sidebar .sidebar-brand h2 {
+            margin: 0;
+            padding: 0;
+            line-height: 1.3;
+        }
+
+        body.dashboard-page .sidebar .sidebar-brand span {
+            display: block;
+            position: static;
+            margin-top: 9px;
+            padding: 0;
+            line-height: 1.4;
+        }
+
+        body.dashboard-page .sidebar .sidebar-nav {
+            flex: 0 0 auto;
+            margin-top: 0;
+        }
+
+        /* Settings page */
+
+        .page-heading {
+            margin-bottom: 24px;
+        }
+
+        .page-heading p {
+            color: #6b7280;
+            margin-top: 7px;
+        }
+
+        .content-section {
+            margin-top: 24px;
+        }
+
+        .content-section label {
+            display: block;
+            margin-top: 14px;
+            margin-bottom: 8px;
+        }
+
+        .content-section input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .content-section select {
+            margin-top: 5px;
+        }
+
+        .security-note {
+            margin-top: 20px;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+            color: #4b5563;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        body.dark-mode .page-heading p,
+        body.dark-mode .content-section > p {
+            color: #d1d5db;
+        }
+
+        body.dark-mode .security-note {
+            background: #1f2937;
+            border-color: #374151;
+            color: #d1d5db;
+        }
+    </style>
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard-container">
+
+        <aside class="sidebar">
+
+            <div class="sidebar-brand">
+                <h2>TrustVault</h2>
+                <span>Administrator</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard">Overview</a>
+                <a href="/admin/users">User Management</a>
+                <a href="/admin/documents">Document Overview</a>
+                <a href="/admin/audit-logs">Audit Logs</a>
+                <a href="/admin/security-alerts">Security Alerts</a>
+                <a href="/admin/notifications">Notifications</a>
+                <a href="/admin/settings" class="active">Settings</a>
+                <a href="/login.html">Logout</a>
+            </nav>
+
+        </aside>
+
+        <main class="main-content">
+
+            <div class="admin-content">
+
+                <div class="page-heading">
+                    <h1>Admin Settings</h1>
+                    <p>Manage your administrator preferences and account settings.</p>
+                </div>
+
+                <section class="content-section">
+
+                    <h2>Appearance</h2>
+                    <p>Choose how TrustVault should appear across the application.</p>
+
+                    <label for="themeSelect">Application Theme</label>
+
+                    <select id="themeSelect">
+                        <option value="light">Light Mode</option>
+                        <option value="dark">Dark Mode</option>
+                        <option value="system">System Default</option>
+                    </select>
+
+                </section>
+
+                <section class="content-section">
+
+                    <h2>Notification Preferences</h2>
+                    <p>Choose which system events you want to receive notifications about.</p>
+
+                    <label>
+                        <input type="checkbox" checked>
+                        Security alerts
+                    </label>
+
+                    <label>
+                        <input type="checkbox" checked>
+                        New user registrations
+                    </label>
+
+                    <label>
+                        <input type="checkbox" checked>
+                        Failed login attempts
+                    </label>
+
+                    <label>
+                        <input type="checkbox" checked>
+                        System notifications
+                    </label>
+
+                </section>
+
+                <section class="content-section">
+
+                    <h2>Security Preferences</h2>
+
+                    <label for="sessionTimeout">Session Timeout</label>
+
+                    <select id="sessionTimeout">
+                        <option value="15">15 minutes</option>
+                        <option value="30" selected>30 minutes</option>
+                        <option value="60">60 minutes</option>
+                    </select>
+
+                    <label>
+                        <input type="checkbox" checked>
+                        Require confirmation before suspending a user
+                    </label>
+
+                    <label>
+                        <input type="checkbox" checked>
+                        Require confirmation before changing user roles
+                    </label>
+
+                </section>
+
+                <section class="content-section">
+
+                    <h2>Privacy Preferences</h2>
+
+                    <label>
+                        <input type="checkbox" checked>
+                        Keep administrator activity visible in audit logs
+                    </label>
+
+                    <label>
+                        <input type="checkbox" checked>
+                        Receive alerts for unusual account activity
+                    </label>
+
+                </section>
+
+                <section class="content-section">
+
+                    <h2>Platform Preferences</h2>
+
+                    <label for="defaultRole">Default Role for New Registrations</label>
+
+                    <select id="defaultRole">
+                        <option value="viewer" selected>Viewer</option>
+                        <option value="owner">Owner</option>
+                    </select>
+
+                    <label>
+                        <input type="checkbox" checked>
+                        Require email verification for new accounts
+                    </label>
+
+                </section>
+
+                <section class="content-section">
+
+                    <h2>Administrator Account</h2>
+
+                    <p>Manage your administrator account securely.</p>
+
+                    <p>
+                        Password changes should be completed through the
+                        account's verified password-reset process.
+                    </p>
+
+                </section>
+
+                <p class="security-note">
+                    These preference controls are frontend elements at present.
+                    They will be connected to secure backend settings later.
+                </p>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script src="/settings.js"></script>
+
+</body>
+</html>

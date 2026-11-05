@@ -666,13 +666,7 @@ input::-webkit-credentials-auto-fill-button {
 }
 /* Center Email Verification Content */
 
-.auth-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
+/* Center Email Verification Content */
 
 .auth-card {
     margin: auto;
@@ -720,4 +714,117 @@ input::-webkit-credentials-auto-fill-button {
 
 .back-to-login:hover {
     text-decoration: underline;
+}
+
+/* =================================
+   TRUSTVAULT LOGIN BRANDING REFINEMENT
+================================= */
+
+.brand-section {
+    padding: 45px 65px;
+    background: linear-gradient(145deg, #201c42, #30265d);
+    justify-content: space-between;
+}
+
+.brand-content {
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
+}
+
+.brand-logo {
+    gap: 13px;
+    font-size: 27px;
+}
+
+.brand-message {
+    margin-top: 115px;
+    max-width: 540px;
+}
+
+.brand-message .eyebrow {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 2.2px;
+}
+
+.brand-message h1 {
+    margin-top: 25px;
+    font-size: clamp(40px, 4vw, 59px);
+    line-height: 1.18;
+    letter-spacing: -2px;
+}
+
+.brand-message h1 span {
+    color: #a99aff;
+}
+
+.brand-message p {
+    max-width: 460px;
+    margin-top: 24px;
+    font-size: 16px;
+    line-height: 1.8;
+    color: #d1cdef;
+}
+
+.brand-visual {
+    max-width: 450px;
+    margin-top: 38px;
+    padding: 19px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 1px solid rgba(255,255,255,0.13);
+    border-radius: 15px;
+    background: rgba(255,255,255,0.07);
+}
+
+.visual-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(169,154,255,0.18);
+    color: #c1b5ff;
+    font-size: 23px;
+}
+
+.visual-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.visual-text strong {
+    color: white;
+    font-size: 14px;
+}
+
+.visual-text span {
+    color: #c4bedf;
+    font-size: 11px;
+}
+
+.visual-status {
+    color: #a99aff;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.brand-footer {
+    font-size: 12px;
+    color: #bdb6e5;
+}
+
+@media (max-width: 1100px) {
+    .brand-section {
+        padding: 35px;
+    }
+
+    .brand-message {
+        margin-top: 80px;
+    }
 }

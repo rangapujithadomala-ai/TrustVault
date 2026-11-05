@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shared Documents | TrustVault</title>
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="/dashboard.css">
+
     <style>
         .shared-content {
             padding: 30px;
@@ -109,28 +110,28 @@
 
     <div class="dashboard-container">
 
-        
-<aside class="sidebar">
+        <aside class="sidebar">
 
-    <div class="sidebar-brand">
-        <h2>TrustVault</h2>
-        <span>Document Owner</span>
-    </div>
+            <div class="sidebar-brand">
+                <h2>TrustVault</h2>
+                <span>Document Owner</span>
+            </div>
 
-    <nav class="sidebar-nav">
-        <a href="owner-dashboard.html">Overview</a>
-        <a href="my-documents.html">My Documents</a>
-        <a href="owner-shared-documents.html" class="active">Shared Documents</a>
-        <a href="owner-activity.html">Activity</a>
-        <a href="owner-profile.html">My Profile</a>
-        <a href="owner-settings.html">Settings</a>
-        <a href="login.html">Logout</a>
-    </nav>
+            <nav class="sidebar-nav">
+                <a href="/owner/dashboard">Overview</a>
+                <a href="/owner/dashboard#documents">My Documents</a>
+                <a href="/owner/shared-documents" class="active">Shared Documents</a>
+                <a href="/owner/activity">Activity</a>
+                <a href="/owner/profile">My Profile</a>
+                <a href="/owner/settings">Settings</a>
+            </nav>
 
-</aside>
+            <a href="/login.html" class="logout-link">Logout</a>
 
+        </aside>
 
         <main class="main-content">
+
             <section class="shared-content">
 
                 <div class="shared-header">
@@ -148,7 +149,9 @@
                 >
 
                 <div class="shared-table-container">
+
                     <table class="shared-table">
+
                         <thead>
                             <tr>
                                 <th>Document Name</th>
@@ -161,16 +164,53 @@
                         </thead>
 
                         <tbody id="sharedTableBody">
+
+                            {% for item in shared_items %}
+                            <tr>
+
+                                <td>
+                                    {{ item.document.title or item.document.original_filename }}
+                                </td>
+
+                                <td>
+                                    {{ item.recipient.name }}
+                                    <br>
+                                    <small>{{ item.recipient.email }}</small>
+                                </td>
+
+                                <td>
+                                    <span class="permission">
+                                        {{ item.permission.permission_type|capitalize }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {{ item.permission.granted_at.strftime('%d %b %Y')
+                                       if item.permission.granted_at else '--' }}
+                                </td>
+
+                                <td>Active</td>
+
+                                <td>—</td>
+
+                            </tr>
+
+                            {% else %}
                             <tr>
                                 <td colspan="6" class="empty-message">
                                     No shared documents available yet.
                                 </td>
                             </tr>
+                            {% endfor %}
+
                         </tbody>
+
                     </table>
+
                 </div>
 
             </section>
+
         </main>
 
     </div>
@@ -179,17 +219,22 @@
         const searchInput = document.getElementById("sharedSearch");
 
         searchInput.addEventListener("input", function () {
-            const searchValue = this.value.toLowerCase();
-            const rows = document.querySelectorAll("#sharedTableBody tr");
+            const searchValue = this.value.toLowerCase().trim();
+
+            const rows = document.querySelectorAll(
+                "#sharedTableBody tr"
+            );
 
             rows.forEach(function (row) {
                 const rowText = row.textContent.toLowerCase();
-                row.style.display = rowText.includes(searchValue) ? "" : "none";
+
+                row.style.display =
+                    rowText.includes(searchValue) ? "" : "none";
             });
         });
     </script>
 
-    <script src="settings.js"></script>
+    <script src="/settings.js"></script>
 
 </body>
 </html>

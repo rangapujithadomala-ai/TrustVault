@@ -1,0 +1,328 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management | TrustVault</title>
+
+    <link rel="stylesheet" href="/dashboard.css">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <style>
+        .invite-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+            margin-top: 20px;
+        }
+
+        .invite-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .invite-field label {
+            font-weight: 600;
+        }
+
+        .invite-field input {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d6d6d6;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        .invite-button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .invite-message {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 700px) {
+            .invite-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        body.dark-mode .invite-field input {
+            background: #252525;
+            color: #ffffff;
+            border-color: #555555;
+        }
+    </style>
+</head>
+
+<body class="dashboard-page">
+
+<div class="dashboard-container">
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h2>TrustVault</h2>
+            <span>Administrator</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard">Overview</a>
+            <a href="/admin/users" class="active">User Management</a>
+            <a href="/admin/documents">Document Overview</a>
+            <a href="/admin/audit-logs">Audit Logs</a>
+            <a href="/admin/security-alerts">Security Alerts</a>
+            <a href="/admin/notifications">Notifications</a>
+            <a href="/admin/settings">Settings</a>
+            <a href="/login.html">Logout</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <h1>User Management</h1>
+                <p>Manage and monitor registered TrustVault users.</p>
+            </div>
+
+            <div class="admin-label">Administrator</div>
+        </header>
+
+        <section class="stats">
+
+            <div class="stat-card">
+                <p>Total Registered Users</p>
+                <h2>{{ total_users }}</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Administrators</p>
+                <h2>{{ total_admins }}</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Owners</p>
+                <h2>{{ total_owners }}</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Viewers</p>
+                <h2>{{ total_viewers }}</h2>
+            </div>
+
+        </section>
+
+        <!-- INVITE OWNER -->
+        <section class="content-card">
+
+            <div class="section-header">
+                <div>
+                    <h2>Invite an Owner</h2>
+                    <p>
+                        Invite a trusted person to manage and share their documents.
+                        They will create their own password through the invitation link.
+                    </p>
+                </div>
+            </div>
+
+            <form id="inviteOwnerForm" class="invite-form">
+
+                <div class="invite-field">
+                    <label for="ownerName">Owner Name</label>
+                    <input
+                        type="text"
+                        id="ownerName"
+                        maxlength="100"
+                        placeholder="Enter full name"
+                        required
+                    >
+                </div>
+
+                <div class="invite-field">
+                    <label for="ownerEmail">Email Address</label>
+                    <input
+                        type="email"
+                        id="ownerEmail"
+                        maxlength="255"
+                        placeholder="Enter email address"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="invite-button">
+                    Send Invitation
+                </button>
+
+            </form>
+
+            <p id="inviteMessage" class="invite-message" role="status"></p>
+
+        </section>
+
+        <!-- REGISTERED USERS -->
+        <section class="content-card">
+
+            <div class="section-header">
+                <div>
+                    <h2>Registered Users</h2>
+                    <p>Users registered or invited in the TrustVault database.</p>
+                </div>
+
+                <input
+                    type="text"
+                    id="userSearch"
+                    class="search-box"
+                    placeholder="Search by name, email or role..."
+                >
+            </div>
+
+            <div class="table-wrapper">
+
+                <table id="usersTable">
+
+                    <thead>
+                        <tr>
+                            <th>USER</th>
+                            <th>EMAIL</th>
+                            <th>ROLE</th>
+                            <th>JOINED DATE</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for user in users %}
+
+                        <tr>
+                            <td class="user-name">{{ user.name }}</td>
+
+                            <td>{{ user.email }}</td>
+
+                            <td>
+                                {% if user.role == 'admin' %}
+                                    <span class="role role-admin">Admin</span>
+                                {% elif user.role == 'owner' %}
+                                    <span class="role role-owner">Owner</span>
+                                {% else %}
+                                    <span class="role role-viewer">Viewer</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {{ user.created_at.strftime('%d %b %Y') if user.created_at else 'N/A' }}
+                            </td>
+
+                            <td>
+                                {% if not user.email_verified %}
+                                    <span class="status status-pending">
+                                        {% if user.role == 'owner' %}
+                                            Invitation Pending
+                                        {% else %}
+                                            Not Verified
+                                        {% endif %}
+                                    </span>
+                                {% elif user.is_active %}
+                                    <span class="status status-active">Active</span>
+                                {% else %}
+                                    <span class="status status-inactive">Inactive</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="5" class="empty-message">
+                                No registered users found.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+    const searchInput = document.getElementById("userSearch");
+
+    searchInput.addEventListener("input", function () {
+        const filter = this.value.toLowerCase();
+
+        document.querySelectorAll("#usersTable tbody tr").forEach(function(row) {
+            row.style.display = row.innerText.toLowerCase().includes(filter)
+                ? ""
+                : "none";
+        });
+    });
+
+    const inviteForm = document.getElementById("inviteOwnerForm");
+    const inviteMessage = document.getElementById("inviteMessage");
+
+    inviteForm.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const name = document.getElementById("ownerName").value.trim();
+        const email = document.getElementById("ownerEmail").value.trim();
+
+        const button = inviteForm.querySelector("button");
+        const csrfToken = document.querySelector(
+            'meta[name="csrf-token"]'
+        ).content;
+
+        button.disabled = true;
+        button.textContent = "Sending...";
+        inviteMessage.textContent = "";
+
+        try {
+            const response = await fetch("/admin/invite-owner", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+                body: JSON.stringify({ name, email })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || "Unable to send invitation.");
+            }
+
+            inviteMessage.textContent = result.message;
+            inviteForm.reset();
+
+            // Refresh to show the newly invited Owner.
+            window.location.reload();
+
+        } catch (error) {
+            inviteMessage.textContent = error.message;
+        } finally {
+            button.disabled = false;
+            button.textContent = "Send Invitation";
+        }
+    });
+</script>
+
+<script src="/settings.js"></script>
+
+</body>
+</html>

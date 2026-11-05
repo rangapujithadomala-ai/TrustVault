@@ -95,6 +95,30 @@
             color: #E5E7EB;
             border-color: #4B5563;
         }
+        /* Back Navigation */
+.back-navigation {
+    margin-bottom: 15px;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #356AE6;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.back-link:hover {
+    color: #2855C5;
+    transform: translateX(-3px);
+}
+
+.dark-mode .back-link {
+    color: #A9C2FF;
+}
     </style>
 </head>
 
@@ -123,7 +147,13 @@
         <!-- Main Content -->
         <main class="main-content">
 
-            <header class="topbar">
+    <div class="back-navigation">
+        <a href="owner-dashboard.html" class="back-link">
+            ← Back to Overview
+        </a>
+    </div>
+
+    <header class="topbar">
                 <div>
                     <h1>My Documents</h1>
                     <p>Upload and manage your personal documents.</p>

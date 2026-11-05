@@ -1,0 +1,317 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Logs | TrustVault</title>
+
+    <link rel="stylesheet" href="/dashboard.css">
+
+    <style>
+        .admin-content {
+            max-width: 1200px;
+        }
+
+        /* Consistent Admin Sidebar */
+
+        body.dashboard-page .sidebar {
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.dashboard-page .sidebar .sidebar-brand {
+            position: relative;
+            flex: 0 0 auto;
+            display: block;
+            margin: 0 0 28px;
+            padding: 0;
+            transform: none;
+        }
+
+        body.dashboard-page .sidebar .sidebar-brand h2 {
+            margin: 0;
+            padding: 0;
+            line-height: 1.3;
+        }
+
+        body.dashboard-page .sidebar .sidebar-brand span {
+            display: block;
+            position: static;
+            margin-top: 9px;
+            padding: 0;
+            line-height: 1.4;
+        }
+
+        body.dashboard-page .sidebar .sidebar-nav {
+            flex: 0 0 auto;
+            margin-top: 0;
+        }
+
+        /* Audit Logs page */
+
+        .page-heading {
+            margin-bottom: 24px;
+        }
+
+        .page-heading p {
+            color: #6b7280;
+            margin-top: 7px;
+        }
+
+        .content-section {
+            margin-top: 24px;
+        }
+
+        .table-container td.empty-state {
+            text-align: center;
+            padding: 25px 15px;
+            color: #6b7280;
+        }
+
+        .security-note {
+            margin-top: 20px;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+            color: #4b5563;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* Dark mode */
+
+        body.dark-mode .page-heading p,
+        body.dark-mode .content-section > p {
+            color: #d1d5db;
+        }
+
+        body.dark-mode .table-container td.empty-state {
+            color: #aab4c3;
+        }
+
+        body.dark-mode .security-note {
+            background: #1f2937;
+            border-color: #374151;
+            color: #d1d5db;
+        }
+
+        @media (max-width: 650px) {
+            .content-section {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard-container">
+
+        <aside class="sidebar">
+
+            <div class="sidebar-brand">
+                <h2>TrustVault</h2>
+                <span>Administrator</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard">Overview</a>
+                <a href="/admin/users">User Management</a>
+                <a href="/admin/documents">Document Overview</a>
+                <a href="/admin/audit-logs" class="active">Audit Logs</a>
+                <a href="/admin/security-alerts">Security Alerts</a>
+                <a href="/admin/notifications">Notifications</a>
+                <a href="/admin/settings">Settings</a>
+                <a href="/login.html">Logout</a>
+            </nav>
+
+        </aside>
+
+        <main class="main-content">
+
+            <div class="admin-content">
+
+                <div class="page-heading">
+                    <h1>Audit Logs</h1>
+                    <p>Review document-related activities and access events across TrustVault.</p>
+                </div>
+
+                {% set successful_count = namespace(value=0) %}
+                {% set denied_count = namespace(value=0) %}
+
+                {% for record in audit_logs %}
+                    {% set result = (record.outcome or '') | lower %}
+                    {% if 'success' in result %}
+                        {% set successful_count.value = successful_count.value + 1 %}
+                    {% elif 'denied' in result %}
+                        {% set denied_count.value = denied_count.value + 1 %}
+                    {% endif %}
+                {% endfor %}
+
+                <div class="stats-container">
+
+                    <div class="stat-card">
+                        <h3>Total Events</h3>
+                        <p>{{ audit_logs|length }}</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>Successful Actions</h3>
+                        <p>{{ successful_count.value }}</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>Denied Attempts</h3>
+                        <p>{{ denied_count.value }}</p>
+                    </div>
+
+                </div>
+
+                <section class="content-section">
+
+                    <h2>Activity History</h2>
+
+                    <p>
+                        Audit records help track who accessed which document,
+                        what action was performed, and when it happened.
+                    </p>
+
+                    <div class="filter-container">
+
+                        <input
+                            type="search"
+                            id="auditSearch"
+                            placeholder="Search user or document..."
+                        >
+
+                        <select id="actionFilter">
+                            <option value="">All Actions</option>
+                            <option value="view">View</option>
+                            <option value="download">Download</option>
+                            <option value="edit">Edit</option>
+                            <option value="share">Share</option>
+                            <option value="revoke">Revoke</option>
+                        </select>
+
+                        <select id="resultFilter">
+                            <option value="">All Results</option>
+                            <option value="success">Success</option>
+                            <option value="denied">Denied</option>
+                        </select>
+
+                    </div>
+
+                    <div class="table-container">
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Document</th>
+                                    <th>Action</th>
+                                    <th>Date &amp; Time</th>
+                                    <th>Result</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="auditTableBody">
+
+                                {% for record in audit_logs %}
+                                <tr class="audit-row">
+
+                                    <td>
+                                        {{ record.actor_id or "System" }}
+                                    </td>
+
+                                    <td>
+                                        {{ record.document_id or "—" }}
+                                    </td>
+
+                                    <td>
+                                        {{ record.action or "Activity recorded" }}
+                                    </td>
+
+                                    <td>
+                                        {% if record.created_at %}
+                                            {{ record.created_at.strftime("%d %b %Y, %I:%M %p") }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        {{ record.outcome or "Recorded" }}
+                                    </td>
+
+                                </tr>
+
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="empty-state">
+                                        No audit records available yet.
+                                        Records will appear when actual
+                                        platform events are logged.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                </section>
+
+                <p class="security-note">
+                    Audit records must be generated by backend events.
+                    They should be stored with timestamps and user details
+                    and protected against unauthorised modification.
+                </p>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script src="/settings.js"></script>
+
+    <script>
+        const auditSearch = document.getElementById("auditSearch");
+        const actionFilter = document.getElementById("actionFilter");
+        const resultFilter = document.getElementById("resultFilter");
+
+        const auditRows = document.querySelectorAll(".audit-row");
+
+        function filterAuditLogs() {
+            const searchValue = auditSearch.value.toLowerCase().trim();
+            const selectedAction = actionFilter.value.toLowerCase();
+            const selectedResult = resultFilter.value.toLowerCase();
+
+            auditRows.forEach(row => {
+                const rowText = row.textContent.toLowerCase();
+                const action = row.cells[2].textContent.toLowerCase();
+                const result = row.cells[4].textContent.toLowerCase();
+
+                const matchesSearch = rowText.includes(searchValue);
+                const matchesAction =
+                    selectedAction === "" || action.includes(selectedAction);
+                const matchesResult =
+                    selectedResult === "" || result.includes(selectedResult);
+
+                row.style.display =
+                    matchesSearch && matchesAction && matchesResult
+                        ? ""
+                        : "none";
+            });
+        }
+
+        auditSearch.addEventListener("input", filterAuditLogs);
+        actionFilter.addEventListener("change", filterAuditLogs);
+        resultFilter.addEventListener("change", filterAuditLogs);
+    </script>
+
+</body>
+</html>

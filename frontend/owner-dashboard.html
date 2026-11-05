@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrustVault | Owner Dashboard</title>
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="/dashboard.css">
 </head>
 
 <body class="dashboard-page">
@@ -20,15 +20,15 @@
             <div class="user-role">DOCUMENT OWNER</div>
 
             <nav class="sidebar-nav">
-                <a href="owner-dashboard.html" class="active">Overview</a>
-                <a href="my-documents.html">My Documents</a>
-                <a href="shared-documents.html">Shared Documents</a>
-                <a href="owner-activity.html">Activity</a>
-                <a href="owner-profile.html">My Profile</a>
-                <a href="owner-settings.html">Settings</a>
+                <a href="/owner/dashboard" class="active">Overview</a>
+                <a href="/owner/dashboard#documents">My Documents</a>
+                <a href="/owner/shared-documents">Shared Documents</a>
+                <a href="/owner/activity">Activity</a>
+                <a href="/owner/profile">My Profile</a>
+                <a href="/owner/settings">Settings</a>
             </nav>
 
-            <a href="login.html" class="logout-link">Logout</a>
+            <a href="/login.html" class="logout-link">Logout</a>
         </aside>
 
         <main class="main-content">
@@ -40,7 +40,33 @@
                 </div>
 
                 <div class="topbar-user">
+
+                    <div class="owner-notification-wrapper">
+                        <button type="button"
+                                class="owner-notification-bell"
+                                id="ownerNotificationBell"
+                                aria-label="Open notifications"
+                                aria-expanded="false">
+                            🔔
+                        </button>
+
+                        <span class="owner-notification-count"
+                              id="ownerNotificationCount">0</span>
+
+                        <div class="owner-notification-dropdown"
+                             id="ownerNotificationDropdown">
+
+                            <h3>Notifications</h3>
+
+                            <div class="owner-notification-empty">
+                                No notifications yet. Updates about your documents and permissions will appear here.
+                            </div>
+
+                        </div>
+                    </div>
+
                     <span>Document Owner</span>
+
                 </div>
             </header>
 
@@ -49,22 +75,22 @@
 
                 <div class="stat-card">
                     <p>Total Documents</p>
-                    <h2>12</h2>
+                    <h2>{{ total_documents }}</h2>
                 </div>
 
                 <div class="stat-card">
                     <p>Shared Documents</p>
-                    <h2>08</h2>
+                    <h2>{{ total_shared }}</h2>
                 </div>
 
                 <div class="stat-card">
                     <p>Documents with Edit Access</p>
-                    <h2>03</h2>
+                    <h2>{{ edit_access_count }}</h2>
                 </div>
 
                 <div class="stat-card">
                     <p>Pending Access Requests</p>
-                    <h2>02</h2>
+                    <h2>--</h2>
                 </div>
 
             </section>
@@ -82,23 +108,28 @@
 
                 <div class="content-card">
                     <div class="owner-actions">
-                        <a href="my-documents.html" class="primary-button">
+
+                        <a href="/owner/dashboard#documents"
+                           class="primary-button">
                             Upload Document
                         </a>
 
-                        <a href="my-documents.html" class="secondary-button">
+                        <a href="/owner/dashboard#documents"
+                           class="secondary-button">
                             Manage Documents
                         </a>
 
-                        <a href="shared-documents.html" class="secondary-button">
+                        <a href="/owner/shared-documents"
+                           class="secondary-button">
                             Manage Sharing
                         </a>
+
                     </div>
                 </div>
             </section>
 
             <!-- Recent Documents -->
-            <section class="dashboard-section">
+            <section class="dashboard-section" id="documents">
                 <div class="section-heading">
                     <div>
                         <h2>My Recent Documents</h2>
@@ -107,7 +138,8 @@
                         </p>
                     </div>
 
-                    <a href="my-documents.html" class="view-all-link">
+                    <a href="/owner/dashboard#documents"
+                       class="view-all-link">
                         View All
                     </a>
                 </div>
@@ -125,29 +157,55 @@
                         </thead>
 
                         <tbody>
-                            <tr>
-                                <td>Project Report.pdf</td>
-                                <td>28 Oct 2026</td>
-                                <td>2 Users</td>
-                                <td><span class="permission-badge read">Read</span></td>
-                                <td><a href="my-documents.html">Manage</a></td>
-                            </tr>
+                            {% for document in documents %}
+                            {% set doc_permissions = shared_permissions
+                                | selectattr('document_id', 'equalto', document.id)
+                                | list %}
+
+                            {% set edit_permissions = doc_permissions
+                                | selectattr('permission_type', 'equalto', 'edit')
+                                | list %}
+
+                            {% set read_permissions = doc_permissions
+                                | selectattr('permission_type', 'equalto', 'read')
+                                | list %}
 
                             <tr>
-                                <td>Research Document.docx</td>
-                                <td>27 Oct 2026</td>
-                                <td>1 User</td>
-                                <td><span class="permission-badge edit">Edit</span></td>
-                                <td><a href="my-documents.html">Manage</a></td>
+                                <td>
+                                    {{ document.title or document.original_filename }}
+                                </td>
+
+                                <td>
+                                    {{ document.created_at.strftime('%d %b %Y')
+                                       if document.created_at else '--' }}
+                                </td>
+
+                                <td>{{ doc_permissions|length }} Users</td>
+
+                                <td>
+                                    {% if edit_permissions and read_permissions %}
+                                        <span class="permission-badge edit">Read + Edit</span>
+                                    {% elif edit_permissions %}
+                                        <span class="permission-badge edit">Edit</span>
+                                    {% elif read_permissions %}
+                                        <span class="permission-badge read">Read</span>
+                                    {% else %}
+                                        <span>Not Shared</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <a href="/owner/shared-documents">Manage</a>
+                                </td>
                             </tr>
 
+                            {% else %}
                             <tr>
-                                <td>Presentation.pptx</td>
-                                <td>25 Oct 2026</td>
-                                <td>3 Users</td>
-                                <td><span class="permission-badge read">Read</span></td>
-                                <td><a href="my-documents.html">Manage</a></td>
+                                <td colspan="5">
+                                    No documents uploaded yet.
+                                </td>
                             </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -163,41 +221,73 @@
                         </p>
                     </div>
 
-                    <a href="owner-activity.html" class="view-all-link">
+                    <a href="/owner/activity" class="view-all-link">
                         View All
                     </a>
                 </div>
 
                 <div class="activity-card">
+
+                    {% for activity in recent_activities %}
                     <div class="activity-item">
                         <div>
-                            <strong>Document uploaded</strong>
-                            <p>Project Report.pdf was uploaded.</p>
+                            <strong>{{ activity.action }}</strong>
+                            <p>
+                                Document ID: {{ activity.document_id or 'N/A' }}
+                            </p>
                         </div>
-                        <span>Today</span>
+
+                        <span>
+                            {{ activity.created_at.strftime('%d %b %Y, %I:%M %p')
+                               if activity.created_at else '--' }}
+                        </span>
                     </div>
 
+                    {% else %}
                     <div class="activity-item">
                         <div>
-                            <strong>Document shared</strong>
-                            <p>Research Document.docx was shared with a viewer.</p>
+                            <strong>No recent activity</strong>
+                            <p>Your document activities will appear here.</p>
                         </div>
-                        <span>Yesterday</span>
                     </div>
+                    {% endfor %}
 
-                    <div class="activity-item">
-                        <div>
-                            <strong>Permission updated</strong>
-                            <p>Edit access was granted to a viewer.</p>
-                        </div>
-                        <span>2 days ago</span>
-                    </div>
                 </div>
             </section>
 
         </main>
     </div>
 
-    <script src="settings.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const bell = document.getElementById("ownerNotificationBell");
+        const dropdown = document.getElementById("ownerNotificationDropdown");
+
+        if (!bell || !dropdown) return;
+
+        bell.addEventListener("click", function (event) {
+            event.stopPropagation();
+
+            const isOpen = dropdown.classList.toggle("show");
+            bell.setAttribute("aria-expanded", isOpen);
+        });
+
+        document.addEventListener("click", function (event) {
+            if (
+                !dropdown.contains(event.target) &&
+                !bell.contains(event.target)
+            ) {
+                dropdown.classList.remove("show");
+                bell.setAttribute("aria-expanded", "false");
+            }
+        });
+
+    });
+    </script>
+
+    <script src="/settings.js"></script>
+    <script src="/notifications.js"></script>
+
 </body>
 </html>

@@ -71,4 +71,22 @@
 
 **Verification:** Reviewed the Owner frontend pages and their navigation and appearance settings. Further visual testing and backend integration are still pending. Notification, security and privacy controls are currently frontend preferences.
 
-**Commit Link:** Pending
+**Commit Link:** https://github.com/rangapujithadomala-ai/TrustVault/commit/37f9e95
+
+
+
+## Entry 5 – November 5, 2026
+
+**Task:** Configuring and testing Gmail SMTP email delivery for TrustVault.
+
+**Prompt:** Asked AI to help configure Flask-Mail with Gmail SMTP, troubleshoot authentication issues and test email delivery in the TrustVault application.
+
+**AI output:** AI provided guidance for configuring SMTP settings, integrating Flask-Mail, handling Gmail authentication and creating a test script to verify email delivery.
+
+**What needed correction:** The initial SMTP configuration was not sufficient because Gmail account authentication and identity verification restrictions prevented successful email delivery.
+
+**What I did:** Completed the required Gmail account setup, checked the SMTP configuration and ran the project's email test script.
+
+**Verification:** The test email was successfully sent and received at the configured Gmail account. End-to-end registration verification and Owner invitation email flows still require separate testing.
+
+**Commit Link:** [Add the actual GitHub commit link after committing today's SMTP-related changes.]

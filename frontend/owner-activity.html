@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activity | TrustVault</title>
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="/dashboard.css">
 
     <style>
         .activity-content {
@@ -102,7 +102,6 @@
 
     <div class="dashboard-container">
 
-        <!-- Existing TrustVault Sidebar -->
         <aside class="sidebar">
 
             <div class="sidebar-brand">
@@ -111,18 +110,18 @@
             </div>
 
             <nav class="sidebar-nav">
-                <a href="owner-dashboard.html">Overview</a>
-                <a href="my-documents.html">My Documents</a>
-                <a href="owner-shared-documents.html">Shared Documents</a>
-                <a href="owner-activity.html" class="active">Activity</a>
-                <a href="owner-profile.html">My Profile</a>
-                <a href="owner-settings.html">Settings</a>
-                <a href="login.html">Logout</a>
+                <a href="/owner/dashboard">Overview</a>
+                <a href="/owner/dashboard#documents">My Documents</a>
+                <a href="/owner/shared-documents">Shared Documents</a>
+                <a href="/owner/activity" class="active">Activity</a>
+                <a href="/owner/profile">My Profile</a>
+                <a href="/owner/settings">Settings</a>
             </nav>
+
+            <a href="/login.html" class="logout-link">Logout</a>
 
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
 
             <section class="activity-content">
@@ -159,19 +158,43 @@
 
                         <thead>
                             <tr>
-                                <th>User</th>
-                                <th>Document</th>
+                                <th>User ID</th>
+                                <th>Document ID</th>
                                 <th>Activity</th>
                                 <th>Date & Time</th>
                             </tr>
                         </thead>
 
                         <tbody id="activityTableBody">
+
+                            {% for activity in activities %}
+                            <tr>
+                                <td>{{ activity.actor_id }}</td>
+
+                                <td>
+                                    {{ activity.document_id or 'N/A' }}
+                                </td>
+
+                                <td>
+                                    <span class="activity-type">
+                                        {{ activity.action }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {{ activity.created_at.strftime('%d %b %Y, %I:%M %p')
+                                       if activity.created_at else '--' }}
+                                </td>
+                            </tr>
+
+                            {% else %}
                             <tr>
                                 <td colspan="4" class="empty-message">
                                     No activity recorded yet.
                                 </td>
                             </tr>
+                            {% endfor %}
+
                         </tbody>
 
                     </table>
@@ -189,7 +212,7 @@
         const activityFilter = document.getElementById("activityFilter");
 
         function filterActivities() {
-            const searchText = activitySearch.value.toLowerCase();
+            const searchText = activitySearch.value.toLowerCase().trim();
             const selectedType = activityFilter.value;
 
             const rows = document.querySelectorAll(
@@ -197,19 +220,20 @@
             );
 
             rows.forEach(row => {
-                const rowText = row.textContent.toLowerCase();
                 const activityCell = row.cells[2];
 
                 if (!activityCell) return;
 
+                const rowText = row.textContent.toLowerCase();
                 const activityText = activityCell.textContent
                     .trim()
                     .toLowerCase();
 
                 const matchesSearch = rowText.includes(searchText);
+
                 const matchesType =
                     selectedType === "all" ||
-                    activityText === selectedType;
+                    activityText.includes(selectedType);
 
                 row.style.display =
                     matchesSearch && matchesType ? "" : "none";
@@ -220,7 +244,7 @@
         activityFilter.addEventListener("change", filterActivities);
     </script>
 
-    <script src="settings.js"></script>
+    <script src="/settings.js"></script>
 
 </body>
 </html>

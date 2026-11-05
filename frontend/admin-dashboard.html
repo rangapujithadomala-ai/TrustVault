@@ -1,0 +1,555 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Admin Dashboard | TrustVault</title>
+    <link rel="stylesheet" href="/dashboard.css">
+
+    <style>
+        .admin-content {
+            max-width: 1200px;
+        }
+
+        .admin-heading {
+            margin-bottom: 25px;
+        }
+
+        .admin-heading p {
+            color: #6b7280;
+            margin-top: 7px;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .admin-stat-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .admin-stat-card h3 {
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 500;
+            margin: 0 0 12px;
+        }
+
+        .admin-stat-card .stat-value {
+            font-size: 27px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .admin-stat-card small {
+            display: block;
+            margin-top: 8px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .admin-panel {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 22px;
+        }
+
+        .admin-panel h2 {
+            font-size: 17px;
+            margin: 0 0 8px;
+        }
+
+        .admin-panel-description {
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+
+        .admin-activity-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-activity-table th,
+        .admin-activity-table td {
+            text-align: left;
+            padding: 13px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+        }
+
+        .admin-activity-table th {
+            background: #f3f4f6;
+            font-weight: 600;
+        }
+
+        .admin-empty {
+            text-align: center;
+            padding: 25px 10px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .admin-status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 5px;
+            background: #f3f4f6;
+            color: #4b5563;
+            font-size: 11px;
+        }
+
+        /* Admin sidebar branding */
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-brand {
+            position: relative;
+            flex: 0 0 auto;
+            display: block;
+            margin: 0 0 28px;
+            padding: 0;
+            transform: none;
+        }
+
+        .sidebar-brand h2 {
+            margin: 0;
+            padding: 0;
+            line-height: 1.3;
+        }
+
+        .sidebar-brand span {
+            display: block;
+            position: static;
+            margin-top: 9px;
+            padding: 0;
+            line-height: 1.4;
+        }
+
+        .sidebar-nav {
+            flex: 0 0 auto;
+            margin-top: 0;
+        }
+
+        /* Dark mode */
+
+        body.dark-mode .admin-heading p,
+        body.dark-mode .admin-stat-card h3,
+        body.dark-mode .admin-stat-card small,
+        body.dark-mode .admin-panel-description,
+        body.dark-mode .admin-empty {
+            color: #d1d5db;
+        }
+
+        body.dark-mode .admin-stat-card,
+        body.dark-mode .admin-panel {
+            background: #1f2937;
+            border-color: #374151;
+        }
+
+        body.dark-mode .admin-stat-card .stat-value {
+            color: #f9fafb;
+        }
+
+        body.dark-mode .admin-activity-table th {
+            background: #273449;
+        }
+
+        body.dark-mode .admin-activity-table th,
+        body.dark-mode .admin-activity-table td {
+            border-color: #374151;
+        }
+
+        body.dark-mode .admin-status {
+            background: #374151;
+            color: #e5e7eb;
+        }
+
+        /* Admin Notification Bell */
+
+        .admin-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .notification-wrapper {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .notification-bell {
+            width: 42px;
+            height: 42px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #374151;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-bell:hover {
+            background: #f3f4f6;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 4px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: #ffffff;
+            font-size: 11px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-dropdown {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 300px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            z-index: 1000;
+        }
+
+        .notification-dropdown[hidden] {
+    display: none !important;
+}
+
+.notification-dropdown.show {
+    display: block;
+}
+
+        .notification-dropdown h3 {
+            margin: 0;
+            padding: 15px;
+            font-size: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #111827;
+        }
+
+        .notification-empty {
+            padding: 20px 15px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        body.dark-mode .notification-bell {
+            background: #1f2937;
+            color: #f9fafb;
+            border-color: #374151;
+        }
+
+        body.dark-mode .notification-bell:hover {
+            background: #273449;
+        }
+
+        body.dark-mode .notification-dropdown {
+            background: #1f2937;
+            border-color: #374151;
+        }
+
+        body.dark-mode .notification-dropdown h3 {
+            color: #f9fafb;
+            border-color: #374151;
+        }
+
+        body.dark-mode .notification-empty {
+            color: #d1d5db;
+        }
+
+        @media (max-width: 900px) {
+            .admin-stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 550px) {
+            .admin-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-panel {
+                overflow-x: auto;
+            }
+
+            .notification-dropdown {
+                width: 270px;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard-container">
+
+        <aside class="sidebar">
+
+            <div class="sidebar-brand">
+                <h2>TrustVault</h2>
+                <span>Administrator</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard" class="active">Overview</a>
+                <a href="/admin/users">User Management</a>
+                <a href="admin-documents.html">Document Overview</a>
+                <a href="admin-audit-logs.html">Audit Logs</a>
+                <a href="admin-security-alerts.html">Security Alerts</a>
+                <a href="admin-notifications.html">Notifications</a>
+                <a href="admin-settings.html">Settings</a>
+                <a href="login.html">Logout</a>
+            </nav>
+
+        </aside>
+
+        <main class="main-content">
+
+            <div class="admin-content">
+
+                <div class="admin-heading">
+
+                    <div>
+                        <h1>Admin Dashboard</h1>
+                        <p>Monitor and manage the TrustVault platform.</p>
+                    </div>
+
+                    <div class="notification-wrapper">
+
+    <button type="button"
+            id="notificationBell"
+            class="notification-bell"
+            aria-label="Notifications">
+
+        <span>🔔</span>
+
+        <span id="notificationCount"
+              class="notification-count"
+              hidden>0</span>
+
+    </button>
+
+    <div id="notificationDropdown"
+         class="notification-dropdown"
+         hidden>
+
+        <div class="notification-header">
+            <h3>Notifications</h3>
+
+            <button type="button"
+                    id="markAllRead">
+                Mark all as read
+            </button>
+        </div>
+
+        <div class="notification-filters">
+
+            <button type="button"
+                    class="notification-filter active"
+                    data-filter="all">
+                All
+            </button>
+
+            <button type="button"
+                    class="notification-filter"
+                    data-filter="unread">
+                Unread
+            </button>
+
+            <button type="button"
+                    class="notification-filter"
+                    data-filter="read">
+                Read
+            </button>
+
+        </div>
+
+        <div id="notificationList"
+             class="notification-list">
+            Loading notifications...
+        </div>
+
+    </div>
+
+</div>
+
+                </div>
+
+                <section class="admin-stats">
+
+                    <div class="admin-stat-card">
+                        <h3>Total Viewers</h3>
+                        <div class="stat-value">{{ total_viewers }}</div>
+                        <small>Registered viewer accounts</small>
+                    </div>
+
+                    <div class="admin-stat-card">
+                        <h3>Registered Owners</h3>
+                        <div class="stat-value">{{ total_owners }}</div>
+                        <small>Users with Owner role</small>
+                    </div>
+
+                    <div class="admin-stat-card">
+                        <h3>Total Documents</h3>
+                        <div class="stat-value">{{ total_documents }}</div>
+                        <small>Document records in database</small>
+                    </div>
+
+                    <div class="admin-stat-card">
+                        <h3>Total Audit Events</h3>
+                        <div class="stat-value">{{ total_audit_events }}</div>
+                        <small>Recorded platform audit events</small>
+                    </div>
+
+                </section>
+
+                <section class="admin-panel">
+
+                    <h2>Platform Overview</h2>
+
+                    <p class="admin-panel-description">
+                        A summary of the main administrative areas.
+                    </p>
+
+                    <div class="admin-stats">
+
+                        <div class="admin-stat-card">
+                            <h3>User Management</h3>
+                            <span class="admin-status">Database connected</span>
+                            <small>Manage user accounts and roles.</small>
+                        </div>
+
+                        <div class="admin-stat-card">
+                            <h3>Document Monitoring</h3>
+                            <span class="admin-status">Database connected</span>
+                            <small>Monitor document metadata and status.</small>
+                        </div>
+
+                        <div class="admin-stat-card">
+                            <h3>Audit Monitoring</h3>
+                            <span class="admin-status">Database connected</span>
+                            <small>Review document access records.</small>
+                        </div>
+
+                        <div class="admin-stat-card">
+                            <h3>Security Monitoring</h3>
+                            <span class="admin-status">Integration pending</span>
+                            <small>Review recorded security events.</small>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section class="admin-panel">
+
+                    <h2>Recent System Activity</h2>
+
+                    <p class="admin-panel-description">
+                        Recent administrative and platform events recorded by TrustVault.
+                    </p>
+
+                    <table class="admin-activity-table">
+
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Activity</th>
+                                <th>Document</th>
+                                <th>Date &amp; Time</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for activity in recent_activity %}
+                            <tr>
+                                <td>{{ activity.user }}</td>
+                                <td>
+                                    {{ activity.action }}
+                                    {% if activity.outcome %}
+                                        <span class="admin-status">{{ activity.outcome }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ activity.document }}</td>
+                                <td>{{ activity.date }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="admin-empty">
+                                    No activity records available yet.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+
+                </section>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const bell = document.getElementById("notificationBell");
+            const dropdown = document.getElementById("notificationDropdown");
+
+            bell.addEventListener("click", function (event) {
+                event.stopPropagation();
+
+                const isOpen = dropdown.classList.toggle("show");
+
+                bell.setAttribute("aria-expanded", isOpen);
+            });
+
+            document.addEventListener("click", function (event) {
+                if (
+                    !dropdown.contains(event.target) &&
+                    !bell.contains(event.target)
+                ) {
+                    dropdown.classList.remove("show");
+                    bell.setAttribute("aria-expanded", "false");
+                }
+            });
+
+        });
+    </script>
+
+    <script src="/settings.js"></script>
+    <script src="/notifications.js"></script>
+
+</body>
+</html>

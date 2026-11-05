@@ -4,225 +4,290 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Create Account | TrustVault</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="stylesheet" href="style.css">
+    
 </head>
 
-<body>
+<body class="auth-page register-page">
 
-<main class="auth-container">
+    <main class="auth-container">
 
-    <!-- Left branding section -->
-    <section class="brand-section">
-        <div class="brand-content">
+        <!-- Left branding section -->
+        <section class="brand-section">
 
-            <a href="#" class="brand-logo">
-                <span class="logo-icon">✦</span>
-                <span>TrustVault</span>
-            </a>
+            <div class="brand-content">
 
-            <div class="brand-message">
-                <span class="eyebrow">YOUR SECURE WORKSPACE</span>
+                <a href="login.html" class="brand-logo">
+                    <span class="logo-icon">T</span>
+                    <span>TrustVault</span>
+                </a>
 
-                <h1>
-                    Your documents.<br>
-                    <span>Your control.</span>
-                </h1>
+                <div class="brand-message">
 
-                <p>
-                    A secure space to manage, share, and protect
-                    your important documents with confidence.
-                </p>
-            </div>
+                    <span class="eyebrow">
+                        YOUR SECURE WORKSPACE
+                    </span>
 
-            <div class="security-features">
+                    <h1>
+                        Your documents.<br>
+                        <span>Your control.</span>
+                    </h1>
 
-                <div class="feature">
-                    <span class="feature-icon">✓</span>
-                    <div>
-                        <h3>Secure access</h3>
-                        <p>Your documents stay protected.</p>
-                    </div>
-                </div>
+                    <p>
+                        Create your account and manage your
+                        important documents with confidence.
+                        Share only with people you trust.
+                    </p>
 
-                <div class="feature">
-                    <span class="feature-icon">↗</span>
-                    <div>
-                        <h3>Controlled sharing</h3>
-                        <p>Share with people you trust.</p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <div class="brand-footer">
-            © 2026 TrustVault. Built for privacy.
-        </div>
-    </section>
-
-
-    <!-- Right registration section -->
-    <section class="form-section">
-
-        <div class="form-wrapper">
-
-            <div class="mobile-logo">
-                <span class="logo-icon">✦</span>
-                <span>TrustVault</span>
-            </div>
-
-            <div class="form-heading">
-                <span class="welcome-text">GET STARTED</span>
-                <h2>Create your account</h2>
-                <p>Join TrustVault and keep your documents protected.</p>
-            </div>
-
-
-            <!-- Registration form -->
-            <form id="registerForm" novalidate>
-
-                <div class="form-group">
-                    <label for="fullName">Full name</label>
-                    <input
-                        type="text"
-                        id="fullName"
-                        name="name"
-                        placeholder="Enter your full name"
-                        autocomplete="name"
-                        required
-                    >
                 </div>
 
 
-                <div class="form-group">
-                    <label for="email">Email address</label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="you@example.com"
-                        autocomplete="email"
-                        required
-                    >
-                </div>
+                <div class="security-features">
 
-
-                <!-- Password -->
-                <div class="form-group">
-                    <label for="password">Password</label>
-
-                    <div class="password-wrapper">
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Create a strong password"
-                            autocomplete="new-password"
-                            required
-                        >
-
-                        <button
-                            type="button"
-                            class="password-toggle"
-                            id="togglePassword"
-                            aria-label="Show password"
-                            aria-pressed="false"
-                        >
-                            <svg class="eye-icon" viewBox="0 0 24 24"
-                                 aria-hidden="true">
-                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="password-hint">
-    <p>Password must contain:</p>
-    <ul>
-        <li>At least 8 characters</li>
-        <li>One uppercase and one lowercase letter</li>
-        <li>One number and one special character</li>
-    </ul>
-</div>
-
-                    <div class="password-strength">
-                        <div class="strength-bar">
-                            <span id="strengthIndicator"></span>
+                    <div class="feature">
+                        <span class="feature-icon">✓</span>
+                        <div>
+                            <h3>Secure access</h3>
+                            <p>Your documents stay protected.</p>
                         </div>
-                        <p id="strengthText">Use at least 8 characters</p>
                     </div>
+
+                    <div class="feature">
+                        <span class="feature-icon">↗</span>
+                        <div>
+                            <h3>Controlled sharing</h3>
+                            <p>You decide who can access your files.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature">
+                        <span class="feature-icon">◷</span>
+                        <div>
+                            <h3>Activity tracking</h3>
+                            <p>Important document activity is recorded.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="brand-footer">
+                © 2026 TrustVault. Built for privacy.
+            </div>
+
+        </section>
+
+
+        <!-- Right registration section -->
+        <section class="form-section">
+
+            <div class="form-wrapper">
+
+                <div class="form-heading">
+
+                    <span class="welcome-text">GET STARTED</span>
+
+                    <h2>Create your account</h2>
+
+                    <p>
+                        Join TrustVault and keep your documents protected.
+                    </p>
+
                 </div>
 
 
-                <!-- Confirm password -->
-                <div class="form-group">
-                    <label for="confirmPassword">Confirm password</label>
+                <form id="registerForm" novalidate>
 
-                    <div class="password-wrapper">
+                    <!-- Full name -->
+                    <div class="form-group">
+
+                        <label for="fullName">Full name</label>
+
                         <input
-                            type="password"
-                            id="confirmPassword"
-                            name="confirm_password"
-                            placeholder="Re-enter your password"
-                            autocomplete="new-password"
+                            type="text"
+                            id="fullName"
+                            name="name"
+                            placeholder="Enter your full name"
+                            autocomplete="name"
                             required
                         >
 
-                        <button
-                            type="button"
-                            class="password-toggle"
-                            id="toggleConfirmPassword"
-                            aria-label="Show confirm password"
-                            aria-pressed="false"
-                        >
-                            <svg class="eye-icon" viewBox="0 0 24 24"
-                                 aria-hidden="true">
-                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
-                        </button>
                     </div>
-                    <p id="confirmPasswordMessage" class="password-match-message"></p>
+
+
+                    <!-- Email -->
+                    <div class="form-group">
+
+                        <label for="email">Email address</label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="you@example.com"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Password -->
+                    <div class="form-group">
+
+                        <label for="password">Password</label>
+
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Create a strong password"
+                                autocomplete="new-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                id="togglePassword"
+                                aria-label="Show password"
+                                aria-pressed="false"
+                            >
+                                <svg
+                                    class="eye-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+
+                        </div>
+
+
+                        <div class="password-hint">
+
+                            <p>Password must contain:</p>
+
+                            <ul>
+                                <li>At least 8 characters</li>
+                                <li>One uppercase and one lowercase letter</li>
+                                <li>One number and one special character</li>
+                            </ul>
+
+                        </div>
+
+
+                        <div class="password-strength">
+
+                            <div class="strength-bar">
+                                <span id="strengthIndicator"></span>
+                            </div>
+
+                            <p id="strengthText">
+                                Use at least 8 characters
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Confirm password -->
+                    <div class="form-group">
+
+                        <label for="confirmPassword">
+                            Confirm password
+                        </label>
+
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                name="confirm_password"
+                                placeholder="Re-enter your password"
+                                autocomplete="new-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                id="toggleConfirmPassword"
+                                aria-label="Show confirm password"
+                                aria-pressed="false"
+                            >
+                                <svg
+                                    class="eye-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5-7-10-7S2 12 2 12Z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+
+                        </div>
+
+                        <p
+                            id="confirmPasswordMessage"
+                            class="password-match-message"
+                        ></p>
+
+                    </div>
+
+
+                    <!-- Message -->
+                    <div
+                        id="message"
+                        class="message"
+                        role="status"
+                        aria-live="polite"
+                    ></div>
+
+
+                    <!-- Register button -->
+                    <button
+                        type="submit"
+                        id="submitButton"
+                        class="submit-button"
+                    >
+                        <span>Create Account</span>
+                        <span class="button-arrow">→</span>
+                    </button>
+
+                </form>
+
+
+                <div class="form-footer">
+                    <p>
+                        Already have an account?
+                        <a href="login.html">Sign in</a>
+                    </p>
                 </div>
 
 
-                <div id="message" class="message"
-                     role="status" aria-live="polite"></div>
+                <div class="privacy-note">
+                    <span>◇</span>
+                    Your information is securely stored.
+                </div>
 
-
-                <button type="submit" id="submitButton"
-                        class="submit-button">
-                    <span>Create Account</span>
-                    <span class="button-arrow">→</span>
-                </button>
-
-            </form>
-
-
-            <div class="form-footer">
-                <p>
-                    Already have an account?
-                    <a href="login.html">Sign in</a>
-                </p>
             </div>
 
-            <div class="privacy-note">
-                <span>♢</span>
-                Your information is encrypted and securely stored.
-            </div>
+        </section>
 
-        </div>
-    </section>
+    </main>
 
-</main>
-
-<script src="register.js"></script>
+    <script src="register.js"></script>
 
 </body>
 </html>
