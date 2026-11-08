@@ -354,7 +354,7 @@ def forgot_password():
         raw=secrets.token_urlsafe(32)
         record=PasswordResetToken(user_id=user.id,token_hash=hash_verification_token(raw),expires_at=now+timedelta(hours=1))
         db.session.add(record); db.session.commit()
-        link=f"{current_app.config["APP_BASE_URL"]}/reset-password.html?token={raw}"
+        link=f"{current_app.config['APP_BASE_URL']}/reset-password.html?token={raw}"
         try:
             send_email(user.email,"TrustVault Password Reset",f"Hello {user.name},\n\nUse this single-use link to reset your TrustVault password within one hour:\n{link}\n\nIf you did not request this, ignore this email.")
             append_audit(None,"password_reset_request","success",target_user_id=user.id,details={"delivery":"accepted_by_mail_transport"})
@@ -405,7 +405,7 @@ def resend_verification():
         token=generate_verification_token()
         record=EmailVerificationToken(user_id=user.id,token_hash=hash_verification_token(token),expires_at=now+timedelta(hours=24))
         db.session.add(record); db.session.commit()
-        link=f"{current_app.config["APP_BASE_URL"]}/auth/verify-email/{token}"
+        link=f"{current_app.config['APP_BASE_URL']}/auth/verify-email/{token}"
         try:
             send_email(user.email,"Verify your TrustVault account",f"Hello {user.name},\n\nVerify your account with this single-use link (expires in 24 hours):\n{link}\n")
             append_audit(None,"verification_email_resend","success",target_user_id=user.id,details={"delivery":"accepted_by_mail_transport"})
