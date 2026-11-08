@@ -123,6 +123,37 @@ def create_app(test_config=None):
             "google475f0aed161d73b1.html"
         )
 
+    # SECURITY HEADERS
+    @app.after_request
+    def add_security_headers(response):
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        response.headers.setdefault(
+            "Strict-Transport-Security",
+            "max-age=31536000; includeSubDomains",
+        )
+        response.headers.setdefault(
+            "Content-Security-Policy",
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "font-src 'self' https://fonts.gstatic.com data:; "
+            "img-src 'self' data:; frame-ancestors 'none'; "
+            "form-action 'self'; base-uri 'self'",
+        )
+        return response
+
+    # PUBLIC PAGES
+    contact_email = os.getenv("CONTACT_EMAIL", "contact@example.com")
+
+    @app.route("/privacy")
+    def privacy_page():
+        return render_template("privacy.html", contact_email=contact_email)
+
+    @app.route("/terms")
+    def terms_page():
+        return render_template("terms.html", contact_email=contact_email)
+
     # LOGIN PAGE
     @app.route("/login.html")
     def login_page():
@@ -180,7 +211,7 @@ def create_app(test_config=None):
     # HOME PAGE
     @app.route("/")
     def home():
-        return redirect(url_for("login_page"))
+        return render_template("landing.html", contact_email=contact_email)
 
     return app
 

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrustVault | Secure document sharing with an audit trail</title>
+<meta name="description" content="TrustVault is a document-sharing prototype where every access is permission-checked and recorded in a tamper-evident audit log.">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,-apple-system,"Segoe UI",sans-serif;color:#17243a;background:#f5f7fb;line-height:1.6}
+header,main,footer{max-width:980px;margin:0 auto;padding:0 24px}
+header{display:flex;justify-content:space-between;align-items:center;padding-top:24px;padding-bottom:24px}
+.logo{font-weight:700;font-size:1.25rem;color:#142943;text-decoration:none}
+.btn{display:inline-block;background:#142943;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:600}
+.hero{padding:56px 0 40px}.hero h1{font-size:2.4rem;line-height:1.2;margin:0 0 16px;color:#142943}
+.hero p{font-size:1.1rem;max-width:640px;margin:0 0 24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin:24px 0 48px}
+.card{background:#fff;border-radius:16px;padding:22px;box-shadow:0 1px 4px rgba(20,41,67,.08)}
+.card h3{margin:0 0 8px;color:#142943}
+.note{background:#fff;border-left:4px solid #4c82be;padding:16px 20px;border-radius:8px;margin-bottom:40px}
+footer{padding-top:24px;padding-bottom:40px;border-top:1px solid #dde3ee;font-size:.92rem;color:#52607a}
+footer a{color:#142943;margin-right:16px}
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="/">TrustVault</a>
+  <a class="btn" href="/login.html">Sign in</a>
+</header>
+<main>
+  <section class="hero">
+    <h1>Share documents securely, with a record of every access.</h1>
+    <p>TrustVault is a document-sharing web application. Owners upload documents and grant read or edit access to specific people. Access is denied by default, and every grant, download and denied attempt is written to an audit log.</p>
+    <a class="btn" href="/login.html">Go to sign in</a>
+  </section>
+  <section class="grid" aria-label="Features">
+    <div class="card"><h3>Deny by default</h3><p>Each request is checked against a live, document-specific permission before anything is shown or downloaded.</p></div>
+    <div class="card"><h3>Three clear roles</h3><p>Admins manage accounts and review audit events, Owners upload and share documents, and Viewers open what has been shared with them.</p></div>
+    <div class="card"><h3>Tamper-evident audit log</h3><p>Access events are chained with SHA-256 hashes so changes to the history can be detected.</p></div>
+    <div class="card"><h3>Private storage</h3><p>Files are kept in private storage and are never exposed through public links.</p></div>
+  </section>
+  <div class="note"><strong>About this project.</strong> TrustVault is an educational prototype built for the Snovasys RISE challenge. It is not affiliated with any bank, payment provider or other company, and it will never ask you for payment details or to download software.</div>
+</main>
+<footer>
+  <a href="/privacy">Privacy Policy</a><a href="/terms">Terms of Use</a><a href="mailto:{{ contact_email }}">Contact: {{ contact_email }}</a>
+  <div>&copy; 2026 TrustVault</div>
+</footer>
+</body>
+</html>
