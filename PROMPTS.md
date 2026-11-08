@@ -139,4 +139,4 @@
 
 **Verification status:** Owner invitation email sending was manually verified. Full end-to-end testing by another user, including opening the official deployed invitation link and completing the invitation flow, is still pending.
 
-**Commit link:** Pending a real commit and push. Add the actual GitHub commit URL after committing these changes. No commit was fabricated.
+**Commit link:** https://github.com/rangapujithadomala-ai/TrustVault/commit/f4b203764ce43d6ba1c4f0dcd2e1f2eb7012e993
