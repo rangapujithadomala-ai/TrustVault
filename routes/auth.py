@@ -295,7 +295,10 @@ def logout():
         db.session.commit()
     logout_user()
     session.pop("_trustvault_password_snapshot", None)
-    return redirect("/login.html?logout=1")
+    return jsonify({
+    "message": "Logged out successfully.",
+    "redirect": "/login.html?logout=1"
+}), 200
 
 
 @auth_bp.route("/profile/update", methods=["POST"])
