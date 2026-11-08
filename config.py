@@ -10,6 +10,12 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY")
 
+    # Trusted public origin used when generating links sent by email.
+    APP_BASE_URL = os.getenv(
+        "APP_BASE_URL",
+        "https://trustvault-p85t.onrender.com"
+    ).rstrip("/")
+
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
 
     if SQLALCHEMY_DATABASE_URI:
