@@ -175,7 +175,7 @@ def invite_owner():
         }), 500
 
     verification_link = (
-        f"{request.url_root.rstrip('/')}"
+        f"{current_app.config['APP_BASE_URL']}"
         f"/auth/accept-owner-invitation/{token}"
     )
 
@@ -641,7 +641,7 @@ def resend_owner_invitation(user_id):
     db.session.commit()
 
     link = (
-        f"{request.url_root.rstrip('/')}"
+        f"{current_app.config['APP_BASE_URL']}"
         f"/auth/accept-owner-invitation/{token}"
     )
 
@@ -746,7 +746,7 @@ def resend_viewer_verification(user_id):
     db.session.commit()
 
     link = (
-        f"{request.url_root.rstrip('/')}"
+        f"{current_app.config['APP_BASE_URL']}"
         f"/auth/verify-email/{token}"
     )
 
