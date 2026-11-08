@@ -647,7 +647,7 @@ def create_invitation(doc_id):
         db.session.commit()
 
         invitation_url = (
-            request.url_root.rstrip("/")
+            current_app.config["APP_BASE_URL"]
             + "/invitations/accept/"
             + raw_token
         )
@@ -861,7 +861,7 @@ def create_bulk_invitation():
 
         # All selected documents share this ONE invitation URL.
         invitation_url = (
-            request.url_root.rstrip("/")
+            current_app.config["APP_BASE_URL"]
             + "/invitations/accept/"
             + raw_token
         )
