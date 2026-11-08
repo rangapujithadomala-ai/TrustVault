@@ -4,290 +4,1077 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account | TrustVault</title>
-
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#f5f7fb">
 
-    <link rel="stylesheet" href="style.css">
-    
+    <title>Create Account | TrustVault</title>
+    <link rel="stylesheet" href="/style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body.register-page {
+            margin: 0;
+            min-height: 100vh;
+            background: #f5f7fb;
+            color: #17243a;
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .register-layout {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(440px, .95fr);
+            gap: 28px;
+            padding: 28px;
+        }
+
+        /* BRAND PANEL */
+
+        .register-brand-panel {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: calc(100vh - 56px);
+            padding: clamp(32px, 5vw, 70px);
+            border-radius: 24px;
+            color: #fff;
+            background:
+                radial-gradient(circle at 85% 15%, rgba(76,130,190,.32), transparent 35%),
+                linear-gradient(145deg, #142943, #102039 55%, #0b172b);
+        }
+
+        .register-brand-panel::before,
+        .register-brand-panel::after {
+            content: "";
+            position: absolute;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .register-brand-panel::before {
+            width: 430px;
+            height: 430px;
+            right: -180px;
+            bottom: -130px;
+        }
+
+        .register-brand-panel::after {
+            width: 300px;
+            height: 300px;
+            right: -115px;
+            bottom: -65px;
+        }
+
+        .register-brand-top,
+        .register-brand-main,
+        .register-brand-bottom {
+            position: relative;
+            z-index: 1;
+        }
+
+        .register-brand-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 23px;
+            font-weight: 750;
+            letter-spacing: -.6px;
+        }
+
+        .register-logo-symbol {
+            display: grid;
+            place-items: center;
+            width: 43px;
+            height: 43px;
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 13px;
+            background: rgba(255,255,255,.1);
+        }
+
+        .register-logo-symbol svg {
+            width: 25px;
+            height: 25px;
+        }
+
+        .register-brand-main {
+            max-width: 610px;
+            margin: auto 0;
+            padding: 55px 0;
+        }
+
+        .register-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 25px;
+            color: #a9c9ed;
+            font-size: 11px;
+            font-weight: 750;
+            letter-spacing: 2.4px;
+        }
+
+        .register-eyebrow::before {
+            content: "";
+            width: 25px;
+            height: 2px;
+            background: #77aee8;
+        }
+
+        .register-brand-main h1 {
+            margin: 0;
+            color: #fff;
+            font-size: clamp(38px, 4.5vw, 64px);
+            font-weight: 750;
+            line-height: 1.12;
+            letter-spacing: -2.5px;
+        }
+
+        .register-brand-main h1 span {
+            color: #91bce9;
+        }
+
+        .register-brand-description {
+            max-width: 470px;
+            margin: 25px 0 38px;
+            color: #c4d1e0;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .register-feature-list {
+            display: grid;
+            gap: 19px;
+        }
+
+        .register-feature {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #edf4fc;
+            font-size: 14px;
+        }
+
+        .register-feature-icon {
+            display: grid;
+            place-items: center;
+            flex: 0 0 39px;
+            height: 39px;
+            border: 1px solid rgba(255,255,255,.13);
+            border-radius: 11px;
+            background: rgba(255,255,255,.08);
+            color: #a9cefa;
+        }
+
+        .register-feature-icon svg {
+            width: 19px;
+            height: 19px;
+        }
+
+        .register-brand-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            color: #9eafc4;
+            font-size: 12px;
+        }
+
+        .register-brand-bottom span:last-child {
+            color: #b6c9df;
+        }
+
+        /* REGISTRATION PANEL */
+
+        .register-panel {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+            padding: 65px 30px 35px;
+        }
+
+        .register-panel-inner {
+            width: 100%;
+            max-width: 460px;
+        }
+
+        .register-topbar {
+            position: absolute;
+            top: 18px;
+            right: 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        .register-theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 13px;
+            border: 1px solid #dce3ed;
+            border-radius: 30px;
+            background: #fff;
+            color: #42536b;
+            font-size: 12px;
+            font-weight: 650;
+            cursor: pointer;
+        }
+
+        .register-theme-toggle svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .register-welcome {
+            display: block;
+            margin-bottom: 11px;
+            color: #3979bb;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .register-heading h2 {
+            margin: 0;
+            color: #17243a;
+            font-size: clamp(29px, 3vw, 36px);
+            font-weight: 750;
+            letter-spacing: -1.1px;
+        }
+
+        .register-heading p {
+            margin: 10px 0 25px;
+            color: #748196;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* FORM FIELDS */
+
+        .register-page .form-group {
+            width: 100%;
+            margin: 0 0 17px;
+        }
+
+        .register-page .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #27364d;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .register-page .form-group > input,
+        .register-page .password-wrapper input {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            height: 49px;
+            margin: 0;
+            padding: 0 15px;
+            border: 1px solid #d7e0eb;
+            border-radius: 10px;
+            outline: none;
+            background: #fff;
+            color: #17243a;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: normal;
+            box-shadow: 0 1px 2px rgba(20,40,70,.03);
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .register-page .form-group input::placeholder {
+            color: #a0aabb;
+            opacity: 1;
+        }
+
+        .register-page .form-group input:hover {
+            border-color: #aebed0;
+        }
+
+        .register-page .form-group input:focus {
+            border-color: #4786c6;
+            box-shadow: 0 0 0 4px rgba(71,134,198,.13);
+        }
+
+        .register-page .form-group input:focus-visible {
+            outline: none;
+        }
+
+        .register-page .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .register-page .password-wrapper input {
+            padding-right: 49px;
+        }
+
+        .register-page .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: #748196;
+            cursor: pointer;
+            transform: translateY(-50%);
+        }
+
+        .register-page .password-toggle:hover {
+            background: #f0f4f8;
+            color: #315f91;
+        }
+
+        .register-page .eye-icon {
+            width: 19px;
+            height: 19px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .register-page .password-hint {
+            margin-top: 9px;
+            color: #748196;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .register-page .password-hint p {
+            margin: 0 0 3px;
+            font-weight: 650;
+        }
+
+        .register-page .password-hint ul {
+            display: flex;
+            flex-wrap: wrap;
+            column-gap: 18px;
+            row-gap: 2px;
+            margin: 0;
+            padding-left: 17px;
+        }
+
+        .register-page .strength-bar {
+            width: 100%;
+            height: 5px;
+            overflow: hidden;
+            border-radius: 10px;
+            background: #e5eaf0;
+            margin-top: 10px;
+        }
+
+        .register-page #strengthIndicator {
+            display: block;
+            width: 0;
+            height: 100%;
+            border-radius: inherit;
+            transition: width .2s ease;
+        }
+
+        .register-page .password-strength p,
+        .register-page .password-match-message {
+            margin: 5px 0 0;
+            color: #748196;
+            font-size: 11px;
+        }
+
+        .register-page .password-match-message:empty,
+        .register-page .message:empty {
+            display: none;
+        }
+
+        .register-page .password-match-message.success {
+            color: #16804b;
+        }
+
+        .register-page .password-match-message.error {
+            color: #c13d48;
+        }
+
+        /* FEEDBACK AND BUTTON */
+
+        .register-page .message {
+            margin: 10px 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .register-page .message.error {
+            padding: 10px 12px;
+            border: 1px solid #f2caca;
+            border-radius: 8px;
+            background: #fff1f1;
+            color: #a32d2d;
+        }
+
+        .register-page .message.success {
+            padding: 10px 12px;
+            border: 1px solid #b9e3cb;
+            border-radius: 8px;
+            background: #effaf3;
+            color: #246b43;
+        }
+
+        .register-page .submit-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            min-height: 51px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(110deg, #285d96, #397fbd);
+            color: #fff;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 750;
+            cursor: pointer;
+            box-shadow: 0 7px 16px rgba(44,104,163,.17);
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .register-page .submit-button:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(44,104,163,.23);
+        }
+
+        .register-page .submit-button:disabled {
+            opacity: .65;
+            cursor: not-allowed;
+        }
+
+        .register-page .button-arrow {
+            font-size: 18px;
+        }
+
+        .register-page .form-footer {
+            margin-top: 20px;
+            color: #7b8799;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .register-page .form-footer p {
+            margin: 0;
+        }
+
+        .register-page .form-footer a {
+            color: #3979bb;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .register-page .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .register-page .privacy-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 22px;
+            color: #8995a6;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .register-page .privacy-note svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            color: #4c8a76;
+        }
+
+        .register-page button:focus-visible,
+        .register-page a:focus-visible {
+            outline: 2px solid #4786c6;
+            outline-offset: 3px;
+        }
+
+        /* DARK MODE */
+
+        body.register-page.dark-mode {
+            background: #101827;
+            color: #f1f5f9;
+        }
+
+        body.dark-mode .register-panel {
+            background: #101827;
+        }
+
+        body.dark-mode .register-heading h2 {
+            color: #f1f5f9;
+        }
+
+        body.dark-mode .register-heading p,
+        body.dark-mode .register-page .form-footer,
+        body.dark-mode .register-page .privacy-note {
+            color: #aab7c8;
+        }
+
+        body.dark-mode .register-page .form-group label {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .register-page .form-group > input,
+        body.dark-mode .register-page .password-wrapper input {
+            border-color: #34445a;
+            background: #1b293b;
+            color: #f8fafc;
+            caret-color: #fff;
+        }
+
+        body.dark-mode .register-page .form-group input::placeholder {
+            color: #8b9bb0;
+        }
+
+        body.dark-mode .register-page .form-group input:focus {
+            border-color: #70a8e0;
+            box-shadow: 0 0 0 4px rgba(112,168,224,.15);
+        }
+
+        body.dark-mode .register-page .password-toggle {
+            color: #b6c5d8;
+        }
+
+        body.dark-mode .register-page .password-toggle:hover {
+            background: #26384e;
+        }
+
+        body.dark-mode .register-page .password-hint,
+        body.dark-mode .register-page .password-strength p {
+            color: #aab7c8;
+        }
+
+        body.dark-mode .register-page .strength-bar {
+            background: #34445a;
+        }
+
+        body.dark-mode .register-theme-toggle {
+            border-color: #34445a;
+            background: #1b293b;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .register-page .form-footer a {
+            color: #8bbcf0;
+        }
+
+        body.dark-mode .register-page .message.error {
+            border-color: #743d49;
+            background: #3b202a;
+            color: #ffc6ce;
+        }
+
+        body.dark-mode .register-page .message.success {
+            border-color: #285b43;
+            background: #183629;
+            color: #b8f0ce;
+        }
+
+        body.dark-mode .register-page .password-match-message.success {
+            color: #86ddb0;
+        }
+
+        body.dark-mode .register-page .password-match-message.error {
+            color: #ffabb4;
+        }
+
+        body.dark-mode .register-page input:-webkit-autofill,
+        body.dark-mode .register-page input:-webkit-autofill:hover,
+        body.dark-mode .register-page input:-webkit-autofill:focus {
+            -webkit-text-fill-color: #f8fafc !important;
+            box-shadow: 0 0 0 1000px #1b293b inset !important;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 900px) {
+            .register-layout {
+                grid-template-columns: minmax(0,.9fr) minmax(390px,1.1fr);
+                gap: 16px;
+                padding: 16px;
+            }
+
+            .register-brand-panel {
+                min-height: calc(100vh - 32px);
+                padding: 35px 28px;
+            }
+
+            .register-brand-main h1 {
+                font-size: 42px;
+            }
+
+            .register-panel {
+                padding: 65px 22px 30px;
+            }
+        }
+
+        @media (max-width: 680px) {
+            .register-layout {
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+                padding: 12px;
+            }
+
+            .register-brand-panel {
+                min-height: auto;
+                padding: 25px 23px;
+                border-radius: 18px 18px 0 0;
+            }
+
+            .register-brand-logo {
+                font-size: 20px;
+            }
+
+            .register-brand-main {
+                padding: 35px 0 25px;
+            }
+
+            .register-brand-main h1 {
+                font-size: 38px;
+            }
+
+            .register-brand-description {
+                margin: 15px 0 22px;
+                font-size: 14px;
+            }
+
+            .register-feature-list {
+                gap: 12px;
+            }
+
+            .register-feature {
+                font-size: 12px;
+            }
+
+            .register-feature-icon {
+                flex-basis: 34px;
+                height: 34px;
+            }
+
+            .register-brand-bottom {
+                margin-top: 25px;
+                font-size: 10px;
+            }
+
+            .register-panel {
+                min-height: 650px;
+                padding: 65px 18px 35px;
+                border-radius: 0 0 18px 18px;
+                background: #fff;
+            }
+
+            body.dark-mode .register-panel {
+                background: #101827;
+            }
+
+            .register-topbar {
+                top: 15px;
+                right: 16px;
+            }
+
+            .register-heading h2 {
+                font-size: 29px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .register-brand-main h1 {
+                font-size: 33px;
+            }
+
+            .register-page .password-hint ul {
+                display: block;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: .01ms !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
 </head>
 
 <body class="auth-page register-page">
 
-    <main class="auth-container">
+<main class="register-layout">
 
-        <!-- Left branding section -->
-        <section class="brand-section">
+    <!-- BRAND PANEL -->
+    <section class="register-brand-panel">
 
-            <div class="brand-content">
+        <div class="register-brand-top">
+            <a href="/login.html" class="register-brand-logo">
+                <span class="register-logo-symbol">
+                    <svg viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         aria-hidden="true">
+                        <path d="M12 3 20 6v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3Z"/>
+                        <path d="m8.5 12 2.3 2.3 4.8-5"/>
+                    </svg>
+                </span>
+                <span>TrustVault</span>
+            </a>
+        </div>
 
-                <a href="login.html" class="brand-logo">
-                    <span class="logo-icon">T</span>
-                    <span>TrustVault</span>
-                </a>
+        <div class="register-brand-main">
 
-                <div class="brand-message">
+            <span class="register-eyebrow">
+                PRIVATE. PROTECTED. ACCOUNTABLE.
+            </span>
 
-                    <span class="eyebrow">
-                        YOUR SECURE WORKSPACE
+            <h1>
+                Your documents.<br>
+                <span>Your control.</span>
+            </h1>
+
+            <p class="register-brand-description">
+                Create your secure workspace. Manage important
+                documents, control who can access them, and keep
+                track of important activity.
+            </p>
+
+            <div class="register-feature-list">
+
+                <div class="register-feature">
+                    <span class="register-feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1.8"
+                             stroke-linecap="round" stroke-linejoin="round"
+                             aria-hidden="true">
+                            <path d="M12 3 20 6v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3Z"/>
+                            <path d="m8.5 12 2.3 2.3 4.8-5"/>
+                        </svg>
                     </span>
-
-                    <h1>
-                        Your documents.<br>
-                        <span>Your control.</span>
-                    </h1>
-
-                    <p>
-                        Create your account and manage your
-                        important documents with confidence.
-                        Share only with people you trust.
-                    </p>
-
+                    <span>Protected document access</span>
                 </div>
 
+                <div class="register-feature">
+                    <span class="register-feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1.8"
+                             stroke-linecap="round" stroke-linejoin="round"
+                             aria-hidden="true">
+                            <circle cx="9" cy="8" r="3"/>
+                            <path d="M3 20v-1a6 6 0 0 1 12 0v1"/>
+                            <path d="M16 5.5a3 3 0 0 1 0 5.8"/>
+                            <path d="M18 14a5 5 0 0 1 3 4.5V20"/>
+                        </svg>
+                    </span>
+                    <span>Access for authorised people only</span>
+                </div>
 
-                <div class="security-features">
-
-                    <div class="feature">
-                        <span class="feature-icon">✓</span>
-                        <div>
-                            <h3>Secure access</h3>
-                            <p>Your documents stay protected.</p>
-                        </div>
-                    </div>
-
-                    <div class="feature">
-                        <span class="feature-icon">↗</span>
-                        <div>
-                            <h3>Controlled sharing</h3>
-                            <p>You decide who can access your files.</p>
-                        </div>
-                    </div>
-
-                    <div class="feature">
-                        <span class="feature-icon">◷</span>
-                        <div>
-                            <h3>Activity tracking</h3>
-                            <p>Important document activity is recorded.</p>
-                        </div>
-                    </div>
-
+                <div class="register-feature">
+                    <span class="register-feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1.8"
+                             stroke-linecap="round" stroke-linejoin="round"
+                             aria-hidden="true">
+                            <path d="M4 4h16v16H4z"/>
+                            <path d="M8 8h8M8 12h8M8 16h5"/>
+                        </svg>
+                    </span>
+                    <span>Accountable activity and audit records</span>
                 </div>
 
             </div>
+        </div>
 
-            <div class="brand-footer">
-                © 2026 TrustVault. Built for privacy.
+        <div class="register-brand-bottom">
+            <span>&copy; 2026 TrustVault. Built for privacy.</span>
+            <span>Security by design.</span>
+        </div>
+
+    </section>
+
+
+    <!-- REGISTRATION FORM -->
+    <section class="register-panel">
+
+        <div class="register-topbar">
+            <button
+                type="button"
+                class="register-theme-toggle"
+                id="registerThemeToggle"
+                aria-label="Switch appearance"
+            >
+                <svg
+                    id="registerThemeIcon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                >
+                    <circle cx="12" cy="12" r="4"/>
+                    <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/>
+                </svg>
+                <span id="registerThemeLabel">Light mode</span>
+            </button>
+        </div>
+
+        <div class="register-panel-inner">
+
+            <div class="register-heading">
+                <span class="register-welcome">GET STARTED</span>
+
+                <h2>Create your account</h2>
+
+                <p>
+                    Enter your details to create your secure workspace.
+                </p>
             </div>
 
-        </section>
 
+            <form id="registerForm" novalidate>
 
-        <!-- Right registration section -->
-        <section class="form-section">
+                <div class="form-group">
+                    <label for="fullName">Full name</label>
 
-            <div class="form-wrapper">
-
-                <div class="form-heading">
-
-                    <span class="welcome-text">GET STARTED</span>
-
-                    <h2>Create your account</h2>
-
-                    <p>
-                        Join TrustVault and keep your documents protected.
-                    </p>
-
-                </div>
-
-
-                <form id="registerForm" novalidate>
-
-                    <!-- Full name -->
-                    <div class="form-group">
-
-                        <label for="fullName">Full name</label>
-
-                        <input
-                            type="text"
-                            id="fullName"
-                            name="name"
-                            placeholder="Enter your full name"
-                            autocomplete="name"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Email -->
-                    <div class="form-group">
-
-                        <label for="email">Email address</label>
-
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            placeholder="you@example.com"
-                            autocomplete="email"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Password -->
-                    <div class="form-group">
-
-                        <label for="password">Password</label>
-
-                        <div class="password-wrapper">
-
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                placeholder="Create a strong password"
-                                autocomplete="new-password"
-                                required
-                            >
-
-                            <button
-                                type="button"
-                                class="password-toggle"
-                                id="togglePassword"
-                                aria-label="Show password"
-                                aria-pressed="false"
-                            >
-                                <svg
-                                    class="eye-icon"
-                                    viewBox="0 0 24 24"
-                                    aria-hidden="true"
-                                >
-                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
-                                    <circle cx="12" cy="12" r="3"/>
-                                </svg>
-                            </button>
-
-                        </div>
-
-
-                        <div class="password-hint">
-
-                            <p>Password must contain:</p>
-
-                            <ul>
-                                <li>At least 8 characters</li>
-                                <li>One uppercase and one lowercase letter</li>
-                                <li>One number and one special character</li>
-                            </ul>
-
-                        </div>
-
-
-                        <div class="password-strength">
-
-                            <div class="strength-bar">
-                                <span id="strengthIndicator"></span>
-                            </div>
-
-                            <p id="strengthText">
-                                Use at least 8 characters
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- Confirm password -->
-                    <div class="form-group">
-
-                        <label for="confirmPassword">
-                            Confirm password
-                        </label>
-
-                        <div class="password-wrapper">
-
-                            <input
-                                type="password"
-                                id="confirmPassword"
-                                name="confirm_password"
-                                placeholder="Re-enter your password"
-                                autocomplete="new-password"
-                                required
-                            >
-
-                            <button
-                                type="button"
-                                class="password-toggle"
-                                id="toggleConfirmPassword"
-                                aria-label="Show confirm password"
-                                aria-pressed="false"
-                            >
-                                <svg
-                                    class="eye-icon"
-                                    viewBox="0 0 24 24"
-                                    aria-hidden="true"
-                                >
-                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5-7-10-7S2 12 2 12Z"/>
-                                    <circle cx="12" cy="12" r="3"/>
-                                </svg>
-                            </button>
-
-                        </div>
-
-                        <p
-                            id="confirmPasswordMessage"
-                            class="password-match-message"
-                        ></p>
-
-                    </div>
-
-
-                    <!-- Message -->
-                    <div
-                        id="message"
-                        class="message"
-                        role="status"
-                        aria-live="polite"
-                    ></div>
-
-
-                    <!-- Register button -->
-                    <button
-                        type="submit"
-                        id="submitButton"
-                        class="submit-button"
+                    <input
+                        type="text"
+                        id="fullName"
+                        name="name"
+                        placeholder="Enter your full name"
+                        autocomplete="name"
+                        maxlength="120"
+                        required
                     >
-                        <span>Create Account</span>
-                        <span class="button-arrow">→</span>
-                    </button>
-
-                </form>
-
-
-                <div class="form-footer">
-                    <p>
-                        Already have an account?
-                        <a href="login.html">Sign in</a>
-                    </p>
                 </div>
 
 
-                <div class="privacy-note">
-                    <span>◇</span>
-                    Your information is securely stored.
+                <div class="form-group">
+                    <label for="email">Email address</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="you@example.com"
+                        autocomplete="email"
+                        inputmode="email"
+                        autocapitalize="none"
+                        spellcheck="false"
+                        maxlength="254"
+                        required
+                    >
                 </div>
 
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+
+                    <div class="password-wrapper">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Create a strong password"
+                            autocomplete="new-password"
+                            minlength="8"
+                            required
+                            aria-describedby="passwordRequirements strengthText"
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            id="togglePassword"
+                            aria-label="Show password"
+                            aria-pressed="false"
+                        >
+                            <svg
+                                class="eye-icon"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="password-hint" id="passwordRequirements">
+                        <p>Password must contain:</p>
+                        <ul>
+                            <li>At least 8 characters</li>
+                            <li>Uppercase and lowercase letters</li>
+                            <li>One number and one special character</li>
+                        </ul>
+                    </div>
+
+                    <div class="password-strength">
+                        <div class="strength-bar" role="presentation">
+                            <span id="strengthIndicator"></span>
+                        </div>
+
+                        <p id="strengthText" aria-live="polite">
+                            Use at least 8 characters
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm password</label>
+
+                    <div class="password-wrapper">
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirm_password"
+                            placeholder="Re-enter your password"
+                            autocomplete="new-password"
+                            required
+                            aria-describedby="confirmPasswordMessage"
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            id="toggleConfirmPassword"
+                            aria-label="Show confirm password"
+                            aria-pressed="false"
+                        >
+                            <svg
+                                class="eye-icon"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <p
+                        id="confirmPasswordMessage"
+                        class="password-match-message"
+                        aria-live="polite"
+                    ></p>
+                </div>
+
+
+                <div
+                    id="message"
+                    class="message"
+                    role="status"
+                    aria-live="polite"
+                ></div>
+
+
+                <button
+                    type="submit"
+                    id="submitButton"
+                    class="submit-button"
+                >
+                    <span>Create Account</span>
+                    <span class="button-arrow" aria-hidden="true">&rarr;</span>
+                </button>
+
+            </form>
+
+
+            <div class="form-footer">
+                <p>
+                    Already have an account?
+                    <a href="/login.html">Sign in</a>
+                </p>
             </div>
 
-        </section>
 
-    </main>
+            <div class="privacy-note">
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true">
+                    <path d="M12 3 20 6v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3Z"/>
+                    <path d="m8.5 12 2.3 2.3 4.8-5"/>
+                </svg>
+                Your information is securely stored.
+            </div>
 
-    <script src="register.js"></script>
+        </div>
+    </section>
+
+</main>
+
+
+<script src="/register.js"></script>
+<script src="/settings.js"></script>
+
+<script>
+(() => {
+    const button = document.getElementById("registerThemeToggle");
+    const label = document.getElementById("registerThemeLabel");
+    const icon = document.getElementById("registerThemeIcon");
+    const storageKey = "trustvault-theme";
+
+    function applyTheme(theme) {
+        const dark = theme === "dark";
+
+        document.body.classList.toggle("dark-mode", dark);
+
+        label.textContent = dark ? "Dark mode" : "Light mode";
+
+        icon.innerHTML = dark
+            ? '<path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5 8.5 8.5 0 1 0 20.5 14.5Z"/>'
+            : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l-1.42 1.42M17.65 6.35l1.42-1.42"/>';
+    }
+
+    let savedTheme = localStorage.getItem(storageKey) || "light";
+
+    if (savedTheme === "system") {
+        savedTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+    }
+
+    applyTheme(savedTheme);
+
+    button.addEventListener("click", () => {
+        const nextTheme = document.body.classList.contains("dark-mode")
+            ? "light"
+            : "dark";
+
+        localStorage.setItem(storageKey, nextTheme);
+        applyTheme(nextTheme);
+    });
+})();
+</script>
 
 </body>
 </html>

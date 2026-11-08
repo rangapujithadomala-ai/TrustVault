@@ -1,97 +1,239 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrustVault | Activity</title>
-    <link rel="stylesheet" href="dashboard.css">
-</head>
+{% extends "base.html" %}
 
-<body class="dashboard-page">
+{% block title %}Activity | TrustVault{% endblock %}
 
-    <div class="dashboard-container">
+{% block extra_css %}
+<style>
+.activity-page {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
 
-        <aside class="sidebar">
-            <div class="brand">
-                <h2>TrustVault</h2>
-                <p>Secure Document Sharing</p>
+.activity-heading h1 {
+    margin: 0 0 7px;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.activity-heading p {
+    margin: 0;
+    color: var(--text-secondary, #64748b);
+    font-size: 14px;
+}
+
+.activity-section {
+    padding: 22px;
+    background: var(--surface, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 14px;
+}
+
+.activity-section-heading {
+    margin-bottom: 22px;
+}
+
+.activity-section-heading h2 {
+    margin: 0 0 6px;
+    font-size: 19px;
+}
+
+.activity-section-heading p {
+    margin: 0;
+    color: var(--text-secondary, #64748b);
+    font-size: 14px;
+}
+
+.activity-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 18px 4px;
+    border-bottom: 1px solid var(--border, #e2e8f0);
+}
+
+.activity-item:first-child {
+    padding-top: 4px;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+    padding-bottom: 4px;
+}
+
+.activity-main {
+    min-width: 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+}
+
+.activity-indicator {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: rgba(59, 130, 246, .12);
+    color: #2563eb;
+    font-size: 17px;
+}
+
+.activity-details {
+    min-width: 0;
+}
+
+.activity-document {
+    margin: 0 0 6px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+
+.activity-action {
+    margin: 0 0 7px;
+    color: var(--text-secondary, #64748b);
+    font-size: 13px;
+    text-transform: capitalize;
+    overflow-wrap: anywhere;
+}
+
+.activity-outcome {
+    display: inline-flex;
+    padding: 4px 9px;
+    border-radius: 20px;
+    background: var(--surface-secondary, rgba(100, 116, 139, .09));
+    color: var(--text-secondary, #64748b);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.activity-time {
+    flex-shrink: 0;
+    color: var(--text-secondary, #64748b);
+    font-size: 12px;
+    text-align: right;
+}
+
+.activity-empty {
+    padding: 45px 15px;
+    text-align: center;
+    color: var(--text-secondary, #64748b);
+}
+
+.activity-empty-icon {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 30px;
+}
+
+.activity-empty strong {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--text);
+}
+
+.activity-empty p {
+    margin: 0;
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+    .activity-section {
+        padding: 15px;
+    }
+
+    .activity-heading h1 {
+        font-size: 22px;
+    }
+
+    .activity-item {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .activity-time {
+        padding-left: 52px;
+        text-align: left;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="activity-page">
+
+    <div class="activity-heading">
+        <h1>Activity</h1>
+        <p>Track your recent document-related activities.</p>
+    </div>
+
+    <section class="activity-section">
+
+        <div class="activity-section-heading">
+            <h2>Recent Activity</h2>
+            <p>
+                A history of actions performed on documents you can access.
+            </p>
+        </div>
+
+        <div class="activity-list">
+
+            {% for activity in activities %}
+            <article class="activity-item">
+
+                <div class="activity-main">
+
+                    <div class="activity-indicator" aria-hidden="true">
+                        ↗
+                    </div>
+
+                    <div class="activity-details">
+
+                        <p class="activity-document">
+                            {{ doc_titles.get(activity.document_id, "Document") }}
+                        </p>
+
+                        <p class="activity-action">
+                            {{ activity.action.replace('_', ' ') }}
+                        </p>
+
+                        <span class="activity-outcome">
+                            {{ activity.outcome }}
+                        </span>
+
+                    </div>
+                </div>
+
+                <time class="activity-time">
+                    {{ activity.created_at.strftime("%d %b %Y, %I:%M %p") if activity.created_at else "—" }}
+                </time>
+
+            </article>
+
+            {% else %}
+
+            <div class="activity-empty">
+                <span class="activity-empty-icon" aria-hidden="true">◷</span>
+                <strong>No activity yet</strong>
+                <p>Your document-related activity will appear here.</p>
             </div>
 
-            <div class="user-role">VIEWER ACCOUNT</div>
+            {% endfor %}
 
-            <nav class="sidebar-nav">
-                <a href="dashboard.html">Overview</a>
-                <a href="shared-with-me.html">Shared with Me</a>
-                <a href="activity.html" class="active">Activity</a>
-                <a href="profile.html">My Profile</a>
-                <a href="settings.html">Settings</a>
-            </nav>
+        </div>
 
-            <a href="login.html" class="logout-link">Logout</a>
-        </aside>
+    </section>
 
-        <main class="main-content">
-
-            <header class="topbar">
-                <div>
-                    <h1>Activity</h1>
-                    <p>Track your recent document-related activities.</p>
-                </div>
-
-                <div class="topbar-user">
-                    <span class="user-avatar">V</span>
-                    <span>Viewer</span>
-                </div>
-            </header>
-
-            <section class="dashboard-section">
-
-                <div class="section-heading">
-                    <div>
-                        <h2>Recent Activity</h2>
-                        <p class="section-description">
-                            A history of actions performed on documents you can access.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="activity-card">
-                    <div>
-                        <p><strong>Project Report.pdf</strong> was viewed.</p>
-                        <span>Document access</span>
-                    </div>
-                    <span>Today, 10:30 AM</span>
-                </div>
-
-                <div class="activity-card">
-                    <div>
-                        <p><strong>Research Document.docx</strong> was shared with you.</p>
-                        <span>Document shared</span>
-                    </div>
-                    <span>Yesterday, 04:15 PM</span>
-                </div>
-
-                <div class="activity-card">
-                    <div>
-                        <p><strong>Presentation.pptx</strong> was downloaded.</p>
-                        <span>Document download</span>
-                    </div>
-                    <span>01 Nov 2026, 11:20 AM</span>
-                </div>
-
-                <div class="activity-card">
-                    <div>
-                        <p><strong>Project Report.pdf</strong> was shared with you.</p>
-                        <span>Document shared</span>
-                    </div>
-                    <span>31 Oct 2026, 02:45 PM</span>
-                </div>
-
-            </section>
-
-        </main>
-    </div>
-<script src="settings.js"></script>
-</body>
-</html>
+</div>
+{% endblock %}

@@ -1,250 +1,355 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document Overview | TrustVault</title>
+{% extends "base.html" %}
 
-    <!-- Absolute path is required for Flask admin routes -->
-    <link rel="stylesheet" href="/dashboard.css">
+{% block title %}Document Overview | TrustVault{% endblock %}
+{% block page_heading %}Document Overview{% endblock %}
 
-    <style>
-        /* Consistent Admin Sidebar */
+{% block extra_css %}
+<style>
+.admin-documents-page {
+    max-width: 1250px;
+    margin: 0 auto;
+}
 
-        body.dashboard-page .sidebar {
-            display: flex;
-            flex-direction: column;
-        }
+.admin-documents-intro {
+    color: var(--text-secondary, #777);
+    margin: 8px 0 24px;
+    line-height: 1.6;
+}
 
-        body.dashboard-page .sidebar .sidebar-brand {
-            position: relative;
-            flex: 0 0 auto;
-            display: block;
-            margin: 0 0 28px;
-            padding: 0;
-            transform: none;
-        }
+.document-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+    margin-bottom: 26px;
+}
 
-        body.dashboard-page .sidebar .sidebar-brand h2 {
-            margin: 0;
-            padding: 0;
-            line-height: 1.3;
-        }
+.document-stat {
+    padding: 20px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 12px;
+    background: var(--card-bg, #fff);
+}
 
-        body.dashboard-page .sidebar .sidebar-brand span {
-            display: block;
-            position: static;
-            margin-top: 9px;
-            padding: 0;
-            line-height: 1.4;
-        }
+.document-stat h3 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: var(--text-secondary, #777);
+}
 
-        body.dashboard-page .sidebar .sidebar-nav {
-            flex: 0 0 auto;
-            margin-top: 0;
-        }
+.document-stat p {
+    margin: 0;
+    font-size: 27px;
+    font-weight: 700;
+}
 
-        /* Document page */
+.document-section {
+    padding: 22px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 12px;
+    background: var(--card-bg, #fff);
+}
 
-        .admin-content {
-            max-width: 1200px;
-        }
+.document-section h2 {
+    margin: 0 0 8px;
+}
 
-        .page-heading {
-            margin-bottom: 24px;
-        }
+.document-description {
+    color: var(--text-secondary, #777);
+    line-height: 1.6;
+    margin-bottom: 18px;
+}
 
-        .page-heading p {
-            color: #6b7280;
-            margin-top: 7px;
-        }
+.security-notice {
+    padding: 13px 15px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 9px;
+    line-height: 1.6;
+    font-size: 13px;
+}
 
-        .content-section {
-            margin-top: 24px;
-        }
+.document-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
 
-        .table-container td[colspan="5"] {
-            text-align: center;
-            padding: 25px 10px;
-        }
+.document-filters input,
+.document-filters select {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 12px;
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 8px;
+    background: var(--input-bg, transparent);
+    color: var(--text-primary, inherit);
+}
 
-        @media (max-width: 650px) {
-            .content-section {
-                overflow-x: auto;
-            }
-        }
-    </style>
-</head>
+.document-filters label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-secondary, #777);
+}
 
-<body class="dashboard-page">
+.document-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
 
-    <div class="dashboard-container">
+.document-table {
+    width: 100%;
+    min-width: 650px;
+    border-collapse: collapse;
+}
 
-        <aside class="sidebar">
+.document-table th,
+.document-table td {
+    padding: 14px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    font-size: 13px;
+}
 
-            <div class="sidebar-brand">
-                <h2>TrustVault</h2>
-                <span>Administrator</span>
-            </div>
+.document-table th {
+    font-weight: 600;
+    color: var(--text-secondary, #777);
+}
 
-            <nav class="sidebar-nav">
-                <a href="/admin/dashboard">Overview</a>
-                <a href="/admin/users">User Management</a>
-                <a href="/admin/documents" class="active">Document Overview</a>
-                <a href="/admin/audit-logs">Audit Logs</a>
-                <a href="/admin/security-alerts">Security Alerts</a>
-                <a href="/admin/notifications">Notifications</a>
-                <a href="/admin/settings">Settings</a>
-                <a href="/login.html">Logout</a>
-            </nav>
+.document-status {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--surface-secondary, #f1f1f1);
+}
 
-        </aside>
+.document-empty {
+    text-align: center !important;
+    padding: 28px !important;
+    color: var(--text-secondary, #777);
+}
 
-        <main class="main-content">
+.document-count {
+    margin-top: 14px;
+    color: var(--text-secondary, #777);
+    font-size: 12px;
+}
 
-            <div class="admin-content">
+@media (max-width: 650px) {
+    .document-section {
+        padding: 15px;
+    }
+}
+</style>
+{% endblock %}
 
-                <div class="page-heading">
-                    <h1>Document Overview</h1>
-                    <p>Monitor uploaded document records across TrustVault.</p>
-                </div>
+{% block content %}
+<div class="admin-documents-page">
 
-                <div class="stats-container">
+    <p class="admin-documents-intro">
+        Monitor document metadata and ownership records across TrustVault.
+    </p>
 
-                    <div class="stat-card">
-                        <h3>Total Documents</h3>
-                        <p>{{ total_documents }}</p>
-                    </div>
+    <div class="document-stats">
+        <div class="document-stat">
+            <h3>Total Document Records</h3>
+            <p>{{ total_documents }}</p>
+        </div>
 
-                    <div class="stat-card">
-                        <h3>Active Documents</h3>
-                        <p>{{ total_documents }}</p>
-                    </div>
+        <div class="document-stat">
+            <h3>Metadata Visibility</h3>
+            <p>Read-only</p>
+        </div>
 
-                    <div class="stat-card">
-                        <h3>Deleted Documents</h3>
-                        <p>--</p>
-                    </div>
-
-                </div>
-
-                <section class="content-section">
-
-                    <h2>All Documents</h2>
-
-                    <p>
-                        Document metadata is displayed here. Private file contents
-                        remain inaccessible to administrators.
-                    </p>
-
-                    <div class="filter-container">
-
-                        <input
-                            type="search"
-                            id="documentSearch"
-                            placeholder="Search by document name..."
-                        >
-
-                        <select id="documentStatus">
-                            <option value="">All Statuses</option>
-                            <option value="Active">Active</option>
-                        </select>
-
-                    </div>
-
-                    <div class="table-container">
-
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Document Name</th>
-                                    <th>Owner</th>
-                                    <th>File Type</th>
-                                    <th>Upload Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-
-                            <tbody id="documentTableBody">
-
-                                {% for document in documents %}
-                                <tr class="document-row">
-
-                                    <td>
-                                        {{ document.title or document.original_filename or "Untitled" }}
-                                    </td>
-
-                                    <td>
-                                        {{ document.owner_id or "Unknown" }}
-                                    </td>
-
-                                    <td>
-                                        {{ document.mime_type or "Unknown" }}
-                                    </td>
-
-                                    <td>
-                                        {% if document.created_at %}
-                                            {{ document.created_at.strftime("%d %b %Y") }}
-                                        {% else %}
-                                            —
-                                        {% endif %}
-                                    </td>
-
-                                    <td>
-                                        <span class="status-badge">Active</span>
-                                    </td>
-
-                                </tr>
-
-                                {% else %}
-                                <tr>
-                                    <td colspan="5">
-                                        No document records available yet.
-                                    </td>
-                                </tr>
-                                {% endfor %}
-
-                            </tbody>
-                        </table>
-
-                    </div>
-
-                </section>
-
-            </div>
-
-        </main>
-
+        <div class="document-stat">
+            <h3>Private File Contents</h3>
+            <p>Protected</p>
+        </div>
     </div>
 
-    <script src="/settings.js"></script>
+    <section class="document-section">
 
-    <script>
-        const documentSearch = document.getElementById("documentSearch");
-        const documentStatus = document.getElementById("documentStatus");
-        const documentRows = document.querySelectorAll(".document-row");
+        <h2>All Documents</h2>
 
-        function filterDocuments() {
-            const searchValue = documentSearch.value.toLowerCase().trim();
-            const selectedStatus = documentStatus.value.toLowerCase();
+        <p class="document-description">
+            Review document names, ownership, categories and upload dates.
+        </p>
 
-            documentRows.forEach(row => {
-                const documentName = row.cells[0].textContent.toLowerCase();
-                const status = row.cells[4].textContent.toLowerCase().trim();
+        <div class="security-notice">
+            <strong>Security boundary:</strong>
+            This administrator page displays metadata only.
+            It does not provide access to private document contents or downloads.
+            Document access must remain controlled by server-side authorization
+            and each document's assigned permissions.
+        </div>
 
-                const matchesName = documentName.includes(searchValue);
-                const matchesStatus =
-                    selectedStatus === "" || status === selectedStatus;
+        <div class="document-filters">
 
-                row.style.display =
-                    matchesName && matchesStatus ? "" : "none";
-            });
-        }
+            <input
+                type="search"
+                id="documentSearch"
+                placeholder="Search document name..."
+                aria-label="Search document name"
+            >
 
-        documentSearch.addEventListener("input", filterDocuments);
-        documentStatus.addEventListener("change", filterDocuments);
-    </script>
+            <input
+                type="search"
+                id="ownerSearch"
+                placeholder="Search owner..."
+                aria-label="Search owner"
+            >
 
-</body>
-</html>
+            <input
+                type="search"
+                id="categorySearch"
+                placeholder="Search category..."
+                aria-label="Search category"
+            >
+
+            <label>
+                From
+                <input type="date" id="dateFrom">
+            </label>
+
+            <label>
+                To
+                <input type="date" id="dateTo">
+            </label>
+
+        </div>
+
+        <div class="document-table-wrap">
+            <table class="document-table">
+                <thead>
+                    <tr>
+                        <th>Document Name</th>
+                        <th>Owner</th>
+                        <th>Category</th>
+                        <th>Upload Date</th>
+                        <th>Record</th>
+                    </tr>
+                </thead>
+
+                <tbody id="documentTableBody">
+
+                    {% for document in documents %}
+                    <tr
+                        class="document-row"
+                        data-date="{{ document.created_at.strftime('%Y-%m-%d') if document.created_at else '' }}"
+                        data-owner="{{ owner_names.get(document.owner_id, 'Unknown')|lower }}"
+                        data-category="{{ (document.category or 'Unknown')|lower }}"
+                    >
+                        <td>
+                            {{ document.title or document.original_filename or "Untitled" }}
+                        </td>
+
+                        <td>
+                            {{ owner_names.get(document.owner_id, "Unknown") }}
+                        </td>
+
+                        <td>
+                            {{ document.category or "Unknown" }}
+                        </td>
+
+                        <td>
+                            {% if document.created_at %}
+                                {{ document.created_at.strftime("%d %b %Y") }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <span class="document-status">Listed</span>
+                        </td>
+                    </tr>
+
+                    {% else %}
+                    <tr id="emptyDocumentsRow">
+                        <td colspan="5" class="document-empty">
+                            No document records available yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+        <p class="document-count" id="documentCount"></p>
+
+    </section>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+(function () {
+    const documentSearch = document.getElementById("documentSearch");
+    const ownerSearch = document.getElementById("ownerSearch");
+    const categorySearch = document.getElementById("categorySearch");
+    const dateFrom = document.getElementById("dateFrom");
+    const dateTo = document.getElementById("dateTo");
+    const documentCount = document.getElementById("documentCount");
+
+    const rows = Array.from(
+        document.querySelectorAll(".document-row")
+    );
+
+    function filterDocuments() {
+        const nameValue = documentSearch.value.toLowerCase().trim();
+        const ownerValue = ownerSearch.value.toLowerCase().trim();
+        const categoryValue = categorySearch.value.toLowerCase().trim();
+        const from = dateFrom.value;
+        const to = dateTo.value;
+
+        let visibleCount = 0;
+
+        rows.forEach(function (row) {
+            const name = row.cells[0].textContent.toLowerCase();
+            const owner = row.dataset.owner || "";
+            const category = row.dataset.category || "";
+            const date = row.dataset.date || "";
+
+            const matchesName = name.includes(nameValue);
+            const matchesOwner = owner.includes(ownerValue);
+            const matchesCategory = category.includes(categoryValue);
+            const matchesFrom = !from || (date && date >= from);
+            const matchesTo = !to || (date && date <= to);
+
+            const visible =
+                matchesName &&
+                matchesOwner &&
+                matchesCategory &&
+                matchesFrom &&
+                matchesTo;
+
+            row.style.display = visible ? "" : "none";
+
+            if (visible) {
+                visibleCount++;
+            }
+        });
+
+        documentCount.textContent =
+            "Showing " + visibleCount + " of " + rows.length +
+            " document records.";
+    }
+
+    [documentSearch, ownerSearch, categorySearch].forEach(function (input) {
+        input.addEventListener("input", filterDocuments);
+    });
+
+    [dateFrom, dateTo].forEach(function (input) {
+        input.addEventListener("change", filterDocuments);
+    });
+
+    filterDocuments();
+})();
+</script>
+{% endblock %}

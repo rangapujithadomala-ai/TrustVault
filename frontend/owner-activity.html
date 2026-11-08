@@ -1,250 +1,312 @@
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activity | TrustVault</title>
-    <link rel="stylesheet" href="/dashboard.css">
+{% block title %}Activity Log | TrustVault{% endblock %}
+{% block page_heading %}Activity Log{% endblock %}
 
-    <style>
-        .activity-content {
-            padding: 25px;
-        }
+{% block extra_css %}
+<style>
+.activity-page {
+    max-width: 1200px;
+    margin: auto;
+}
 
-        .activity-header {
-            margin-bottom: 25px;
-        }
+.activity-intro {
+    color: var(--text-muted, #718096);
+    margin: 0 0 22px;
+    line-height: 1.6;
+}
 
-        .activity-header h1 {
-            margin-bottom: 8px;
-        }
+.activity-panel {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color, #e5eaf1);
+    border-radius: 14px;
+    padding: 22px;
+}
 
-        .activity-header p {
-            color: #777;
-        }
+.activity-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 13px;
+    margin-bottom: 20px;
+}
 
-        .activity-controls {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
+.activity-toolbar h2 {
+    margin: 0;
+    font-size: 17px;
+    color: var(--text-color, inherit);
+}
 
-        .activity-controls input,
-        .activity-controls select {
-            padding: 11px 14px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            background: var(--card-bg, white);
-            color: inherit;
-        }
+.activity-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: min(100%, 550px);
+}
 
-        .activity-controls input {
-            flex: 1;
-            min-width: 200px;
-        }
+.activity-controls input,
+.activity-controls select {
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color, #d5dde8);
+    border-radius: 9px;
+    background: var(--input-bg, var(--card-bg, #fff));
+    color: var(--text-color, inherit);
+    font: inherit;
+}
 
-        .activity-table-container {
-            background: var(--card-bg, white);
-            border-radius: 12px;
-            padding: 15px;
-            overflow-x: auto;
-        }
+.activity-controls input {
+    flex: 1;
+}
 
-        .activity-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 700px;
-        }
+.activity-controls select {
+    flex: 0 0 165px;
+}
 
-        .activity-table th,
-        .activity-table td {
-            padding: 16px 12px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
+.activity-controls input:focus,
+.activity-controls select:focus {
+    outline: 2px solid var(--primary, #356ae6);
+    outline-offset: 2px;
+}
 
-        .activity-table th {
-            color: #777;
-            font-size: 13px;
-        }
+.activity-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
 
-        .activity-table td {
-            font-size: 14px;
-        }
+.activity-table {
+    width: 100%;
+    min-width: 680px;
+    border-collapse: collapse;
+}
 
-        .activity-type {
-            display: inline-block;
-            padding: 6px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            background: #e8f0ff;
-            color: #2458a6;
-        }
+.activity-table th,
+.activity-table td {
+    padding: 15px 13px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color, #e5eaf1);
+    vertical-align: middle;
+    font-size: 13px;
+}
 
-        .empty-message {
-            text-align: center !important;
-            padding: 30px !important;
-            color: #888;
-        }
+.activity-table th {
+    color: var(--text-muted, #718096);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-weight: 650;
+}
 
-        @media (max-width: 768px) {
-            .activity-content {
-                padding: 18px;
-            }
-        }
-    </style>
-</head>
+.activity-table tbody tr:hover {
+    background: var(--surface-hover, #f8fafc);
+}
 
-<body class="dashboard-page">
+.activity-user {
+    font-weight: 600;
+    color: var(--text-color, inherit);
+}
 
-    <div class="dashboard-container">
+.activity-document {
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
 
-        <aside class="sidebar">
+.activity-type {
+    display: inline-flex;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: var(--surface-hover, #e8f0ff);
+    color: var(--primary, #2458a6);
+    font-size: 11px;
+    font-weight: 650;
+}
 
-            <div class="sidebar-brand">
-                <h2>TrustVault</h2>
-                <span>Document Owner</span>
+.activity-date {
+    color: var(--text-muted, #718096);
+    white-space: nowrap;
+}
+
+.activity-empty {
+    padding: 38px 15px !important;
+    text-align: center !important;
+    color: var(--text-muted, #718096);
+}
+
+.activity-count {
+    margin: 15px 0 0;
+    color: var(--text-muted, #718096);
+    font-size: 12px;
+}
+
+@media (max-width: 650px) {
+    .activity-panel {
+        padding: 14px;
+    }
+
+    .activity-toolbar {
+        align-items: stretch;
+    }
+
+    .activity-controls {
+        width: 100%;
+    }
+
+    .activity-controls input,
+    .activity-controls select {
+        flex: 1 1 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="activity-page">
+
+    <p class="activity-intro">
+        Track activity related to your documents, including access,
+        downloads, edits, sharing, and permission changes.
+    </p>
+
+    <section class="activity-panel">
+
+        <div class="activity-toolbar">
+            <h2>Document activity</h2>
+
+            <div class="activity-controls">
+
+                <input
+                    type="search"
+                    id="activitySearch"
+                    placeholder="Search document or user..."
+                    aria-label="Search activity"
+                >
+
+                <select
+                    id="activityFilter"
+                    aria-label="Filter activities"
+                >
+                    <option value="all">All Activities</option>
+                    <option value="viewed">Viewed</option>
+                    <option value="downloaded">Downloaded</option>
+                    <option value="edited">Edited</option>
+                    <option value="shared">Shared</option>
+                    <option value="revoked">Access Revoked</option>
+                </select>
+
             </div>
+        </div>
 
-            <nav class="sidebar-nav">
-                <a href="/owner/dashboard">Overview</a>
-                <a href="/owner/dashboard#documents">My Documents</a>
-                <a href="/owner/shared-documents">Shared Documents</a>
-                <a href="/owner/activity" class="active">Activity</a>
-                <a href="/owner/profile">My Profile</a>
-                <a href="/owner/settings">Settings</a>
-            </nav>
+        <div class="activity-table-wrap">
 
-            <a href="/login.html" class="logout-link">Logout</a>
+            <table class="activity-table">
 
-        </aside>
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Document</th>
+                        <th>Activity</th>
+                        <th>Date &amp; Time</th>
+                    </tr>
+                </thead>
 
-        <main class="main-content">
+                <tbody id="activityTableBody">
 
-            <section class="activity-content">
+                    {% for activity in activities %}
+                    <tr data-activity-row>
 
-                <div class="activity-header">
-                    <h1>Activity Log</h1>
-                    <p>Track who accessed your documents and what actions they performed.</p>
-                </div>
+                        <td>
+                            <span class="activity-user">
+                                {{ actor_names.get(activity.actor_id, "System") }}
+                            </span>
+                        </td>
 
-                <!-- Search and Filters -->
-                <div class="activity-controls">
+                        <td>
+                            <span class="activity-document">
+                                {{ doc_titles.get(activity.document_id, "N/A") }}
+                            </span>
+                        </td>
 
-                    <input
-                        type="text"
-                        id="activitySearch"
-                        placeholder="Search document or user..."
-                    >
+                        <td>
+                            <span class="activity-type">
+                                {{ activity.action }}
+                            </span>
+                        </td>
 
-                    <select id="activityFilter">
-                        <option value="all">All Activities</option>
-                        <option value="viewed">Viewed</option>
-                        <option value="downloaded">Downloaded</option>
-                        <option value="edited">Edited</option>
-                        <option value="shared">Shared</option>
-                        <option value="revoked">Access Revoked</option>
-                    </select>
+                        <td class="activity-date">
+                            {{ activity.created_at.strftime('%d %b %Y, %I:%M %p')
+                               if activity.created_at else '--' }}
+                        </td>
 
-                </div>
+                    </tr>
 
-                <!-- Activity Table -->
-                <div class="activity-table-container">
+                    {% else %}
+                    <tr data-empty-row>
+                        <td colspan="4" class="activity-empty">
+                            No activity recorded yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
 
-                    <table class="activity-table">
+                </tbody>
 
-                        <thead>
-                            <tr>
-                                <th>User ID</th>
-                                <th>Document ID</th>
-                                <th>Activity</th>
-                                <th>Date & Time</th>
-                            </tr>
-                        </thead>
+            </table>
 
-                        <tbody id="activityTableBody">
+        </div>
 
-                            {% for activity in activities %}
-                            <tr>
-                                <td>{{ activity.actor_id }}</td>
+        <p class="activity-count" id="activityCount">
+            {{ activities|length }} activity record(s)
+        </p>
 
-                                <td>
-                                    {{ activity.document_id or 'N/A' }}
-                                </td>
+    </section>
+</div>
+{% endblock %}
 
-                                <td>
-                                    <span class="activity-type">
-                                        {{ activity.action }}
-                                    </span>
-                                </td>
+{% block page_scripts %}
+<script>
+(() => {
+    "use strict";
 
-                                <td>
-                                    {{ activity.created_at.strftime('%d %b %Y, %I:%M %p')
-                                       if activity.created_at else '--' }}
-                                </td>
-                            </tr>
+    const search = document.getElementById("activitySearch");
+    const filter = document.getElementById("activityFilter");
+    const tableBody = document.getElementById("activityTableBody");
+    const count = document.getElementById("activityCount");
 
-                            {% else %}
-                            <tr>
-                                <td colspan="4" class="empty-message">
-                                    No activity recorded yet.
-                                </td>
-                            </tr>
-                            {% endfor %}
+    function filterActivities() {
+        const searchText = search.value.trim().toLowerCase();
+        const selectedType = filter.value;
 
-                        </tbody>
+        const rows = [
+            ...tableBody.querySelectorAll("[data-activity-row]")
+        ];
 
-                    </table>
+        let visibleCount = 0;
 
-                </div>
+        rows.forEach(row => {
+            const rowText = row.textContent.toLowerCase();
+            const activityText = row.cells[2]?.textContent
+                .trim()
+                .toLowerCase() || "";
 
-            </section>
+            const matchesSearch = rowText.includes(searchText);
 
-        </main>
+            const matchesType =
+                selectedType === "all" ||
+                activityText.includes(selectedType);
 
-    </div>
+            const visible = matchesSearch && matchesType;
 
-    <script>
-        const activitySearch = document.getElementById("activitySearch");
-        const activityFilter = document.getElementById("activityFilter");
+            row.hidden = !visible;
 
-        function filterActivities() {
-            const searchText = activitySearch.value.toLowerCase().trim();
-            const selectedType = activityFilter.value;
+            if (visible) visibleCount++;
+        });
 
-            const rows = document.querySelectorAll(
-                "#activityTableBody tr"
-            );
+        count.textContent =
+            `${visibleCount} visible activity record(s)`;
+    }
 
-            rows.forEach(row => {
-                const activityCell = row.cells[2];
-
-                if (!activityCell) return;
-
-                const rowText = row.textContent.toLowerCase();
-                const activityText = activityCell.textContent
-                    .trim()
-                    .toLowerCase();
-
-                const matchesSearch = rowText.includes(searchText);
-
-                const matchesType =
-                    selectedType === "all" ||
-                    activityText.includes(selectedType);
-
-                row.style.display =
-                    matchesSearch && matchesType ? "" : "none";
-            });
-        }
-
-        activitySearch.addEventListener("input", filterActivities);
-        activityFilter.addEventListener("change", filterActivities);
-    </script>
-
-    <script src="/settings.js"></script>
-
-</body>
-</html>
+    search.addEventListener("input", filterActivities);
+    filter.addEventListener("change", filterActivities);
+})();
+</script>
+{% endblock %}

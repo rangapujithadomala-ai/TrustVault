@@ -1,0 +1,443 @@
+
+{% extends "base.html" %}
+
+{% block title %}Shared With Me | TrustVault{% endblock %}
+{% block page_heading %}Shared With Me{% endblock %}
+
+{% block extra_css %}
+<style>
+.received-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.received-intro {
+    color: var(--text-muted, #718096);
+    margin: 0 0 22px;
+    line-height: 1.6;
+}
+
+.received-panel {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color, #e5eaf1);
+    border-radius: 14px;
+    padding: 22px;
+}
+
+.received-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.received-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--text-color, inherit);
+}
+
+.received-count {
+    color: var(--text-muted, #718096);
+    font-size: 12px;
+}
+
+.received-toolbar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.received-toolbar input,
+.received-dates input {
+    min-width: 0;
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color, #d5dde8);
+    border-radius: 8px;
+    background: var(--input-bg, var(--card-bg, #fff));
+    color: var(--text-color, inherit);
+    font: inherit;
+    outline: none;
+}
+
+.received-toolbar input:focus,
+.received-dates input:focus {
+    border-color: var(--primary, #356ae6);
+    box-shadow: 0 0 0 3px rgba(53, 106, 230, .12);
+}
+
+.received-dates {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    color: var(--text-muted, #718096);
+    font-size: 13px;
+}
+
+.received-dates input {
+    width: auto;
+    padding: 8px;
+}
+
+.received-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.received-table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+}
+
+.received-table th,
+.received-table td {
+    padding: 14px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color, #e5eaf1);
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.received-table th {
+    color: var(--text-muted, #718096);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    white-space: nowrap;
+}
+
+.received-table tbody tr:hover {
+    background: var(--surface-hover, #f8fafc);
+}
+
+.received-table tbody tr[hidden] {
+    display: none;
+}
+
+.received-document {
+    display: block;
+    color: var(--text-color, inherit);
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+
+.received-muted {
+    display: block;
+    color: var(--text-muted, #718096);
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.received-permission {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: var(--surface-hover, #edf2ff);
+    color: var(--primary, #356ae6);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.received-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.received-actions a {
+    color: var(--primary, #356ae6);
+    text-decoration: none;
+    font-weight: 650;
+}
+
+.received-actions a:hover {
+    text-decoration: underline;
+}
+
+.received-actions button {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border-color, #d5dde8);
+    border-radius: 8px;
+    background: var(--card-bg, #fff);
+    color: var(--text-color, inherit);
+    cursor: pointer;
+    font-size: 19px;
+}
+
+.received-actions button:hover {
+    background: var(--surface-hover, #edf2f7);
+}
+
+.received-actions input[type="file"] {
+    display: block;
+    max-width: 180px;
+    margin-top: 5px;
+    font-size: 11px;
+    color: var(--text-muted, #718096);
+}
+
+.received-empty {
+    padding: 35px 15px;
+    text-align: center;
+    color: var(--text-muted, #718096);
+}
+
+#sharedNoMatches[hidden] {
+    display: none;
+}
+
+@media (max-width: 700px) {
+    .received-panel {
+        padding: 14px;
+    }
+
+    .received-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .received-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="received-page">
+
+    <p class="received-intro">
+        Documents other owners have shared with you. Your available actions depend on the permission granted to your account.
+    </p>
+
+    <section class="received-panel">
+
+        <div class="received-header">
+            <h2>Documents shared with me</h2>
+            <span class="received-count" id="receivedCount">
+                {{ documents|length }} document(s) shared with you
+            </span>
+        </div>
+
+        <div class="received-toolbar">
+            <input
+                type="search"
+                id="sharedDocumentSearch"
+                placeholder="Search documents..."
+                aria-label="Search documents"
+            >
+
+            <input
+                type="search"
+                id="sharedOwnerSearch"
+                placeholder="Search owner..."
+                aria-label="Search owner"
+            >
+
+            <input
+                type="search"
+                id="sharedCategorySearch"
+                placeholder="Search category..."
+                aria-label="Search category"
+            >
+        </div>
+
+        <div class="received-dates">
+            <label for="sharedDateFrom">From</label>
+            <input type="date" id="sharedDateFrom">
+
+            <label for="sharedDateTo">To</label>
+            <input type="date" id="sharedDateTo">
+        </div>
+
+        <div class="received-table-wrap">
+            <table class="received-table">
+                <thead>
+                    <tr>
+                        <th>Document</th>
+                        <th>Owner</th>
+                        <th>Category</th>
+                        <th>Permission</th>
+                        <th>Shared Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="receivedDocumentsBody">
+                    {% for document in documents %}
+                    <tr
+                        class="shared-document-row"
+                        data-owner="{{ owners.get(document.owner_id, 'Owner')|lower }}"
+                        data-category="{{ (document.category or '')|lower }}"
+                        data-date="{{ grant_dates.get(document.id).strftime('%Y-%m-%d') if grant_dates.get(document.id) else document.created_at.strftime('%Y-%m-%d') if document.created_at else '' }}"
+                    >
+                        <td>
+                            <span class="received-document">
+                                {{ document.title or document.filename or 'Untitled document' }}
+                            </span>
+                            <span class="received-muted">
+                                {{ document.filename or '' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ owners.get(document.owner_id, 'Owner') }}
+                        </td>
+
+                        <td>
+                            {{ document.category or 'Uncategorized' }}
+                        </td>
+
+                        <td>
+                            <span class="received-permission">
+                                {{ grants.get(document.id, 'read')|capitalize }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ grant_dates.get(document.id).strftime('%d %b %Y') if grant_dates.get(document.id) else '--' }}
+                        </td>
+
+                        <td>
+                            <div class="received-actions">
+
+                                <a href="/documents/{{ document.id }}/download">
+                                    Download
+                                </a>
+
+                                {% if grants.get(document.id) == "edit" %}
+                                <label>
+                                    <span class="received-muted">Upload revision</span>
+                                    <input
+                                        type="file"
+                                        data-version-document="{{ document.id }}"
+                                        accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.xlsx,.csv"
+                                    >
+                                </label>
+                                {% endif %}
+
+                                <button
+                                    type="button"
+                                    data-star-document="{{ document.id }}"
+                                    aria-label="Toggle star for {{ document.title or 'document' }}"
+                                    title="Toggle star"
+                                >☆</button>
+
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr class="shared-empty-row">
+                        <td colspan="6" class="received-empty">
+                            <strong>No shared documents yet</strong>
+                            <span class="received-muted">
+                                Documents shared with your account will appear here.
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <p id="sharedNoMatches" class="received-empty" hidden>
+            No documents match your search or selected date range.
+        </p>
+
+    </section>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="/document-actions.js"></script>
+
+<script>
+(() => {
+    const nameInput = document.getElementById("sharedDocumentSearch");
+    const ownerInput = document.getElementById("sharedOwnerSearch");
+    const categoryInput = document.getElementById("sharedCategorySearch");
+    const fromInput = document.getElementById("sharedDateFrom");
+    const toInput = document.getElementById("sharedDateTo");
+
+    const rows = [
+        ...document.querySelectorAll(".shared-document-row")
+    ];
+
+    const noMatches = document.getElementById("sharedNoMatches");
+    const count = document.getElementById("receivedCount");
+
+    if (!nameInput || !ownerInput || !categoryInput ||
+        !fromInput || !toInput || !noMatches || !count) {
+        return;
+    }
+
+    function filterDocuments() {
+        const name = nameInput.value.trim().toLowerCase();
+        const owner = ownerInput.value.trim().toLowerCase();
+        const category = categoryInput.value.trim().toLowerCase();
+
+        const from = fromInput.value;
+        const to = toInput.value;
+
+        let visible = 0;
+
+        rows.forEach(row => {
+            const date = row.dataset.date || "";
+
+            const matchesName =
+                row.cells[0].textContent.toLowerCase().includes(name);
+
+            const matchesOwner =
+                (row.dataset.owner || "").includes(owner);
+
+            const matchesCategory =
+                (row.dataset.category || "").includes(category);
+
+            const matchesFrom =
+                !from || (date !== "" && date >= from);
+
+            const matchesTo =
+                !to || (date !== "" && date <= to);
+
+            const matches =
+                matchesName &&
+                matchesOwner &&
+                matchesCategory &&
+                matchesFrom &&
+                matchesTo;
+
+            row.hidden = !matches;
+
+            if (matches) {
+                visible++;
+            }
+        });
+
+        noMatches.hidden = visible !== 0;
+
+        count.textContent =
+            `${visible} of ${rows.length} document(s) shown`;
+    }
+
+    [nameInput, ownerInput, categoryInput].forEach(input => {
+        input.addEventListener("input", filterDocuments);
+    });
+
+    [fromInput, toInput].forEach(input => {
+        input.addEventListener("change", filterDocuments);
+    });
+
+})();
+</script>
+{% endblock %}

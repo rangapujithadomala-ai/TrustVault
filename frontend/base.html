@@ -1,0 +1,471 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#f7f8fc">
+
+    <title>{% block title %}TrustVault{% endblock %}</title>
+
+    <!-- Apply the saved theme before the page is displayed. -->
+    <script>
+        (function () {
+            try {
+                const saved = localStorage.getItem("trustvault-theme");
+                const theme = ["light", "dark", "system"].includes(saved)
+                    ? saved
+                    : "system";
+                document.documentElement.setAttribute("data-theme", theme);
+            } catch (error) {
+                document.documentElement.setAttribute("data-theme", "system");
+            }
+        })();
+    </script>
+
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/dashboard.css">
+    {% block extra_css %}{% endblock %}
+
+    <script src="/app.js" defer></script>
+    {% block extra_js %}{% endblock %}
+</head>
+
+<body class="dashboard-body">
+
+    <div class="app-layout">
+
+        <!-- Mobile sidebar overlay -->
+        <div
+            class="sidebar-overlay"
+            data-sidebar-overlay
+            hidden
+            aria-hidden="true">
+        </div>
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar" aria-label="Main navigation">
+
+            <div class="sidebar-brand">
+                <a href="/" class="brand-link" aria-label="TrustVault home">
+
+                    <span class="brand-name">TrustVault</span>
+                </a>
+            </div>
+
+            <div class="sidebar-user">
+                <div class="avatar">
+                    {{ current_user.name[:1]|upper }}
+                </div>
+
+                <div class="sidebar-user-info">
+                    <strong>{{ current_user.name }}</strong>
+                    <span>{{ current_user.role|capitalize }}</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+
+                {% if current_user.role == "admin" %}
+
+                    <p class="nav-section-title">OVERVIEW</p>
+
+                    <a
+                        href="/admin/dashboard"
+                        class="nav-link {% if request.path == '/admin/dashboard' %}active{% endif %}">
+                        <span class="nav-icon">▦</span>
+                        <span>Dashboard</span>
+                    </a>
+
+                    <p class="nav-section-title">MANAGEMENT</p>
+
+                    <a
+                        href="/admin/users"
+                        class="nav-link {% if request.path == '/admin/users' %}active{% endif %}">
+                        <span class="nav-icon">♙</span>
+                        <span>User Management</span>
+                    </a>
+
+                    <a
+                        href="/admin/documents"
+                        class="nav-link {% if request.path == '/admin/documents' %}active{% endif %}">
+                        <span class="nav-icon">▤</span>
+                        <span>Documents</span>
+                    </a>
+
+                    <p class="nav-section-title">SECURITY</p>
+
+                    <a
+                        href="/admin/audit-logs"
+                        class="nav-link {% if request.path == '/admin/audit-logs' %}active{% endif %}">
+                        <span class="nav-icon">◷</span>
+                        <span>Audit Logs</span>
+                    </a>
+
+                    <a
+                        href="/admin/security-alerts"
+                        class="nav-link {% if request.path == '/admin/security-alerts' %}active{% endif %}">
+                        <span class="nav-icon">♢</span>
+                        <span>Security Alerts</span>
+                    </a>
+
+                    <a
+                        href="/admin/notifications"
+                        class="nav-link {% if request.path == '/admin/notifications' %}active{% endif %}">
+                        <span class="nav-icon">🔔</span>
+                        <span>Notifications</span>
+                    </a>
+
+                    <p class="nav-section-title">ACCOUNT</p>
+
+                    <a
+                        href="/admin/profile"
+                        class="nav-link {% if request.path == '/admin/profile' %}active{% endif %}">
+                        <span class="nav-icon">◉</span>
+                        <span>My Profile</span>
+                    </a>
+
+                    <a
+                        href="/admin/settings"
+                        class="nav-link {% if request.path == '/admin/settings' %}active{% endif %}">
+                        <span class="nav-icon">⚙</span>
+                        <span>Settings</span>
+                    </a>
+
+                {% elif current_user.role == "owner" %}
+
+                    <p class="nav-section-title">WORKSPACE</p>
+
+                    <a
+                        href="/owner/dashboard"
+                        class="nav-link {% if request.path == '/owner/dashboard' %}active{% endif %}">
+                        <span class="nav-icon">▦</span>
+                        <span>Dashboard</span>
+                    </a>
+
+                    <a
+                        href="/owner/my-documents"
+                        class="nav-link {% if request.path == '/owner/my-documents' %}active{% endif %}">
+                        <span class="nav-icon">▤</span>
+                        <span>My Documents</span>
+                    </a>
+
+                    <a
+                        href="/owner/upload-document"
+                        class="nav-link {% if request.path == '/owner/upload-document' %}active{% endif %}">
+                        <span class="nav-icon">＋</span>
+                        <span>Upload Document</span>
+                    </a>
+
+                    <p class="nav-section-title">SHARING</p>
+
+                    <a
+                        href="/owner/shared-documents"
+                        class="nav-link {% if request.path == '/owner/shared-documents' %}active{% endif %}">
+                        <span class="nav-icon">♧</span>
+                        <span>Shared Documents</span>
+                    </a>
+
+                    <a
+    href="/owner/invite"
+    class="nav-link {% if request.path == '/owner/invite' %}active{% endif %}">
+    <span class="nav-icon">↗</span>
+    <span>Share Document</span>
+</a>
+
+
+                    <a
+                        href="/owner/starred"
+                        class="nav-link {% if request.path == '/owner/starred' %}active{% endif %}">
+                        <span class="nav-icon">☆</span>
+                        <span>Starred</span>
+                    </a>
+
+                    <a
+                        href="/owner/archived"
+                        class="nav-link {% if request.path == '/owner/archived' %}active{% endif %}">
+                        <span class="nav-icon">▣</span>
+                        <span>Archived</span>
+                    </a>
+
+                    <p class="nav-section-title">ACTIVITY</p>
+
+                    <a
+                        href="/owner/activity"
+                        class="nav-link {% if request.path == '/owner/activity' %}active{% endif %}">
+                        <span class="nav-icon">◷</span>
+                        <span>Activity</span>
+                    </a>
+
+                    <p class="nav-section-title">ACCOUNT</p>
+
+                    <a
+                        href="/owner/profile"
+                        class="nav-link {% if request.path == '/owner/profile' %}active{% endif %}">
+                        <span class="nav-icon">◉</span>
+                        <span>My Profile</span>
+                    </a>
+
+                    <a
+                        href="/owner/settings"
+                        class="nav-link {% if request.path == '/owner/settings' %}active{% endif %}">
+                        <span class="nav-icon">⚙</span>
+                        <span>Settings</span>
+                    </a>
+
+                {% elif current_user.role == "viewer" %}
+
+                    <p class="nav-section-title">WORKSPACE</p>
+
+                    <a
+                        href="/viewer/dashboard"
+                        class="nav-link {% if request.path == '/viewer/dashboard' %}active{% endif %}">
+                        <span class="nav-icon">▦</span>
+                        <span>Dashboard</span>
+                    </a>
+
+                    <a
+                        href="/viewer/shared-with-me"
+                        class="nav-link {% if request.path in ['/viewer/shared-with-me', '/viewer/my-documents'] %}active{% endif %}">
+                        <span class="nav-icon">▤</span>
+                        <span>Shared with Me</span>
+                    </a>
+
+                    <a
+                        href="/viewer/starred"
+                        class="nav-link {% if request.path == '/viewer/starred' %}active{% endif %}">
+                        <span class="nav-icon">☆</span>
+                        <span>Starred</span>
+                    </a>
+
+                    <p class="nav-section-title">ACTIVITY</p>
+
+                    <a
+                        href="/viewer/activity"
+                        class="nav-link {% if request.path == '/viewer/activity' %}active{% endif %}">
+                        <span class="nav-icon">◷</span>
+                        <span>Activity</span>
+                    </a>
+
+                    <p class="nav-section-title">ACCOUNT</p>
+
+                    <a
+                        href="/viewer/profile"
+                        class="nav-link {% if request.path == '/viewer/profile' %}active{% endif %}">
+                        <span class="nav-icon">◉</span>
+                        <span>My Profile</span>
+                    </a>
+
+                    <a
+                        href="/viewer/settings"
+                        class="nav-link {% if request.path == '/viewer/settings' %}active{% endif %}">
+                        <span class="nav-icon">⚙</span>
+                        <span>Settings</span>
+                    </a>
+
+                {% endif %}
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-footer-brand">
+
+                    <span>PRIVATE DOCUMENT WORKSPACE</span>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- MAIN AREA -->
+        <div class="main-area">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+
+                <div class="topbar-left">
+                    <button
+                        type="button"
+                        class="sidebar-toggle"
+                        data-sidebar-toggle
+                        aria-label="Open navigation menu"
+                        aria-expanded="false">
+                        ☰
+                    </button>
+
+                    <div class="topbar-heading">
+                        <span class="topbar-eyebrow">YOUR WORKSPACE</span>
+                        <h1>{% block page_heading %}Dashboard{% endblock %}</h1>
+                    </div>
+                </div>
+
+                <div class="topbar-actions">
+
+                    <!-- THEME OPTIONS -->
+                    <div class="theme-control" aria-label="Appearance settings">
+                        <button
+                            type="button"
+                            class="theme-option"
+                            data-theme-choice="light"
+                            aria-label="Light theme"
+                            title="Light theme">
+                            ☀
+                        </button>
+
+                        <button
+                            type="button"
+                            class="theme-option"
+                            data-theme-choice="dark"
+                            aria-label="Dark theme"
+                            title="Dark theme">
+                            ☾
+                        </button>
+
+                        <button
+                            type="button"
+                            class="theme-option"
+                            data-theme-choice="system"
+                            aria-label="System theme"
+                            title="System theme">
+                            ◐
+                        </button>
+                    </div>
+
+                    <!-- NOTIFICATIONS -->
+                    <div class="notification-wrapper">
+
+
+<button
+    type="button"
+    class="notification-toggle"
+    data-notification-toggle
+    aria-label="Notifications"
+    aria-expanded="false"
+    aria-controls="notification-panel">
+
+    <svg
+        width="21"
+        height="21"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true">
+        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+        <path d="M10 21h4"></path>
+    </svg>
+
+    <span
+        class="notification-count"
+        data-notification-count
+        hidden>0</span>
+</button>
+
+                        <section
+                            class="notification-panel"
+                            id="notification-panel"
+                            data-notification-panel
+                            aria-label="Notifications"
+                            hidden>
+
+                            <div class="notification-panel-header">
+                                <div>
+                                    <h2>Notifications</h2>
+                                    <p>Your latest updates</p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-ghost btn-sm"
+                                    data-notification-mark-all>
+                                    Mark all read
+                                </button>
+                            </div>
+
+                            <div
+                                class="notification-list"
+                                data-notification-list
+                                aria-live="polite">
+                                <div class="loading-state">
+                                    Loading notifications...
+                                </div>
+                            </div>
+
+                            <div class="notification-panel-footer">
+                                <button
+                                    type="button"
+                                    class="btn btn-ghost btn-sm"
+                                    data-notification-clear-read>
+                                    Clear read
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-ghost btn-sm"
+                                    data-notification-clear-all>
+                                    Clear all
+                                </button>
+                            </div>
+
+                        </section>
+
+                    </div>
+
+                    <!-- ACCOUNT -->
+                    <a
+                        class="topbar-profile"
+                        href="{% if current_user.role == 'admin' %}/admin/profile{% elif current_user.role == 'owner' %}/owner/profile{% else %}/viewer/profile{% endif %}"
+                        aria-label="Open profile">
+                        <span class="avatar avatar-small">
+                            {{ current_user.name[:1]|upper }}
+                        </span>
+                        <span class="topbar-profile-name">
+                            {{ current_user.name }}
+                        </span>
+                    </a>
+
+                    <form action="{{ url_for('auth.logout') }}" method="POST" class="logout-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-secondary btn-sm">
+        Logout
+    </button>
+</form>
+                </div>
+
+            </header>
+
+            <!-- PAGE CONTENT -->
+            <main class="page-content">
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="flash-messages">
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}
+                {% endblock %}
+
+            </main>
+
+            <footer class="app-footer">
+                <span>TrustVault</span>
+                <span>Secure document sharing with an auditable history.</span>
+            </footer>
+
+        </div>
+
+    </div>
+
+    {% block page_scripts %}{% endblock %}
+
+</body>
+</html>

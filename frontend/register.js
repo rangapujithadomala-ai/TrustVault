@@ -264,7 +264,7 @@ const passwordMatchMessage = document.getElementById("confirmPasswordMessage");
             if (!response.ok) {
 
                 showMessage(
-                    data.message || "Registration failed. Please try again.",
+                    data.error || data.message || "Registration failed. Please try again.",
                     "error"
                 );
 
@@ -276,9 +276,10 @@ const passwordMatchMessage = document.getElementById("confirmPasswordMessage");
                 "success"
             );
 
-            // Follow a redirect only if Flask explicitly provides one
             if (data.redirect) {
                 window.location.href = data.redirect;
+            } else {
+                window.location.href = "/verification-pending.html?email=" + encodeURIComponent(email);
             }
 
         } catch (error) {

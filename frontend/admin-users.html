@@ -1,299 +1,252 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management | TrustVault</title>
+{% extends "base.html" %}
 
-    <link rel="stylesheet" href="/dashboard.css">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+{% block title %}User Management | TrustVault{% endblock %}
+{% block page_heading %}User Management{% endblock %}
 
-    <style>
-        .invite-form {
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 15px;
-            align-items: end;
-            margin-top: 20px;
-        }
+{% block extra_css %}
+<style>
+.admin-users-page{max-width:1400px;margin:0 auto}
+.page-intro{font-size:14px;color:var(--text-secondary,#64748b);margin:0 0 22px}
+.user-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:22px}
+.user-stat{background:var(--card-bg,#fff);border:1px solid var(--border-color,#e2e8f0);border-radius:12px;padding:19px}
+.user-stat p{font-size:12px;color:var(--text-secondary,#64748b);margin:0 0 9px}
+.user-stat h2{font-size:27px;margin:0;color:var(--text-primary,#111827)}
+.admin-card{background:var(--card-bg,#fff);border:1px solid var(--border-color,#e2e8f0);border-radius:13px;padding:22px;margin-bottom:20px}
+.admin-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}
+.admin-card-header h2{font-size:17px;margin:0 0 6px;color:var(--text-primary,#111827)}
+.admin-card-header p{font-size:13px;color:var(--text-secondary,#64748b);margin:0;line-height:1.5}
+.invite-form{display:grid;grid-template-columns:1fr 1fr auto;gap:14px;align-items:end}
+.invite-field{display:grid;gap:7px}
+.invite-field label{font-size:13px;font-weight:600;color:var(--text-primary,#111827)}
+.invite-field input,.user-search{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--border-color,#cbd5e1);border-radius:8px;background:var(--input-bg,#fff);color:var(--text-primary,#111827);font-size:13px}
+.invite-field input:focus,.user-search:focus{outline:2px solid var(--primary-color,#2563eb);outline-offset:1px}
+.invite-button{border:0;border-radius:8px;padding:12px 18px;background:var(--primary-color,#2563eb);color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.invite-button:disabled,.user-action-button:disabled{opacity:.6;cursor:wait}
+.invite-message{font-size:13px;margin:13px 0 0;min-height:18px}
+.invite-message.success{color:#15803d}
+.invite-message.error{color:#dc2626}
+.users-toolbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:16px}
+.users-toolbar .user-search{max-width:330px}
+.table-wrapper{width:100%;overflow-x:auto;border:1px solid var(--border-color,#e2e8f0);border-radius:9px}
+.users-table{width:100%;border-collapse:collapse;min-width:900px}
+.users-table th,.users-table td{padding:13px 14px;text-align:left;border-bottom:1px solid var(--border-color,#e2e8f0);font-size:12px;vertical-align:middle;color:var(--text-primary,#111827)}
+.users-table th{background:var(--surface-muted,#f8fafc);font-size:10px;letter-spacing:.05em;color:var(--text-secondary,#64748b);font-weight:700}
+.users-table tbody tr:last-child td{border-bottom:0}
+.users-table tbody tr:hover{background:var(--surface-muted,#f8fafc)}
+.users-table code{font-size:10px;overflow-wrap:anywhere;color:var(--text-secondary,#64748b)}
+.role,.status{display:inline-flex;align-items:center;padding:5px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.role-admin{background:#ede9fe;color:#6d28d9}
+.role-owner{background:#dbeafe;color:#1d4ed8}
+.role-viewer{background:#e0f2fe;color:#0369a1}
+.status-active{background:#dcfce7;color:#15803d}
+.status-inactive{background:#fee2e2;color:#b91c1c}
+.status-pending{background:#fef3c7;color:#92400e}
+.user-actions{display:flex;flex-wrap:wrap;gap:6px;min-width:150px}
+.user-action-button,.resend-invitation-button,.resend-verification-button{border:1px solid var(--border-color,#cbd5e1);border-radius:6px;padding:7px 9px;font-size:10px;font-weight:600;cursor:pointer;background:var(--card-bg,#fff);color:var(--text-primary,#111827)}
+.user-action-button:hover,.resend-invitation-button:hover,.resend-verification-button:hover{border-color:var(--primary-color,#2563eb)}
+.empty-message{text-align:center!important;padding:30px!important;color:var(--text-secondary,#64748b)!important}
+.table-count{font-size:12px;color:var(--text-secondary,#64748b);margin:0 0 10px}
+@media(max-width:850px){.user-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.invite-form{grid-template-columns:1fr 1fr}.invite-button{grid-column:1/-1}}
+@media(max-width:600px){.user-stats{gap:10px}.user-stat{padding:14px}.user-stat h2{font-size:23px}.admin-card{padding:15px}.admin-card-header,.users-toolbar{flex-direction:column;align-items:stretch}.users-toolbar .user-search{max-width:none}.invite-form{grid-template-columns:1fr}.invite-button{grid-column:auto}}
+</style>
+{% endblock %}
 
-        .invite-field {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+{% block content %}
+<div class="admin-users-page">
+    <p class="page-intro">Manage registered accounts, invite document owners, and monitor user status.</p>
 
-        .invite-field label {
-            font-weight: 600;
-        }
+    <section class="user-stats" aria-label="User statistics">
+        <div class="user-stat">
+            <p>Total Registered Users</p>
+            <h2>{{ total_users }}</h2>
+        </div>
+        <div class="user-stat">
+            <p>Administrators</p>
+            <h2>{{ total_admins }}</h2>
+        </div>
+        <div class="user-stat">
+            <p>Owners</p>
+            <h2>{{ total_owners }}</h2>
+        </div>
+        <div class="user-stat">
+            <p>Viewers</p>
+            <h2>{{ total_viewers }}</h2>
+        </div>
+    </section>
 
-        .invite-field input {
-            width: 100%;
-            padding: 11px 12px;
-            border: 1px solid #d6d6d6;
-            border-radius: 7px;
-            font-size: 14px;
-        }
-
-        .invite-button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 7px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .invite-message {
-            margin-top: 15px;
-            font-size: 14px;
-        }
-
-        @media (max-width: 700px) {
-            .invite-form {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        body.dark-mode .invite-field input {
-            background: #252525;
-            color: #ffffff;
-            border-color: #555555;
-        }
-    </style>
-</head>
-
-<body class="dashboard-page">
-
-<div class="dashboard-container">
-
-    <aside class="sidebar">
-        <div class="sidebar-brand">
-            <h2>TrustVault</h2>
-            <span>Administrator</span>
+    <section class="admin-card">
+        <div class="admin-card-header">
+            <div>
+                <h2>Invite an Owner</h2>
+                <p>Invite a trusted person to manage and share documents. They create their own password through the invitation link.</p>
+            </div>
         </div>
 
-        <nav class="sidebar-nav">
-            <a href="/admin/dashboard">Overview</a>
-            <a href="/admin/users" class="active">User Management</a>
-            <a href="/admin/documents">Document Overview</a>
-            <a href="/admin/audit-logs">Audit Logs</a>
-            <a href="/admin/security-alerts">Security Alerts</a>
-            <a href="/admin/notifications">Notifications</a>
-            <a href="/admin/settings">Settings</a>
-            <a href="/login.html">Logout</a>
-        </nav>
-    </aside>
+        <form id="inviteOwnerForm" class="invite-form">
+            <div class="invite-field">
+                <label for="ownerName">Owner Name</label>
+                <input type="text" id="ownerName" maxlength="100" placeholder="Enter full name" autocomplete="name" required>
+            </div>
+            <div class="invite-field">
+                <label for="ownerEmail">Email Address</label>
+                <input type="email" id="ownerEmail" maxlength="255" placeholder="Enter email address" autocomplete="email" required>
+            </div>
+            <button type="submit" class="invite-button" id="inviteButton">Send Invitation</button>
+        </form>
+        <p id="inviteMessage" class="invite-message" role="status" aria-live="polite"></p>
+    </section>
 
-    <main class="main-content">
-
-        <header class="topbar">
+    <section class="admin-card">
+        <div class="admin-card-header">
             <div>
-                <h1>User Management</h1>
-                <p>Manage and monitor registered TrustVault users.</p>
+                <h2>Registered Users</h2>
+                <p>View user accounts, roles, verification status, and available account actions.</p>
             </div>
+        </div>
 
-            <div class="admin-label">Administrator</div>
-        </header>
+        <div class="users-toolbar">
+            <p class="table-count" id="visibleUserCount">Showing registered users</p>
+            <input type="search" id="userSearch" class="user-search" placeholder="Search name, email, ID or role..." aria-label="Search users">
+        </div>
 
-        <section class="stats">
-
-            <div class="stat-card">
-                <p>Total Registered Users</p>
-                <h2>{{ total_users }}</h2>
-            </div>
-
-            <div class="stat-card">
-                <p>Administrators</p>
-                <h2>{{ total_admins }}</h2>
-            </div>
-
-            <div class="stat-card">
-                <p>Owners</p>
-                <h2>{{ total_owners }}</h2>
-            </div>
-
-            <div class="stat-card">
-                <p>Viewers</p>
-                <h2>{{ total_viewers }}</h2>
-            </div>
-
-        </section>
-
-        <!-- INVITE OWNER -->
-        <section class="content-card">
-
-            <div class="section-header">
-                <div>
-                    <h2>Invite an Owner</h2>
-                    <p>
-                        Invite a trusted person to manage and share their documents.
-                        They will create their own password through the invitation link.
-                    </p>
-                </div>
-            </div>
-
-            <form id="inviteOwnerForm" class="invite-form">
-
-                <div class="invite-field">
-                    <label for="ownerName">Owner Name</label>
-                    <input
-                        type="text"
-                        id="ownerName"
-                        maxlength="100"
-                        placeholder="Enter full name"
-                        required
-                    >
-                </div>
-
-                <div class="invite-field">
-                    <label for="ownerEmail">Email Address</label>
-                    <input
-                        type="email"
-                        id="ownerEmail"
-                        maxlength="255"
-                        placeholder="Enter email address"
-                        required
-                    >
-                </div>
-
-                <button type="submit" class="invite-button">
-                    Send Invitation
-                </button>
-
-            </form>
-
-            <p id="inviteMessage" class="invite-message" role="status"></p>
-
-        </section>
-
-        <!-- REGISTERED USERS -->
-        <section class="content-card">
-
-            <div class="section-header">
-                <div>
-                    <h2>Registered Users</h2>
-                    <p>Users registered or invited in the TrustVault database.</p>
-                </div>
-
-                <input
-                    type="text"
-                    id="userSearch"
-                    class="search-box"
-                    placeholder="Search by name, email or role..."
-                >
-            </div>
-
-            <div class="table-wrapper">
-
-                <table id="usersTable">
-
-                    <thead>
-                        <tr>
-                            <th>USER</th>
-                            <th>EMAIL</th>
-                            <th>ROLE</th>
-                            <th>JOINED DATE</th>
-                            <th>STATUS</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        {% for user in users %}
-
-                        <tr>
-                            <td class="user-name">{{ user.name }}</td>
-
-                            <td>{{ user.email }}</td>
-
-                            <td>
-                                {% if user.role == 'admin' %}
-                                    <span class="role role-admin">Admin</span>
-                                {% elif user.role == 'owner' %}
-                                    <span class="role role-owner">Owner</span>
-                                {% else %}
-                                    <span class="role role-viewer">Viewer</span>
-                                {% endif %}
-                            </td>
-
-                            <td>
-                                {{ user.created_at.strftime('%d %b %Y') if user.created_at else 'N/A' }}
-                            </td>
-
-                            <td>
-                                {% if not user.email_verified %}
-                                    <span class="status status-pending">
-                                        {% if user.role == 'owner' %}
-                                            Invitation Pending
-                                        {% else %}
-                                            Not Verified
+        <div class="table-wrapper">
+            <table class="users-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>USER</th>
+                        <th>USER ID</th>
+                        <th>EMAIL</th>
+                        <th>ROLE</th>
+                        <th>JOINED DATE</th>
+                        <th>STATUS</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td class="user-name">{{ user.name }}</td>
+                        <td><code>{{ user.id }}</code></td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.role == 'admin' %}
+                                <span class="role role-admin">Admin</span>
+                            {% elif user.role == 'owner' %}
+                                <span class="role role-owner">Owner</span>
+                            {% else %}
+                                <span class="role role-viewer">Viewer</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.created_at.strftime('%d %b %Y') if user.created_at else 'N/A' }}</td>
+                        <td>
+                            {% if not user.email_verified %}
+                                <span class="status status-pending">
+                                    {% if user.role == 'owner' %}Invitation Pending{% else %}Not Verified{% endif %}
+                                </span>
+                            {% elif user.is_active %}
+                                <span class="status status-active">Active</span>
+                            {% else %}
+                                <span class="status status-inactive">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="user-actions">
+                                {% if user.role != 'admin' and user.id != current_user.id %}
+                                    <button
+                                        type="button"
+                                        class="user-action-button"
+                                        data-user-id="{{ user.id }}"
+                                        data-active="{{ '1' if user.is_active else '0' }}"
+                                        {% if not user.email_verified and not user.is_active %}
+                                            disabled
+                                            title="Resend the pending verification or invitation first."
                                         {% endif %}
-                                    </span>
-                                {% elif user.is_active %}
-                                    <span class="status status-active">Active</span>
+                                    >{{ 'Deactivate' if user.is_active else 'Activate' }}</button>
+
+                                    {% if user.role == 'owner' and not user.email_verified %}
+                                        <button type="button" class="resend-invitation-button" data-user-id="{{ user.id }}">Resend Invitation</button>
+                                    {% elif user.role == 'viewer' and not user.email_verified %}
+                                        <button type="button" class="resend-verification-button" data-user-id="{{ user.id }}">Resend Verification</button>
+                                    {% endif %}
                                 {% else %}
-                                    <span class="status status-inactive">Inactive</span>
+                                    <span>—</span>
                                 {% endif %}
-                            </td>
-                        </tr>
-
-                        {% else %}
-
-                        <tr>
-                            <td colspan="5" class="empty-message">
-                                No registered users found.
-                            </td>
-                        </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-
-    </main>
-
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="empty-message">No registered users found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="settings-note" style="font-size:11px;color:var(--text-secondary,#64748b);margin:12px 0 0">
+            Account actions are processed by the server. Deactivating an Owner may require transferring their documents to another active, verified Owner.
+        </p>
+    </section>
 </div>
+{% endblock %}
 
+{% block page_scripts %}
 <script>
+(() => {
+    "use strict";
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
+
+    // User search
     const searchInput = document.getElementById("userSearch");
+    const userRows = [...document.querySelectorAll("#usersTable tbody tr")];
+    const countLabel = document.getElementById("visibleUserCount");
 
-    searchInput.addEventListener("input", function () {
-        const filter = this.value.toLowerCase();
+    function filterUsers() {
+        const query = searchInput.value.trim().toLowerCase();
+        let visible = 0;
 
-        document.querySelectorAll("#usersTable tbody tr").forEach(function(row) {
-            row.style.display = row.innerText.toLowerCase().includes(filter)
-                ? ""
-                : "none";
+        userRows.forEach(row => {
+            const matches = row.innerText.toLowerCase().includes(query);
+            row.style.display = matches ? "" : "none";
+
+            if (matches && !row.querySelector(".empty-message")) {
+                visible++;
+            }
         });
-    });
 
+        countLabel.textContent = `Showing ${visible} user${visible === 1 ? "" : "s"}`;
+    }
+
+    searchInput.addEventListener("input", filterUsers);
+    filterUsers();
+
+    // Invite Owner
     const inviteForm = document.getElementById("inviteOwnerForm");
     const inviteMessage = document.getElementById("inviteMessage");
+    const inviteButton = document.getElementById("inviteButton");
 
-    inviteForm.addEventListener("submit", async function(event) {
+    inviteForm.addEventListener("submit", async event => {
         event.preventDefault();
 
         const name = document.getElementById("ownerName").value.trim();
         const email = document.getElementById("ownerEmail").value.trim();
 
-        const button = inviteForm.querySelector("button");
-        const csrfToken = document.querySelector(
-            'meta[name="csrf-token"]'
-        ).content;
+        if (!name || !email) {
+            inviteMessage.textContent = "Please enter the owner's name and email.";
+            inviteMessage.className = "invite-message error";
+            return;
+        }
 
-        button.disabled = true;
-        button.textContent = "Sending...";
+        inviteButton.disabled = true;
+        inviteButton.textContent = "Sending...";
         inviteMessage.textContent = "";
+        inviteMessage.className = "invite-message";
 
         try {
             const response = await fetch("/admin/invite-owner", {
                 method: "POST",
+                credentials: "same-origin",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRFToken": csrfToken
@@ -301,28 +254,163 @@
                 body: JSON.stringify({ name, email })
             });
 
-            const result = await response.json();
+            const result = await response.json().catch(() => ({}));
 
             if (!response.ok) {
                 throw new Error(result.error || "Unable to send invitation.");
             }
 
-            inviteMessage.textContent = result.message;
+            inviteMessage.textContent = result.message || "Invitation request completed.";
+            inviteMessage.className = "invite-message success";
             inviteForm.reset();
 
-            // Refresh to show the newly invited Owner.
-            window.location.reload();
-
+            // Refresh after briefly displaying the server response.
+            window.setTimeout(() => window.location.reload(), 900);
         } catch (error) {
-            inviteMessage.textContent = error.message;
+            inviteMessage.textContent = error.message || "Unable to send invitation.";
+            inviteMessage.className = "invite-message error";
         } finally {
-            button.disabled = false;
-            button.textContent = "Send Invitation";
+            inviteButton.disabled = false;
+            inviteButton.textContent = "Send Invitation";
         }
     });
+
+    // Shared response helper
+    async function postAction(url, body = {}) {
+        const response = await fetch(url, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify(body)
+        });
+
+        const result = await response.json().catch(() => ({}));
+        return { response, result };
+    }
+
+    // Resend verification for Viewer
+    document.querySelectorAll(".resend-verification-button").forEach(button => {
+        button.addEventListener("click", async () => {
+            if (!confirm("Resend this Viewer verification email?")) return;
+
+            button.disabled = true;
+            const originalText = button.textContent;
+            button.textContent = "Sending...";
+
+            try {
+                const { response, result } = await postAction(
+                    `/admin/users/${encodeURIComponent(button.dataset.userId)}/resend-verification`
+                );
+
+                if (!response.ok) {
+                    throw new Error(result.error || "Resend failed.");
+                }
+
+                alert(result.message || "Verification email resent.");
+                window.location.reload();
+            } catch (error) {
+                alert(error.message || "Unable to resend the verification email.");
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        });
+    });
+
+    // Resend invitation for Owner
+    document.querySelectorAll(".resend-invitation-button").forEach(button => {
+        button.addEventListener("click", async () => {
+            if (!confirm("Resend this Owner invitation email?")) return;
+
+            button.disabled = true;
+            const originalText = button.textContent;
+            button.textContent = "Sending...";
+
+            try {
+                const { response, result } = await postAction(
+                    `/admin/users/${encodeURIComponent(button.dataset.userId)}/resend-invitation`
+                );
+
+                if (!response.ok) {
+                    throw new Error(result.error || "Resend failed.");
+                }
+
+                alert(result.message || "Invitation resent.");
+                window.location.reload();
+            } catch (error) {
+                alert(error.message || "Unable to resend the invitation.");
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        });
+    });
+
+    // Activate / deactivate accounts
+    document.querySelectorAll(".user-action-button").forEach(button => {
+        button.addEventListener("click", async () => {
+            const userId = button.dataset.userId;
+            const isActive = button.dataset.active === "1";
+
+            if (isActive) {
+                if (!confirm("Deactivate this account? Its active received document grants will be revoked.")) return;
+            } else {
+                if (!confirm("Reactivate this verified account?")) return;
+            }
+
+            button.disabled = true;
+            const originalText = button.textContent;
+            button.textContent = "Processing...";
+
+            try {
+                const action = isActive ? "deactivate" : "activate";
+
+                let { response, result } = await postAction(
+                    `/admin/users/${encodeURIComponent(userId)}/${action}`
+                );
+
+                if (response.status === 409 && result.needs_transfer) {
+                    const newOwnerId = prompt(
+                        "This Owner still owns active documents. Enter the ID of the active verified Owner to transfer them to. User IDs are shown in this table:"
+                    );
+
+                    if (!newOwnerId || !newOwnerId.trim()) {
+                        button.disabled = false;
+                        button.textContent = originalText;
+                        return;
+                    }
+
+                    const transfer = await postAction(
+                        `/admin/users/${encodeURIComponent(userId)}/transfer-documents`,
+                        { new_owner_id: newOwnerId.trim() }
+                    );
+
+                    if (!transfer.response.ok) {
+                        throw new Error(transfer.result.error || "Document transfer failed.");
+                    }
+
+                    const deactivation = await postAction(
+                        `/admin/users/${encodeURIComponent(userId)}/deactivate`
+                    );
+
+                    response = deactivation.response;
+                    result = deactivation.result;
+                }
+
+                if (!response.ok) {
+                    throw new Error(result.error || "Account action failed.");
+                }
+
+                alert(result.message || "Account updated successfully.");
+                window.location.reload();
+            } catch (error) {
+                alert(error.message || "Unable to complete the account action.");
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        });
+    });
+})();
 </script>
-
-<script src="/settings.js"></script>
-
-</body>
-</html>
+{% endblock %}

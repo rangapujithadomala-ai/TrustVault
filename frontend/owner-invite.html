@@ -1,0 +1,707 @@
+
+{% extends "base.html" %}
+
+{% block title %}Share Documents | TrustVault{% endblock %}
+{% block page_heading %}Share Documents{% endblock %}
+
+{% block extra_css %}
+<style>
+.invite-layout {
+    max-width: 900px;
+    margin: 20px auto;
+}
+
+.invite-card {
+    padding: 28px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--surface);
+}
+
+.invite-card h2 {
+    margin: 0 0 8px;
+    color: var(--text);
+    font-size: 21px;
+}
+
+.invite-description {
+    margin: 0 0 24px;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.invite-field {
+    margin-bottom: 20px;
+}
+
+.invite-field label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.invite-field input {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 46px;
+    padding: 11px 13px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+}
+
+.document-selection-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.document-selection-heading h3 {
+    margin: 0;
+    color: var(--text);
+    font-size: 16px;
+}
+
+.select-all-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--text);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.document-list {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.document-item {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr) 130px;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.document-item:last-child {
+    border-bottom: none;
+}
+
+.document-item:hover {
+    background: var(--surface-hover, transparent);
+}
+
+.document-checkbox {
+    width: 17px;
+    height: 17px;
+    cursor: pointer;
+    accent-color: var(--primary);
+}
+
+.document-details {
+    min-width: 0;
+}
+
+.document-title {
+    display: block;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+
+.document-category {
+    display: block;
+    margin-top: 4px;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.permission-select {
+    width: 100%;
+    min-height: 38px;
+    padding: 7px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-size: 12px;
+}
+
+.selection-summary {
+    margin-top: 12px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.invite-button {
+    min-height: 46px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 9px;
+    background: var(--primary);
+    color: white;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.invite-button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.invite-message {
+    display: none;
+    margin-top: 18px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--text);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.invite-message.success,
+.invite-message.error {
+    display: block;
+}
+
+.invite-results {
+    display: none;
+    margin-top: 16px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+}
+
+.invite-results.visible {
+    display: block;
+}
+
+.invite-results h3 {
+    margin: 0 0 12px;
+    color: var(--text);
+    font-size: 15px;
+}
+
+.invite-result-link {
+    display: block;
+    margin: 12px 0;
+    color: var(--primary);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.shared-document-list {
+    margin: 12px 0;
+    padding-left: 20px;
+    color: var(--text);
+    font-size: 13px;
+}
+
+.shared-document-list li {
+    margin: 7px 0;
+}
+
+.copy-link-button {
+    min-height: 36px;
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.invite-note {
+    margin-top: 22px;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.empty-document-list {
+    padding: 22px;
+    color: var(--text-muted);
+    text-align: center;
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+    .invite-card {
+        padding: 20px;
+    }
+
+    .document-item {
+        grid-template-columns: 25px minmax(0, 1fr);
+    }
+
+    .permission-select {
+        grid-column: 2;
+        max-width: 150px;
+    }
+
+    .invite-button {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="invite-layout">
+    <section class="invite-card">
+
+        <h2>Share documents securely</h2>
+
+        <p class="invite-description">
+            Select one or more documents and invite someone using their
+            email address. Choose Read or Edit access separately for
+            every selected document. All selected documents will be
+            included in one invitation link.
+        </p>
+
+        <form id="bulkInvitationForm">
+
+            <input
+                type="hidden"
+                id="csrfToken"
+                value="{{ csrf_token() }}"
+            >
+
+            <div class="invite-field">
+                <label for="recipientEmail">
+                    Recipient email address
+                </label>
+
+                <input
+                    id="recipientEmail"
+                    type="email"
+                    placeholder="recipient@example.com"
+                    maxlength="255"
+                    autocomplete="email"
+                    required
+                >
+            </div>
+
+            <div class="document-selection-heading">
+                <h3>Select documents</h3>
+
+                {% if documents %}
+                <label class="select-all-label">
+                    <input
+                        type="checkbox"
+                        id="selectAllDocuments"
+                    >
+                    Select all
+                </label>
+                {% endif %}
+            </div>
+
+            <div class="document-list" id="documentList">
+
+                {% for document in documents %}
+
+                <div class="document-item">
+
+                    <input
+                        type="checkbox"
+                        class="document-checkbox"
+                        data-document-id="{{ document.id }}"
+                        aria-label="Select {{ document.title }}"
+                    >
+
+                    <div class="document-details">
+                        <span class="document-title">
+                            {{ document.title }}
+                        </span>
+
+                        <span class="document-category">
+                            {{ document.category or "Uncategorised" }}
+                        </span>
+                    </div>
+
+                    <select
+                        class="permission-select"
+                        data-permission-document="{{ document.id }}"
+                        aria-label="Access permission for {{ document.title }}"
+                    >
+                        <option value="read">Read only</option>
+                        <option value="edit">Edit</option>
+                    </select>
+
+                </div>
+
+                {% else %}
+
+                <div class="empty-document-list">
+                    You have not uploaded any documents yet.
+                    Upload a document before creating an invitation.
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            <div
+                class="selection-summary"
+                id="selectionSummary"
+                aria-live="polite"
+            >
+                0 documents selected
+            </div>
+
+            <button
+                class="invite-button"
+                id="inviteButton"
+                type="submit"
+                style="margin-top: 20px;"
+                {% if not documents %}disabled{% endif %}
+            >
+                Share Selected Documents
+            </button>
+
+        </form>
+
+        <div
+            id="inviteMessage"
+            class="invite-message"
+            role="status"
+            aria-live="polite"
+        ></div>
+
+        <div
+            id="inviteResults"
+            class="invite-results"
+            aria-live="polite"
+        >
+            <h3>One invitation link</h3>
+
+            <p class="invite-description">
+                This single link gives the recipient access to all
+                the documents listed below, after acceptance.
+            </p>
+
+            <div id="sharedDocumentList"></div>
+
+            <a
+                id="invitationLink"
+                class="invite-result-link"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+            ></a>
+
+            <button
+                type="button"
+                id="copyInvitationLink"
+                class="copy-link-button"
+            >
+                Copy invitation link
+            </button>
+        </div>
+
+        <p class="invite-note">
+            The invitation expires after 48 hours and can be accepted
+            only once by the verified account matching the invited email
+            address. Access is granted only after the recipient accepts
+            the invitation. Each selected document retains its own
+            Read or Edit permission.
+        </p>
+
+    </section>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const form = document.getElementById("bulkInvitationForm");
+    const button = document.getElementById("inviteButton");
+    const emailInput = document.getElementById("recipientEmail");
+    const csrfToken = document.getElementById("csrfToken").value;
+
+    const selectAll = document.getElementById("selectAllDocuments");
+    const selectionSummary = document.getElementById("selectionSummary");
+
+    const message = document.getElementById("inviteMessage");
+    const results = document.getElementById("inviteResults");
+
+    const sharedDocumentList =
+        document.getElementById("sharedDocumentList");
+
+    const invitationLink =
+        document.getElementById("invitationLink");
+
+    const copyButton =
+        document.getElementById("copyInvitationLink");
+
+    const checkboxes = Array.from(
+        document.querySelectorAll(".document-checkbox")
+    );
+
+    let currentInvitationUrl = "";
+
+    function updateSelection() {
+
+        const selected = checkboxes.filter(
+            checkbox => checkbox.checked
+        );
+
+        selectionSummary.textContent =
+            selected.length +
+            (selected.length === 1
+                ? " document selected"
+                : " documents selected");
+
+        button.disabled = selected.length === 0;
+
+        if (selectAll) {
+
+            selectAll.checked =
+                checkboxes.length > 0 &&
+                selected.length === checkboxes.length;
+
+            selectAll.indeterminate =
+                selected.length > 0 &&
+                selected.length < checkboxes.length;
+        }
+    }
+
+    checkboxes.forEach(function (checkbox) {
+        checkbox.addEventListener("change", updateSelection);
+    });
+
+    if (selectAll) {
+
+        selectAll.addEventListener("change", function () {
+
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = selectAll.checked;
+            });
+
+            updateSelection();
+        });
+    }
+
+    function displayInvitation(data) {
+
+        currentInvitationUrl = data.invitation_url;
+
+        sharedDocumentList.replaceChildren();
+
+        const list = document.createElement("ul");
+        list.className = "shared-document-list";
+
+        data.documents.forEach(function (sharedDoc) {
+
+            const item = document.createElement("li");
+
+            item.textContent =
+                sharedDoc.document_title +
+                " — " +
+                sharedDoc.permission_type.toUpperCase();
+
+            list.appendChild(item);
+        });
+
+        sharedDocumentList.appendChild(list);
+
+        invitationLink.href = currentInvitationUrl;
+        invitationLink.textContent = currentInvitationUrl;
+
+        copyButton.textContent = "Copy invitation link";
+
+        results.classList.add("visible");
+    }
+
+    copyButton.addEventListener("click", async function () {
+
+        if (!currentInvitationUrl) {
+            return;
+        }
+
+        try {
+
+            await navigator.clipboard.writeText(
+                currentInvitationUrl
+            );
+
+            copyButton.textContent = "Copied!";
+
+        } catch (error) {
+
+            const temporaryInput =
+                document.createElement("textarea");
+
+            temporaryInput.value = currentInvitationUrl;
+
+            document.body.appendChild(temporaryInput);
+            temporaryInput.select();
+
+            const copied = document.execCommand("copy");
+
+            temporaryInput.remove();
+
+            copyButton.textContent =
+                copied ? "Copied!" : "Copy failed";
+        }
+    });
+
+    form.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+        const email = emailInput.value.trim().toLowerCase();
+
+        if (!emailInput.checkValidity()) {
+            emailInput.reportValidity();
+            return;
+        }
+
+        const selectedCheckboxes = checkboxes.filter(
+            checkbox => checkbox.checked
+        );
+
+        if (selectedCheckboxes.length === 0) {
+
+            alert("Select at least one document.");
+            return;
+        }
+
+        const selectedDocuments = selectedCheckboxes.map(
+            function (checkbox) {
+
+                const documentId = checkbox.dataset.documentId;
+
+                const permissionSelect = document.querySelector(
+                    `[data-permission-document="${CSS.escape(documentId)}"]`
+                );
+
+                return {
+                    document_id: documentId,
+                    permission_type: permissionSelect.value
+                };
+            }
+        );
+
+        if (!confirm(
+            "Create one invitation link for " +
+            selectedDocuments.length +
+            " document(s) and share it with " +
+            email +
+            "?"
+        )) {
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Creating invitation...";
+
+        message.className = "invite-message";
+        message.textContent = "";
+
+        results.classList.remove("visible");
+        sharedDocumentList.replaceChildren();
+
+        currentInvitationUrl = "";
+
+        try {
+
+            const response = await fetch("/invitations/bulk", {
+
+                method: "POST",
+
+                credentials: "same-origin",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+
+                body: JSON.stringify({
+                    email: email,
+                    documents: selectedDocuments
+                })
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error || "Unable to create the invitation."
+                );
+            }
+
+            if (
+                !data.invitation_url ||
+                !Array.isArray(data.documents)
+            ) {
+
+                throw new Error(
+                    "The server returned an unexpected invitation response."
+                );
+            }
+
+            displayInvitation(data);
+
+            // Updated success message
+
+            const serverMessage = (data.message || "").toLowerCase();
+
+            if (serverMessage.includes("email delivery failed")) {
+
+                message.className = "invite-message error";
+
+                message.textContent =
+                    "Invitation created, but the email could not be delivered. Please copy and share the invitation link below.";
+
+            } else {
+
+                message.className = "invite-message success";
+
+                message.textContent =
+                   "Invitation sent successfully! The invitation email has been sent to the recipient. Please ask them to check their inbox. If they cannot find it, please ask them to check their spam or junk folder.";
+            }
+
+            // Clear the form after successful creation
+
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = false;
+            });
+
+            emailInput.value = "";
+
+            updateSelection();
+
+        } catch (error) {
+
+            message.className = "invite-message error";
+            message.textContent = error.message;
+
+        } finally {
+
+            button.textContent = "Share Selected Documents";
+            updateSelection();
+        }
+    });
+
+    updateSelection();
+
+});
+</script>
+
+{% endblock %}

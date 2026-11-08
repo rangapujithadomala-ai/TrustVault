@@ -1,264 +1,562 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Settings | TrustVault</title>
+{% extends "base.html" %}
 
-    <link rel="stylesheet" href="/dashboard.css">
+{% block title %}Admin Settings | TrustVault{% endblock %}
+{% block page_heading %}Admin Settings{% endblock %}
 
-    <style>
-        .admin-content {
-            max-width: 1200px;
-        }
+{% block extra_css %}
+<style>
+.admin-settings-page {
+    max-width: 1100px;
+    margin: auto;
+}
 
-        /* Consistent Admin Sidebar */
+.settings-intro {
+    color: var(--text-secondary, #6b7280);
+    line-height: 1.6;
+    margin: 6px 0 24px;
+}
 
-        body.dashboard-page .sidebar {
-            display: flex;
-            flex-direction: column;
-        }
+.settings-section {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 18px;
+}
 
-        body.dashboard-page .sidebar .sidebar-brand {
-            position: relative;
-            flex: 0 0 auto;
-            display: block;
-            margin: 0 0 28px;
-            padding: 0;
-            transform: none;
-        }
+.settings-section h2 {
+    color: var(--text-primary, #111827);
+    font-size: 17px;
+    margin: 0 0 9px;
+}
 
-        body.dashboard-page .sidebar .sidebar-brand h2 {
-            margin: 0;
-            padding: 0;
-            line-height: 1.3;
-        }
+.settings-section p {
+    color: var(--text-secondary, #6b7280);
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 0;
+}
 
-        body.dashboard-page .sidebar .sidebar-brand span {
-            display: block;
-            position: static;
-            margin-top: 9px;
-            padding: 0;
-            line-height: 1.4;
-        }
+.settings-detail-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 18px;
+}
 
-        body.dashboard-page .sidebar .sidebar-nav {
-            flex: 0 0 auto;
-            margin-top: 0;
-        }
+.settings-detail {
+    padding: 13px 14px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 9px;
+}
 
-        /* Settings page */
+.settings-detail strong {
+    display: block;
+    color: var(--text-primary, #111827);
+    font-size: 13px;
+    margin-bottom: 5px;
+}
 
-        .page-heading {
-            margin-bottom: 24px;
-        }
+.settings-detail span {
+    display: block;
+    color: var(--text-secondary, #6b7280);
+    font-size: 13px;
+    line-height: 1.6;
+}
 
-        .page-heading p {
-            color: #6b7280;
-            margin-top: 7px;
-        }
+.settings-link {
+    display: inline-block;
+    margin-top: 15px;
+    color: var(--primary-color, #2563eb);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
 
-        .content-section {
-            margin-top: 24px;
-        }
+.settings-link:hover {
+    text-decoration: underline;
+}
 
-        .content-section label {
-            display: block;
-            margin-top: 14px;
-            margin-bottom: 8px;
-        }
+/* Expandable password section */
+.password-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--text-primary, #111827);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
 
-        .content-section input[type="checkbox"] {
-            margin-right: 8px;
-        }
+.password-toggle h2 {
+    margin: 0;
+}
 
-        .content-section select {
-            margin-top: 5px;
-        }
+.password-toggle-icon {
+    font-size: 20px;
+    line-height: 1;
+    transition: transform 0.2s ease;
+}
 
-        .security-note {
-            margin-top: 20px;
-            padding: 16px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            background: #f9fafb;
-            color: #4b5563;
-            font-size: 13px;
-            line-height: 1.6;
-        }
+.password-toggle[aria-expanded="true"] .password-toggle-icon {
+    transform: rotate(180deg);
+}
 
-        body.dark-mode .page-heading p,
-        body.dark-mode .content-section > p {
-            color: #d1d5db;
-        }
+.password-description {
+    margin-top: 10px !important;
+}
 
-        body.dark-mode .security-note {
-            background: #1f2937;
-            border-color: #374151;
-            color: #d1d5db;
-        }
-    </style>
-</head>
+.password-panel {
+    margin-top: 22px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color, #e5e7eb);
+}
 
-<body class="dashboard-page">
+.password-form {
+    display: grid;
+    gap: 17px;
+    max-width: 560px;
+}
 
-    <div class="dashboard-container">
+.password-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
 
-        <aside class="sidebar">
+.password-form label {
+    color: var(--text-primary, #374151);
+    font-size: 13px;
+    font-weight: 600;
+}
 
-            <div class="sidebar-brand">
-                <h2>TrustVault</h2>
-                <span>Administrator</span>
-            </div>
+.password-form input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: 8px;
+    background: var(--input-bg, #fff);
+    color: var(--text-primary, #111827);
+    font: inherit;
+}
 
-            <nav class="sidebar-nav">
-                <a href="/admin/dashboard">Overview</a>
-                <a href="/admin/users">User Management</a>
-                <a href="/admin/documents">Document Overview</a>
-                <a href="/admin/audit-logs">Audit Logs</a>
-                <a href="/admin/security-alerts">Security Alerts</a>
-                <a href="/admin/notifications">Notifications</a>
-                <a href="/admin/settings" class="active">Settings</a>
-                <a href="/login.html">Logout</a>
-            </nav>
+.password-form input:focus {
+    outline: none;
+    border-color: var(--primary-color, #3157c8);
+}
 
-        </aside>
+.password-help {
+    color: var(--text-secondary, #6b7280);
+    font-size: 12px;
+    line-height: 1.6;
+}
 
-        <main class="main-content">
+.password-button {
+    width: fit-content;
+    padding: 11px 20px;
+    border: none;
+    border-radius: 8px;
+    background: var(--primary-color, #3157c8);
+    color: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
 
-            <div class="admin-content">
+.password-button:hover {
+    opacity: 0.9;
+}
 
-                <div class="page-heading">
-                    <h1>Admin Settings</h1>
-                    <p>Manage your administrator preferences and account settings.</p>
+.password-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.password-message {
+    font-size: 13px;
+    line-height: 1.5;
+    margin-top: 14px !important;
+}
+
+/* Professional security notice */
+.settings-security-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 18px 20px;
+    border: 1px solid var(--border-color, #d1d5db);
+    border-left: 4px solid var(--primary-color, #3157c8);
+    border-radius: 10px;
+    background: var(--surface-bg, #f9fafb);
+    color: var(--text-secondary, #6b7280);
+    font-size: 13px;
+    line-height: 1.75;
+    margin-top: 22px;
+}
+
+.security-note-icon {
+    flex-shrink: 0;
+    font-size: 19px;
+    line-height: 1.4;
+}
+
+.settings-security-note strong {
+    display: block;
+    color: var(--text-primary, #111827);
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.settings-security-note p {
+    margin: 0;
+    color: var(--text-secondary, #6b7280);
+}
+
+/* Dark theme compatibility */
+html[data-theme="dark"] .settings-security-note {
+    background: var(--surface-bg, #1f2937);
+    border-color: var(--border-color, #374151);
+    border-left-color: var(--primary-color, #60a5fa);
+}
+
+html[data-theme="dark"] .settings-security-note strong {
+    color: var(--text-primary, #f9fafb);
+}
+
+html[data-theme="dark"] .password-form input {
+    background: var(--input-bg, #111827);
+    color: var(--text-primary, #f9fafb);
+    border-color: var(--border-color, #374151);
+}
+
+@media (max-width: 600px) {
+    .settings-section {
+        padding: 16px;
+    }
+
+    .settings-security-note {
+        padding: 15px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-settings-page">
+
+    <p class="settings-intro">
+        Review your administrator account, security settings
+        and the protection principles followed by TrustVault.
+    </p>
+
+    <!-- Change Password -->
+    <section class="settings-section">
+
+        <button
+            type="button"
+            class="password-toggle"
+            id="passwordToggle"
+            aria-expanded="false"
+            aria-controls="passwordPanel"
+        >
+            <h2>Change Password</h2>
+            <span class="password-toggle-icon" aria-hidden="true">⌄</span>
+        </button>
+
+        <p class="password-description">
+            Update your administrator password securely using your current password.
+        </p>
+
+        <div class="password-panel" id="passwordPanel" hidden>
+
+            <form id="passwordForm" class="password-form" novalidate>
+
+                <div class="form-group">
+                    <label for="currentPassword">Current Password</label>
+                    <input
+                        type="password"
+                        id="currentPassword"
+                        name="current_password"
+                        autocomplete="current-password"
+                        required
+                    >
                 </div>
 
-                <section class="content-section">
+                <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input
+                        type="password"
+                        id="newPassword"
+                        name="new_password"
+                        autocomplete="new-password"
+                        minlength="8"
+                        required
+                    >
+                    <span class="password-help">
+                        Use at least 8 characters, including uppercase,
+                        lowercase, a number and a special character.
+                    </span>
+                </div>
 
-                    <h2>Appearance</h2>
-                    <p>Choose how TrustVault should appear across the application.</p>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm New Password</label>
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirm_password"
+                        autocomplete="new-password"
+                        required
+                    >
+                </div>
 
-                    <label for="themeSelect">Application Theme</label>
+                <button
+                    type="submit"
+                    class="password-button"
+                    id="changePasswordButton"
+                >
+                    Update Password
+                </button>
 
-                    <select id="themeSelect">
-                        <option value="light">Light Mode</option>
-                        <option value="dark">Dark Mode</option>
-                        <option value="system">System Default</option>
-                    </select>
+                <p
+                    id="passwordMessage"
+                    class="password-message"
+                    aria-live="polite"
+                ></p>
 
-                </section>
+            </form>
 
-                <section class="content-section">
+        </div>
+    </section>
 
-                    <h2>Notification Preferences</h2>
-                    <p>Choose which system events you want to receive notifications about.</p>
+    <!-- Administrator Account -->
+    <section class="settings-section">
 
-                    <label>
-                        <input type="checkbox" checked>
-                        Security alerts
-                    </label>
+        <h2>Administrator Account</h2>
 
-                    <label>
-                        <input type="checkbox" checked>
-                        New user registrations
-                    </label>
+        <p>
+            Keep your administrator account information up to date.
+            Use the profile page to review your account details.
+        </p>
 
-                    <label>
-                        <input type="checkbox" checked>
-                        Failed login attempts
-                    </label>
+        <a href="/admin/profile" class="settings-link">
+            View Administrator Profile →
+        </a>
 
-                    <label>
-                        <input type="checkbox" checked>
-                        System notifications
-                    </label>
+    </section>
 
-                </section>
+    <!-- Authentication and Account Security -->
+    <section class="settings-section">
 
-                <section class="content-section">
+        <h2>Authentication and Account Security</h2>
 
-                    <h2>Security Preferences</h2>
+        <p>
+            TrustVault uses authenticated accounts and role-based
+            access to protect application resources.
+        </p>
 
-                    <label for="sessionTimeout">Session Timeout</label>
+        <div class="settings-detail-list">
 
-                    <select id="sessionTimeout">
-                        <option value="15">15 minutes</option>
-                        <option value="30" selected>30 minutes</option>
-                        <option value="60">60 minutes</option>
-                    </select>
-
-                    <label>
-                        <input type="checkbox" checked>
-                        Require confirmation before suspending a user
-                    </label>
-
-                    <label>
-                        <input type="checkbox" checked>
-                        Require confirmation before changing user roles
-                    </label>
-
-                </section>
-
-                <section class="content-section">
-
-                    <h2>Privacy Preferences</h2>
-
-                    <label>
-                        <input type="checkbox" checked>
-                        Keep administrator activity visible in audit logs
-                    </label>
-
-                    <label>
-                        <input type="checkbox" checked>
-                        Receive alerts for unusual account activity
-                    </label>
-
-                </section>
-
-                <section class="content-section">
-
-                    <h2>Platform Preferences</h2>
-
-                    <label for="defaultRole">Default Role for New Registrations</label>
-
-                    <select id="defaultRole">
-                        <option value="viewer" selected>Viewer</option>
-                        <option value="owner">Owner</option>
-                    </select>
-
-                    <label>
-                        <input type="checkbox" checked>
-                        Require email verification for new accounts
-                    </label>
-
-                </section>
-
-                <section class="content-section">
-
-                    <h2>Administrator Account</h2>
-
-                    <p>Manage your administrator account securely.</p>
-
-                    <p>
-                        Password changes should be completed through the
-                        account's verified password-reset process.
-                    </p>
-
-                </section>
-
-                <p class="security-note">
-                    These preference controls are frontend elements at present.
-                    They will be connected to secure backend settings later.
-                </p>
-
+            <div class="settings-detail">
+                <strong>Role-Based Access</strong>
+                <span>
+                    Administrator, Owner and Viewer roles determine
+                    which application operations a user can perform.
+                </span>
             </div>
 
-        </main>
+            <div class="settings-detail">
+                <strong>Email Verification</strong>
+                <span>
+                    Account verification is handled through the
+                    authentication workflow.
+                </span>
+            </div>
+
+            <div class="settings-detail">
+                <strong>Password Management</strong>
+                <span>
+                    Administrators can securely update their password
+                    using the Change Password section above.
+                </span>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Document Privacy and Permissions -->
+    <section class="settings-section">
+
+        <h2>Document Privacy and Permissions</h2>
+
+        <p>
+            Document access must be determined by server-side
+            authorization checks. Administrator visibility of
+            system information does not automatically grant access
+            to private document contents.
+        </p>
+
+        <div class="settings-detail-list">
+
+            <div class="settings-detail">
+                <strong>Named Permissions</strong>
+                <span>
+                    Document owners control which users receive
+                    read or edit access.
+                </span>
+            </div>
+
+            <div class="settings-detail">
+                <strong>Permission Revocation</strong>
+                <span>
+                    Revoked access must be enforced by the server
+                    for subsequent document operations.
+                </span>
+            </div>
+
+            <div class="settings-detail">
+                <strong>Audit Trail</strong>
+                <span>
+                    Relevant document and security activities
+                    are recorded for accountability.
+                </span>
+            </div>
+
+        </div>
+
+        <a href="/admin/audit-logs" class="settings-link">
+            Review Audit Logs →
+        </a>
+
+    </section>
+
+    <!-- Security Notice -->
+    <div class="settings-security-note">
+
+        <span class="security-note-icon" aria-hidden="true">ⓘ</span>
+
+        <div>
+            <strong>Security Notice</strong>
+
+            <p>
+                This page provides information about TrustVault's security
+                and application preferences. It does not expose unimplemented
+                configuration controls. Authentication, document permissions,
+                session handling and other security-sensitive operations must
+                remain enforced by the backend.
+            </p>
+        </div>
 
     </div>
 
-    <script src="/settings.js"></script>
+</div>
+{% endblock %}
 
-</body>
-</html>
+{% block page_scripts %}
+<script>
+(() => {
+    // Expand and collapse Change Password section
+    const passwordToggle = document.getElementById("passwordToggle");
+    const passwordPanel = document.getElementById("passwordPanel");
+
+    passwordToggle.addEventListener("click", () => {
+        const isExpanded =
+            passwordToggle.getAttribute("aria-expanded") === "true";
+
+        passwordToggle.setAttribute("aria-expanded", String(!isExpanded));
+        passwordPanel.hidden = isExpanded;
+    });
+
+    // CSRF token
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = csrfMeta ? csrfMeta.content : "";
+
+    // Password change
+    const passwordForm = document.getElementById("passwordForm");
+    const currentPassword = document.getElementById("currentPassword");
+    const newPassword = document.getElementById("newPassword");
+    const confirmPassword = document.getElementById("confirmPassword");
+    const passwordMessage = document.getElementById("passwordMessage");
+    const changePasswordButton =
+        document.getElementById("changePasswordButton");
+
+    passwordForm.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        passwordMessage.textContent = "";
+
+        const current = currentPassword.value;
+        const next = newPassword.value;
+        const confirmation = confirmPassword.value;
+
+        if (!current || !next || !confirmation) {
+            passwordMessage.textContent =
+                "Please fill in all password fields.";
+            passwordMessage.style.color = "#dc2626";
+            return;
+        }
+
+        const strongPassword =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
+        if (!strongPassword.test(next)) {
+            passwordMessage.textContent =
+                "New password must have at least 8 characters, uppercase, lowercase, a number and a special character.";
+            passwordMessage.style.color = "#dc2626";
+            return;
+        }
+
+        if (next !== confirmation) {
+            passwordMessage.textContent =
+                "New passwords do not match.";
+            passwordMessage.style.color = "#dc2626";
+            return;
+        }
+
+        changePasswordButton.disabled = true;
+        changePasswordButton.textContent = "Updating...";
+
+        try {
+            const response = await fetch("/auth/change-password", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+                body: JSON.stringify({
+                    current_password: current,
+                    new_password: next,
+                    confirm_password: confirmation
+                })
+            });
+
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(
+                    result.error || "Password change failed."
+                );
+            }
+
+            passwordMessage.textContent =
+                result.message || "Password changed successfully.";
+
+            passwordMessage.style.color = "#15803d";
+            passwordForm.reset();
+
+        } catch (error) {
+            passwordMessage.textContent = error.message;
+            passwordMessage.style.color = "#dc2626";
+        } finally {
+            changePasswordButton.disabled = false;
+            changePasswordButton.textContent = "Update Password";
+        }
+    });
+})();
+</script>
+{% endblock %}

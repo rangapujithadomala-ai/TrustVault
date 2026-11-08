@@ -203,10 +203,14 @@ resetPasswordForm.addEventListener("submit", function (event) {
 
     }
 
-    // Backend integration pending
-    showMessage(
-        "Password validated. Actual reset requires backend verification.",
-        "success"
-    );
+    const token=new URLSearchParams(window.location.search).get("token");
+    if(!token){showMessage("Password reset token is missing. Open the link from your email.","error");return;}
+    const csrfToken=document.querySelector('meta[name="csrf-token"]')?.content||"";
+    const submit=resetPasswordForm.querySelector('button[type="submit"]');
+    if(submit){submit.disabled=true;submit.textContent="Resetting...";}
+    fetch("/auth/reset-password",{method:"POST",headers:{"Content-Type":"application/json","X-CSRFToken":csrfToken},body:JSON.stringify({token,password:passwordValue,confirm_password:confirmValue})})
+      .then(async response=>{const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"Password reset failed.");showMessage(result.message||"Password reset successfully.","success");if(result.redirect)setTimeout(()=>window.location.href=result.redirect,1800);})
+      .catch(error=>showMessage(error.message,"error"))
+      .finally(()=>{if(submit){submit.disabled=false;submit.textContent="Reset Password";}});
 
 });

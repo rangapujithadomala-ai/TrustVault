@@ -66,7 +66,8 @@ def verify_email_token(token):
     # Find the account connected to this token
     user = db.session.get(User, verification_record.user_id)
 
-    if user is None or not user.is_active:
+    # Viewer email-verification tokens must not consume Owner invitation tokens.
+    if user is None or not user.is_active or user.role != "viewer":
         return False
 
     # Mark the email as verified

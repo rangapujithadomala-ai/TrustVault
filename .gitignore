@@ -17,3 +17,13 @@ htmlcov/
 
 # IDE settings
 .vscode/
+# Private document bytes and local database files
+instance/
+private_documents/
+storage/
+uploads/
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.sql

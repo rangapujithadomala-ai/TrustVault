@@ -1,3 +1,18 @@
+document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("logout") === "1") {
+        const message = document.getElementById("message");
+        if (message) { message.textContent = "You have been logged out successfully."; message.className = "message success"; }
+    }
+    if (params.get("verified") === "1") {
+        const message = document.getElementById("message");
+        if (message) {
+            message.textContent = "Email verified successfully. You can now log in.";
+            message.className = "message success";
+        }
+    }
+});
+
 
 const loginForm = document.getElementById("loginForm");
 const emailInput = document.getElementById("email");
@@ -74,7 +89,7 @@ loginForm.addEventListener("submit", async function (event) {
 
         if (!response.ok) {
             showMessage(
-                data.message || "Login failed. Please check your details.",
+                data.error || data.message || "Login failed. Please check your details.",
                 "error"
             );
             return;

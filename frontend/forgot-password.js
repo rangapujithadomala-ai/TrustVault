@@ -40,10 +40,18 @@ forgotPasswordForm.addEventListener("submit", function (event) {
         return;
     }
 
-    // Backend connection will send the actual reset link
-    showMessage(
-        "Email format validated. Password reset will be available after backend connection.",
-        "success"
-    );
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
+    const submitButton = forgotPasswordForm.querySelector('button[type="submit"]');
+    if (submitButton) { submitButton.disabled = true; submitButton.textContent = "Sending..."; }
+    fetch("/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
+        body: JSON.stringify({ email })
+    }).then(async response => {
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || "Unable to request password reset.");
+        showMessage(result.message || "If the account exists, a reset link will be sent.", "success");
+    }).catch(error => showMessage(error.message, "error"))
+      .finally(() => { if (submitButton) { submitButton.disabled = false; submitButton.textContent = "Send Reset Link"; } });
 
 });

@@ -1,293 +1,657 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrustVault | Owner Dashboard</title>
-    <link rel="stylesheet" href="/dashboard.css">
-</head>
+{% extends "base.html" %}
 
-<body class="dashboard-page">
-    <div class="dashboard-container">
+{% block title %}Owner Dashboard | TrustVault{% endblock %}
+{% block page_heading %}Owner Dashboard{% endblock %}
 
-        <aside class="sidebar">
-            <div class="brand">
-                <h2>TrustVault</h2>
-                <p>Secure Document Sharing</p>
+{% block extra_css %}
+<style>
+.owner-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+/* Welcome banner */
+.owner-welcome {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(28px, 4vw, 42px);
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: 20px;
+    color: #ffffff !important;
+    background:
+        radial-gradient(circle at 88% 15%, rgba(111, 163, 220, .25), transparent 34%),
+        linear-gradient(145deg, #142943, #1c3b61 55%, #294f7d) !important;
+    box-shadow: 0 12px 28px rgba(16, 35, 59, .14);
+}
+
+.owner-welcome-content {
+    position: relative;
+    z-index: 1;
+}
+
+.owner-welcome-label {
+    display: inline-block;
+    margin-bottom: 13px;
+    color: #c8d9ef !important;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.owner-welcome h2 {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 10px;
+    color: #ffffff !important;
+    font-size: clamp(23px, 3vw, 31px);
+    font-weight: 750;
+    letter-spacing: -.5px;
+}
+
+.owner-welcome p {
+    position: relative;
+    z-index: 1;
+    color: rgba(255, 255, 255, .84) !important;
+    line-height: 1.7;
+}
+
+/* Section headings */
+.owner-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.owner-heading h2 {
+    margin: 0;
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 750;
+}
+
+.owner-heading p {
+    margin: 5px 0 0;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+/* Statistics */
+.owner-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.owner-stat {
+    min-width: 0;
+    padding: 23px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: 0 3px 12px rgba(25,45,75,.045);
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.owner-stat:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    box-shadow: 0 9px 22px rgba(25,45,75,.09);
+}
+
+.owner-stat-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.owner-stat-label {
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.owner-stat-icon {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 20px;
+}
+
+.owner-stat-value {
+    display: block;
+    margin-top: 16px;
+    color: var(--text);
+    font-size: 32px;
+    font-weight: 780;
+    line-height: 1.2;
+}
+
+.owner-stat-description {
+    display: block;
+    margin-top: 7px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* Quick actions */
+.owner-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.owner-action {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    background: var(--surface);
+    color: var(--text);
+    text-decoration: none;
+    box-shadow: 0 3px 12px rgba(25,45,75,.045);
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.owner-action:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    box-shadow: 0 9px 22px rgba(25,45,75,.09);
+}
+
+.owner-action-icon {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    border-radius: 13px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 21px;
+}
+
+.owner-action strong {
+    display: block;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.owner-action small {
+    display: block;
+    margin-top: 5px;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Main sections */
+.owner-section {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: 0 3px 12px rgba(25,45,75,.045);
+}
+
+.owner-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 13px;
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.owner-section-header h2 {
+    margin: 0;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 750;
+}
+
+.owner-section-header p {
+    margin: 5px 0 0;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* Table */
+.owner-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.owner-table {
+    width: 100%;
+    min-width: 650px;
+    border-collapse: collapse;
+}
+
+.owner-table th,
+.owner-table td {
+    padding: 16px 21px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-size: 13px;
+}
+
+.owner-table th {
+    background: var(--surface-soft);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .45px;
+    text-transform: uppercase;
+}
+
+.owner-table tbody tr {
+    transition: background .18s ease;
+}
+
+.owner-table tbody tr:hover {
+    background: var(--surface-hover);
+}
+
+.owner-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.owner-document-name {
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.permission-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.permission-badge.read {
+    background: var(--surface-soft);
+    border-color: var(--border);
+    color: var(--text-secondary);
+}
+
+.permission-badge.edit {
+    background: var(--primary-soft);
+    border-color: var(--primary-soft);
+    color: var(--primary);
+}
+
+.owner-manage-link {
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.owner-manage-link:hover {
+    text-decoration: underline;
+}
+
+/* Empty state */
+.owner-empty {
+    padding: 36px 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.owner-empty strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text);
+    font-size: 14px;
+}
+
+.owner-empty p {
+    margin: 0 0 16px;
+    font-size: 12px;
+}
+
+/* Recent activity */
+.owner-activity-list {
+    padding: 5px 23px;
+}
+
+.owner-activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.owner-activity-item:last-child {
+    border-bottom: 0;
+}
+
+.owner-activity-item strong {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.owner-activity-item p {
+    margin: 5px 0 0;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.owner-activity-time {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .owner-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    .owner-dashboard {
+        gap: 19px;
+    }
+
+    .owner-welcome {
+        padding: 24px 20px;
+    }
+
+    .owner-stats {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .owner-stat {
+        padding: 19px;
+    }
+
+    .owner-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .owner-section-header {
+        padding: 17px;
+    }
+
+    .owner-activity-list {
+        padding: 5px 17px;
+    }
+
+    .owner-activity-item {
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .owner-activity-time {
+        white-space: normal;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="owner-dashboard">
+
+    <!-- Welcome banner -->
+    <section class="owner-welcome">
+        <div class="owner-welcome-content">
+            <span class="owner-welcome-label">TrustVault · Secure Workspace</span>
+            <h2>Welcome back, {{ current_user.name }}!</h2>
+            <p>
+                Securely manage your documents, control sharing permissions,
+                and keep track of activity across your workspace.
+            </p>
+        </div>
+    </section>
+
+    <!-- Statistics -->
+    <section aria-label="Document statistics">
+        <div class="owner-heading" style="margin-bottom: 15px;">
+            <div>
+                <h2>Workspace Overview</h2>
+                <p>A quick summary of your document activity.</p>
+            </div>
+        </div>
+
+        <div class="owner-stats">
+
+            <article class="owner-stat">
+                <div class="owner-stat-top">
+                    <span class="owner-stat-label">My Documents</span>
+                    <span class="owner-stat-icon" aria-hidden="true">▤</span>
+                </div>
+                <strong class="owner-stat-value">{{ total_documents }}</strong>
+                <span class="owner-stat-description">Documents you own</span>
+            </article>
+
+            <article class="owner-stat">
+                <div class="owner-stat-top">
+                    <span class="owner-stat-label">Shared Documents</span>
+                    <span class="owner-stat-icon" aria-hidden="true">↗</span>
+                </div>
+                <strong class="owner-stat-value">{{ total_shared }}</strong>
+                <span class="owner-stat-description">Documents with active sharing</span>
+            </article>
+
+            <article class="owner-stat">
+                <div class="owner-stat-top">
+                    <span class="owner-stat-label">Edit Access</span>
+                    <span class="owner-stat-icon" aria-hidden="true">✎</span>
+                </div>
+                <strong class="owner-stat-value">{{ edit_access_count }}</strong>
+                <span class="owner-stat-description">Active edit permissions</span>
+            </article>
+
+        </div>
+    </section>
+
+    <!-- Quick actions -->
+    <section>
+        <div class="owner-heading" style="margin-bottom: 15px;">
+            <div>
+                <h2>Quick Actions</h2>
+                <p>Access your most frequently used workspace tools.</p>
+            </div>
+        </div>
+
+        <div class="owner-actions">
+
+            <a href="/owner/upload-document" class="owner-action">
+                <span class="owner-action-icon" aria-hidden="true">＋</span>
+                <span>
+                    <strong>Upload Document</strong>
+                    <small>Add a new document to your secure workspace</small>
+                </span>
+            </a>
+
+            <a href="/owner/my-documents" class="owner-action">
+                <span class="owner-action-icon" aria-hidden="true">▤</span>
+                <span>
+                    <strong>My Documents</strong>
+                    <small>Browse and manage your uploaded documents</small>
+                </span>
+            </a>
+
+            <a href="/owner/shared-documents" class="owner-action">
+                <span class="owner-action-icon" aria-hidden="true">↗</span>
+                <span>
+                    <strong>Manage Sharing</strong>
+                    <small>Review and control document permissions</small>
+                </span>
+            </a>
+
+        </div>
+    </section>
+
+    <!-- Document sharing overview -->
+    <section class="owner-section">
+
+        <div class="owner-section-header">
+            <div>
+                <h2>Document Sharing Overview</h2>
+                <p>Review access permissions associated with your documents.</p>
             </div>
 
-            <div class="user-role">DOCUMENT OWNER</div>
+            <a href="/owner/my-documents" class="btn btn-secondary btn-sm">
+                View All Documents
+            </a>
+        </div>
 
-            <nav class="sidebar-nav">
-                <a href="/owner/dashboard" class="active">Overview</a>
-                <a href="/owner/dashboard#documents">My Documents</a>
-                <a href="/owner/shared-documents">Shared Documents</a>
-                <a href="/owner/activity">Activity</a>
-                <a href="/owner/profile">My Profile</a>
-                <a href="/owner/settings">Settings</a>
-            </nav>
+        <div class="owner-table-wrap">
+            <table class="owner-table">
+                <thead>
+                    <tr>
+                        <th>Document Name</th>
+                        <th>Date Uploaded</th>
+                        <th>Shared With</th>
+                        <th>Permission</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
 
-            <a href="/login.html" class="logout-link">Logout</a>
-        </aside>
+                <tbody>
+                    {% for document in documents %}
 
-        <main class="main-content">
+                    {% set doc_permissions = shared_permissions
+                        | selectattr('document_id', 'equalto', document.id)
+                        | list %}
 
-            <header class="topbar">
-                <div>
-                    <h1>Owner Dashboard</h1>
-                    <p>Manage your documents and sharing permissions.</p>
-                </div>
+                    {% set edit_permissions = doc_permissions
+                        | selectattr('permission_type', 'equalto', 'edit')
+                        | list %}
 
-                <div class="topbar-user">
+                    {% set read_permissions = doc_permissions
+                        | selectattr('permission_type', 'equalto', 'read')
+                        | list %}
 
-                    <div class="owner-notification-wrapper">
-                        <button type="button"
-                                class="owner-notification-bell"
-                                id="ownerNotificationBell"
-                                aria-label="Open notifications"
-                                aria-expanded="false">
-                            🔔
-                        </button>
+                    <tr>
+                        <td class="owner-document-name">
+                            {{ document.title or document.original_filename }}
+                        </td>
 
-                        <span class="owner-notification-count"
-                              id="ownerNotificationCount">0</span>
+                        <td>
+                            {{ document.created_at.strftime('%d %b %Y')
+                               if document.created_at else '--' }}
+                        </td>
 
-                        <div class="owner-notification-dropdown"
-                             id="ownerNotificationDropdown">
+                        <td>{{ doc_permissions|length }} Users</td>
 
-                            <h3>Notifications</h3>
-
-                            <div class="owner-notification-empty">
-                                No notifications yet. Updates about your documents and permissions will appear here.
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <span>Document Owner</span>
-
-                </div>
-            </header>
-
-            <!-- Summary Cards -->
-            <section class="stats-grid">
-
-                <div class="stat-card">
-                    <p>Total Documents</p>
-                    <h2>{{ total_documents }}</h2>
-                </div>
-
-                <div class="stat-card">
-                    <p>Shared Documents</p>
-                    <h2>{{ total_shared }}</h2>
-                </div>
-
-                <div class="stat-card">
-                    <p>Documents with Edit Access</p>
-                    <h2>{{ edit_access_count }}</h2>
-                </div>
-
-                <div class="stat-card">
-                    <p>Pending Access Requests</p>
-                    <h2>--</h2>
-                </div>
-
-            </section>
-
-            <!-- Quick Actions -->
-            <section class="dashboard-section">
-                <div class="section-heading">
-                    <div>
-                        <h2>Quick Actions</h2>
-                        <p class="section-description">
-                            Manage your documents easily.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="content-card">
-                    <div class="owner-actions">
-
-                        <a href="/owner/dashboard#documents"
-                           class="primary-button">
-                            Upload Document
-                        </a>
-
-                        <a href="/owner/dashboard#documents"
-                           class="secondary-button">
-                            Manage Documents
-                        </a>
-
-                        <a href="/owner/shared-documents"
-                           class="secondary-button">
-                            Manage Sharing
-                        </a>
-
-                    </div>
-                </div>
-            </section>
-
-            <!-- Recent Documents -->
-            <section class="dashboard-section" id="documents">
-                <div class="section-heading">
-                    <div>
-                        <h2>My Recent Documents</h2>
-                        <p class="section-description">
-                            Recently uploaded documents and their permissions.
-                        </p>
-                    </div>
-
-                    <a href="/owner/dashboard#documents"
-                       class="view-all-link">
-                        View All
-                    </a>
-                </div>
-
-                <div class="table-card">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Document Name</th>
-                                <th>Date Uploaded</th>
-                                <th>Shared With</th>
-                                <th>Permission</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {% for document in documents %}
-                            {% set doc_permissions = shared_permissions
-                                | selectattr('document_id', 'equalto', document.id)
-                                | list %}
-
-                            {% set edit_permissions = doc_permissions
-                                | selectattr('permission_type', 'equalto', 'edit')
-                                | list %}
-
-                            {% set read_permissions = doc_permissions
-                                | selectattr('permission_type', 'equalto', 'read')
-                                | list %}
-
-                            <tr>
-                                <td>
-                                    {{ document.title or document.original_filename }}
-                                </td>
-
-                                <td>
-                                    {{ document.created_at.strftime('%d %b %Y')
-                                       if document.created_at else '--' }}
-                                </td>
-
-                                <td>{{ doc_permissions|length }} Users</td>
-
-                                <td>
-                                    {% if edit_permissions and read_permissions %}
-                                        <span class="permission-badge edit">Read + Edit</span>
-                                    {% elif edit_permissions %}
-                                        <span class="permission-badge edit">Edit</span>
-                                    {% elif read_permissions %}
-                                        <span class="permission-badge read">Read</span>
-                                    {% else %}
-                                        <span>Not Shared</span>
-                                    {% endif %}
-                                </td>
-
-                                <td>
-                                    <a href="/owner/shared-documents">Manage</a>
-                                </td>
-                            </tr>
-
+                        <td>
+                            {% if edit_permissions and read_permissions %}
+                                <span class="permission-badge edit">Read + Edit</span>
+                            {% elif edit_permissions %}
+                                <span class="permission-badge edit">Edit</span>
+                            {% elif read_permissions %}
+                                <span class="permission-badge read">Read</span>
                             {% else %}
-                            <tr>
-                                <td colspan="5">
-                                    No documents uploaded yet.
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+                                <span class="permission-badge read">Not Shared</span>
+                            {% endif %}
+                        </td>
 
-            <!-- Recent Activity -->
-            <section class="dashboard-section">
-                <div class="section-heading">
-                    <div>
-                        <h2>Recent Activity</h2>
-                        <p class="section-description">
-                            Recent actions performed on your documents.
-                        </p>
-                    </div>
-
-                    <a href="/owner/activity" class="view-all-link">
-                        View All
-                    </a>
-                </div>
-
-                <div class="activity-card">
-
-                    {% for activity in recent_activities %}
-                    <div class="activity-item">
-                        <div>
-                            <strong>{{ activity.action }}</strong>
-                            <p>
-                                Document ID: {{ activity.document_id or 'N/A' }}
-                            </p>
-                        </div>
-
-                        <span>
-                            {{ activity.created_at.strftime('%d %b %Y, %I:%M %p')
-                               if activity.created_at else '--' }}
-                        </span>
-                    </div>
+                        <td>
+                            <a href="/owner/shared-documents" class="owner-manage-link">
+                                Manage
+                            </a>
+                        </td>
+                    </tr>
 
                     {% else %}
-                    <div class="activity-item">
-                        <div>
-                            <strong>No recent activity</strong>
-                            <p>Your document activities will appear here.</p>
-                        </div>
-                    </div>
+
+                    <tr>
+                        <td colspan="5">
+                            <div class="owner-empty">
+                                <strong>No documents uploaded yet</strong>
+                                <p>Upload your first document to start managing your secure workspace.</p>
+                                <a href="/owner/upload-document" class="btn btn-primary btn-sm">
+                                    Upload Document
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
                     {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
+    </section>
+
+    <!-- Recent activity -->
+    <section class="owner-section">
+
+        <div class="owner-section-header">
+            <div>
+                <h2>Recent Activity</h2>
+                <p>Keep track of recent actions performed on your documents.</p>
+            </div>
+
+            <a href="/owner/activity" class="btn btn-secondary btn-sm">
+                View All Activity
+            </a>
+        </div>
+
+        <div class="owner-activity-list">
+
+            {% for activity in recent_activities %}
+
+            <article class="owner-activity-item">
+                <div>
+                    <strong>{{ activity.action }}</strong>
+                    <p>
+                        {{ doc_titles.get(activity.document_id, "Document") }}
+                        ·
+                        {{ actor_names.get(activity.actor_id, "System") }}
+                    </p>
                 </div>
-            </section>
 
-        </main>
-    </div>
+                <span class="owner-activity-time">
+                    {{ activity.created_at.strftime('%d %b %Y, %I:%M %p')
+                       if activity.created_at else '--' }}
+                </span>
+            </article>
 
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
+            {% else %}
 
-        const bell = document.getElementById("ownerNotificationBell");
-        const dropdown = document.getElementById("ownerNotificationDropdown");
+            <div class="owner-empty">
+                <strong>No recent activity</strong>
+                <p>Your document activities will appear here.</p>
+            </div>
 
-        if (!bell || !dropdown) return;
+            {% endfor %}
 
-        bell.addEventListener("click", function (event) {
-            event.stopPropagation();
+        </div>
 
-            const isOpen = dropdown.classList.toggle("show");
-            bell.setAttribute("aria-expanded", isOpen);
-        });
+    </section>
 
-        document.addEventListener("click", function (event) {
-            if (
-                !dropdown.contains(event.target) &&
-                !bell.contains(event.target)
-            ) {
-                dropdown.classList.remove("show");
-                bell.setAttribute("aria-expanded", "false");
-            }
-        });
-
-    });
-    </script>
-
-    <script src="/settings.js"></script>
-    <script src="/notifications.js"></script>
-
-</body>
-</html>
+</div>
+{% endblock %}

@@ -1,133 +1,495 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrustVault | Settings</title>
-    <link rel="stylesheet" href="dashboard.css">
-</head>
+{% extends "base.html" %}
 
-<body class="dashboard-page">
+{% block content %}
+<style>
+.settings-page {
+    max-width: 1050px;
+    margin: 0 auto;
+}
 
-    <div class="dashboard-container">
+.settings-heading {
+    margin-bottom: 25px;
+}
 
-        <aside class="sidebar">
-            <div class="brand">
-                <h2>TrustVault</h2>
-                <p>Secure Document Sharing</p>
+.settings-heading h1 {
+    margin: 0 0 7px;
+    font-size: 27px;
+    font-weight: 750;
+}
+
+.settings-heading p,
+.settings-description {
+    color: var(--text-secondary, #64748b);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.settings-section {
+    margin-bottom: 23px;
+}
+
+.settings-section-title {
+    margin-bottom: 14px;
+}
+
+.settings-section-title h2 {
+    margin: 0 0 5px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.settings-card {
+    padding: 22px;
+    background: var(--surface, #fff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 15px;
+}
+
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 15px 0;
+}
+
+.setting-row:first-child {
+    padding-top: 0;
+}
+
+.setting-row:last-child {
+    padding-bottom: 0;
+}
+
+.setting-row h3 {
+    margin: 0 0 5px;
+    font-size: 14px;
+    font-weight: 650;
+}
+
+.setting-row p {
+    margin: 0;
+    color: var(--text-secondary, #64748b);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.setting-divider {
+    height: 1px;
+    background: var(--border, #e2e8f0);
+    margin: 3px 0;
+}
+
+.theme-select {
+    min-width: 165px;
+    padding: 10px 12px;
+    border: 1px solid var(--border, #cbd5e1);
+    border-radius: 9px;
+    background: var(--surface, #fff);
+    color: var(--text);
+    font: inherit;
+    cursor: pointer;
+}
+
+.setting-checkbox {
+    width: 19px;
+    height: 19px;
+    flex-shrink: 0;
+    accent-color: var(--primary, #425bd5);
+    cursor: pointer;
+}
+
+.settings-info {
+    padding: 13px 15px;
+    margin-top: 15px;
+    border-radius: 9px;
+    background: var(--surface-soft);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.security-intro {
+    margin-bottom: 17px;
+}
+
+.security-intro h3 {
+    margin: 0 0 5px;
+    font-size: 15px;
+}
+
+.security-intro p {
+    margin: 0;
+    color: var(--text-secondary, #64748b);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.password-toggle {
+    margin-top: 16px;
+    padding: 10px 16px;
+    border: 1px solid var(--primary, #425bd5);
+    border-radius: 9px;
+    background: var(--primary, #425bd5);
+    color: #fff;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.password-toggle:hover,
+.password-submit:hover {
+    opacity: .9;
+}
+
+.password-form {
+    max-width: 460px;
+    display: grid;
+    gap: 9px;
+    margin-top: 18px;
+}
+
+.password-form[hidden] {
+    display: none;
+}
+
+.password-form label {
+    margin-top: 5px;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.password-form input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 12px;
+    border: 1px solid var(--border, #cbd5e1);
+    border-radius: 9px;
+    background: var(--surface, #fff);
+    color: var(--text);
+    font: inherit;
+    outline: none;
+}
+
+.password-form input:focus,
+.theme-select:focus {
+    border-color: var(--primary, #425bd5);
+    box-shadow: 0 0 0 3px rgba(66, 91, 213, .12);
+}
+
+.password-form-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.password-form-actions button {
+    padding: 10px 16px;
+    border-radius: 9px;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.password-submit {
+    border: 1px solid var(--primary, #425bd5);
+    background: var(--primary, #425bd5);
+    color: #fff;
+}
+
+.password-cancel {
+    border: 1px solid var(--border, #cbd5e1);
+    background: transparent;
+    color: var(--text);
+}
+
+.password-submit:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+.password-message {
+    min-height: 18px;
+    margin: 5px 0 0;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.password-message.success {
+    color: #16a34a;
+}
+
+.password-message.error {
+    color: #dc2626;
+}
+
+@media (max-width: 600px) {
+    .settings-card {
+        padding: 17px;
+    }
+
+    .setting-row {
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .theme-select {
+        min-width: 125px;
+        max-width: 145px;
+    }
+}
+</style>
+
+<div class="settings-page">
+    <div class="settings-heading">
+        <h1>Settings</h1>
+        <p>Manage your TrustVault application preferences and account security.</p>
+    </div>
+
+
+    <!-- Notifications -->
+    <section class="settings-section">
+        <div class="settings-section-title">
+            <h2>Notifications</h2>
+            <p class="settings-description">
+                Notification preference controls.
+            </p>
+        </div>
+
+        <div class="settings-card">
+            <div class="setting-row">
+                <div>
+                    <h3>Email Notifications</h3>
+                    <p>Receive notifications when documents are shared with you.</p>
+                </div>
+
+                <input
+                    type="checkbox"
+                    class="setting-checkbox"
+                    id="emailNotifications"
+                    checked
+                    aria-label="Email notifications">
             </div>
 
-            <div class="user-role">VIEWER ACCOUNT</div>
+            <div class="setting-divider"></div>
 
-            <nav class="sidebar-nav">
-                <a href="dashboard.html">Overview</a>
-                <a href="shared-with-me.html">Shared with Me</a>
-                <a href="activity.html">Activity</a>
-                <a href="profile.html">My Profile</a>
-                <a href="settings.html" class="active">Settings</a>
-            </nav>
-
-            <a href="login.html" class="logout-link">Logout</a>
-        </aside>
-
-        <main class="main-content">
-
-            <header class="topbar">
+            <div class="setting-row">
                 <div>
-                    <h1>Settings</h1>
-                    <p>Manage your application preferences.</p>
+                    <h3>Document Activity Alerts</h3>
+                    <p>Receive alerts about changes to documents you can access.</p>
                 </div>
 
-                <div class="topbar-user">
-                    <span>Viewer</span>
-                </div>
-            </header>
+                <input
+                    type="checkbox"
+                    class="setting-checkbox"
+                    id="activityNotifications"
+                    checked
+                    aria-label="Document activity alerts">
+            </div>
 
-            <!-- Appearance -->
-            <section class="dashboard-section">
-                <div class="section-heading">
-                    <div>
-                        <h2>Appearance</h2>
-                        <p class="section-description">
-                            Customize how TrustVault looks on your device.
-                        </p>
-                    </div>
-                </div>
+            <p class="settings-info">
+                These notification preference switches are currently
+                presentation controls. Changes are not saved to your account
+                because no notification-preference API has been confirmed.
+            </p>
+        </div>
+    </section>
 
-                <div class="content-card">
-                    <div class="setting-row">
-                        <div>
-                            <h3>Theme</h3>
-                            <p>Choose your preferred appearance.</p>
-                        </div>
-
-                        <select id="themeSelect">
-                            <option value="light">Light Mode</option>
-                            <option value="dark">Dark Mode</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Notifications -->
-            <section class="dashboard-section">
-                <div class="section-heading">
-                    <div>
-                        <h2>Notifications</h2>
-                        <p class="section-description">
-                            Manage your document-related notifications.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="content-card">
-
-                    <div class="setting-row">
-                        <div>
-                            <h3>Email Notifications</h3>
-                            <p>Receive notifications when documents are shared with you.</p>
-                        </div>
-
-                        <input type="checkbox" id="emailNotifications" checked>
-                    </div>
-
-                    <div class="setting-divider"></div>
-
-                    <div class="setting-row">
-                        <div>
-                            <h3>Document Activity Alerts</h3>
-                            <p>Receive alerts about changes to documents you can access.</p>
-                        </div>
-
-                        <input type="checkbox" id="activityNotifications" checked>
-                    </div>
-
-                </div>
-            </section>
-<!-- Account Security -->
-<section class="dashboard-section">
-    <div class="section-heading">
-        <div>
+    <!-- Account Security -->
+    <section class="settings-section">
+        <div class="settings-section-title">
             <h2>Account Security</h2>
-            <p class="section-description">
+            <p class="settings-description">
                 Protect your account and manage your password.
             </p>
         </div>
-    </div>
 
-    <div class="content-card">
-        <div class="security-setting">
-            <h3>Change Password</h3>
-            <p>Update your password regularly to keep your account secure.</p>
+        <div class="settings-card">
+            <div class="security-intro">
+                <h3>Change Password</h3>
+                <p>
+                    Update your password to help keep your TrustVault account secure.
+                </p>
+            </div>
 
-            <button class="secondary-button security-button" type="button"
-                onclick="alert('Password change will be available after backend integration.')">
+            <!-- Only this button is visible initially -->
+            <button
+                type="button"
+                class="password-toggle"
+                id="showPasswordFormButton"
+                aria-expanded="false"
+                aria-controls="viewerPasswordForm">
                 Change Password
             </button>
+
+            <!-- Fields appear only after clicking Change Password -->
+            <form
+                id="viewerPasswordForm"
+                class="password-form"
+                hidden>
+
+                <label for="currentPassword">Current Password</label>
+                <input
+                    id="currentPassword"
+                    name="current_password"
+                    type="password"
+                    autocomplete="current-password"
+                    required>
+
+                <label for="newPassword">New Password</label>
+                <input
+                    id="newPassword"
+                    name="new_password"
+                    type="password"
+                    autocomplete="new-password"
+                    required>
+
+                <label for="confirmPassword">Confirm New Password</label>
+                <input
+                    id="confirmPassword"
+                    name="confirm_password"
+                    type="password"
+                    autocomplete="new-password"
+                    required>
+
+                <div class="password-form-actions">
+                    <button
+                        type="submit"
+                        class="password-submit"
+                        id="viewerPasswordSubmit">
+                        Update Password
+                    </button>
+
+                    <button
+                        type="button"
+                        class="password-cancel"
+                        id="cancelPasswordFormButton">
+                        Cancel
+                    </button>
+                </div>
+
+                <p
+                    id="viewerPasswordMessage"
+                    class="password-message"
+                    role="status"
+                    aria-live="polite">
+                </p>
+            </form>
         </div>
-    </div>
-</section>
-    <script src="settings.js"></script>
-</body>
-</html>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("viewerPasswordForm");
+    const toggleButton = document.getElementById("showPasswordFormButton");
+    const cancelButton = document.getElementById("cancelPasswordFormButton");
+    const message = document.getElementById("viewerPasswordMessage");
+    const submit = document.getElementById("viewerPasswordSubmit");
+
+    if (!form || !toggleButton || !cancelButton || !message || !submit) {
+        return;
+    }
+
+    const csrfToken =
+        document.querySelector('meta[name="csrf-token"]')?.content || "";
+
+    function showPasswordForm() {
+        form.reset();
+        message.textContent = "";
+        message.className = "password-message";
+        form.hidden = false;
+        toggleButton.hidden = true;
+        toggleButton.setAttribute("aria-expanded", "true");
+        document.getElementById("currentPassword").focus();
+    }
+
+    function hidePasswordForm() {
+        form.reset();
+        form.hidden = true;
+        toggleButton.hidden = false;
+        toggleButton.setAttribute("aria-expanded", "false");
+        toggleButton.textContent = "Change Password";
+        message.textContent = "";
+        message.className = "password-message";
+        toggleButton.focus();
+    }
+
+    toggleButton.addEventListener("click", showPasswordForm);
+    cancelButton.addEventListener("click", hidePasswordForm);
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const currentPassword = form.elements["current_password"].value;
+        const newPassword = form.elements["new_password"].value;
+        const confirmPassword = form.elements["confirm_password"].value;
+
+        message.textContent = "";
+        message.className = "password-message";
+
+        if (newPassword !== confirmPassword) {
+            message.textContent = "New password and confirmation do not match.";
+            message.classList.add("error");
+            form.elements["confirm_password"].focus();
+            return;
+        }
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            message.textContent = "Please complete all password fields.";
+            message.classList.add("error");
+            return;
+        }
+
+        submit.disabled = true;
+        submit.textContent = "Updating...";
+
+        try {
+            const response = await fetch("/auth/change-password", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+                body: JSON.stringify({
+                    current_password: currentPassword,
+                    new_password: newPassword,
+                    confirm_password: confirmPassword
+                })
+            });
+
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(
+                    result.error || "Password change failed. Please try again."
+                );
+            }
+
+            message.textContent = "Password changed successfully.";
+            message.classList.add("success");
+
+            form.reset();
+
+            // Close the form after a short success message.
+            window.setTimeout(() => {
+                hidePasswordForm();
+            }, 900);
+
+        } catch (error) {
+            message.textContent =
+                error.message || "Unable to update your password. Please try again.";
+            message.classList.add("error");
+
+        } finally {
+            submit.disabled = false;
+            submit.textContent = "Update Password";
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -75,18 +75,68 @@
 
 
 
-## Entry 5 – November 5, 2026
 
-**Task:** Configuring and testing Gmail SMTP email delivery for TrustVault.
 
-**Prompt:** Asked AI to help configure Flask-Mail with Gmail SMTP, troubleshoot authentication issues and test email delivery in the TrustVault application.
+## Entry 5 — November 6, 2026 — Server-side document authorization and file routes
 
-**AI output:** AI provided guidance for configuring SMTP settings, integrating Flask-Mail, handling Gmail authentication and creating a test script to verify email delivery.
+**Prompt / fair summary:** I asked the AI to inspect my uploaded TrustVault source archive and connect document upload, named per-document read/edit grants, protected downloads, revocation, version uploads, archive/restore, and audit evidence while preserving my existing UI and keeping the security decision on the server.
 
-**What needed correction:** The initial SMTP configuration was not sufficient because Gmail account authentication and identity verification restrictions prevented successful email delivery.
+**AI output:** It generated an integrated documents blueprint, private-storage handling, a permission helper, audit event calls, notification events, and authorization tests.
 
-**What I did:** Completed the required Gmail account setup, checked the SMTP configuration and ran the project's email test script.
+**What was wrong / what I checked:** The starting project only had an authorization helper and templates; there were no document upload/download/share endpoints. I also checked that the AI design did not accidentally make Admin a content bypass, that `read` is not treated as `edit`, and that file paths are UUID keys outside the public frontend. The hash chain is not immutable against a DB superuser and is explicitly documented as a limitation.
 
-**Verification:** The test email was successfully sent and received at the configured Gmail account. End-to-end registration verification and Owner invitation email flows still require separate testing.
+**What I did instead:** Added a dedicated document blueprint and tests for non-grantee read/download denial, read grant vs edit, revocation, and audit logging. Reviewed `security/authorization.py`, `routes/documents.py`, and `tests/test_document_authorization.py`.
 
-**Commit Link:** [Add the actual GitHub commit link after committing today's SMTP-related changes.]
+**Verification status:** Static inspection and Python syntax compilation are pending final checks in this working package; the runtime pytest suite requires the project's dependencies and PostgreSQL/SQLite test setup. Do not claim this entry as passing tests until those are run.
+
+**Commit link:** Pending a real commit; add the actual GitHub commit URL after committing these changes. No commit was fabricated.
+
+
+
+## Entry 6 — November 6, 2026 — Audit chain and offboarding review
+
+**Prompt / fair summary:** I asked AI to check the official threat model standard and wire a tamper-evident audit chain, denied-attempt logging, audit verification, account offboarding, and immediate access revocation into the existing code.
+
+**AI output:** It generated an append-audit helper, Admin integrity-check endpoint, active-user session reload behavior, received-grant revocation, and owner-document transfer before offboarding.
+
+**What was wrong / what I checked:** The naive hash implementation could produce a verification mismatch on SQLite because its timestamp is returned without timezone information. I normalized audit timestamps to UTC when hashing and checking. I also rejected Owner offboarding until all owned documents (including archived items) are transferred, because otherwise those files would be left with an inactive owner. A shared email-verification token table also needed a role guard so an Owner invitation token could not be consumed by the Viewer verification route. I added a password-hash digest snapshot in the session so password changes/deactivation invalidate previous sessions.
+
+**What I did instead:** Added timestamp normalization, hash-chain verification, a transfer endpoint, a safeguard requiring transfer before deactivating an Owner, and role-specific token validation. Added tests for offboarding and Owner token confusion. The known residual risk is documented: a DB administrator can rewrite the whole chain unless its head is independently anchored.
+
+**Verification status:** Code review performed; full runtime verification still needs to be run with installed dependencies. Replace this status after actual test execution.
+
+**Commit link:** Pending a real commit; add the actual GitHub commit URL after committing these changes. No commit was fabricated.
+
+
+
+
+
+## Entry 7 — November 6, 2026 — Authentication token and session hardening
+
+**Prompt / fair summary:** I asked the AI to connect the remaining account flows (verification resend, password reset, profile/password updates, Admin invitation resend and offboarding) while preserving one-use token semantics, role boundaries, CSRF, audit logging, and the current pages.
+
+**AI output:** It added token-backed endpoints and UI fetch calls, session invalidation based on a password-hash snapshot, Admin resend controls, and more authentication/offboarding tests.
+
+**What was wrong / what I checked:** The first session-snapshot approach placed the full password hash in the signed browser session. I changed it to store only a SHA-256 digest of that password hash. I also found that the shared verification-token table could otherwise let an Owner invitation token be consumed by the Viewer verification endpoint; I added a role guard and a test for that token-confusion case. I checked that deactivation rotates the password hash and revokes received grants, so existing sessions and document access are invalidated.
+
+**What I did instead:** Updated the user loader to compare the session digest to the current stored hash, invalidated prior password-reset/verification tokens on resend, implemented generic responses for reset/resend requests, and added tests for CSRF, offboarding, owner transfer, and token reuse/confusion.
+
+**Verification status:** Python compile, Jinja template compilation, and JavaScript syntax checks are performed for the packaged source. Runtime pytest remains unverified here because the environment cannot resolve package downloads; run `pytest -v` after installing requirements locally and record the actual result.
+
+**Commit link:** Pending a real commit and push; add the actual GitHub commit URL after committing these changes. No commit was fabricated.
+
+
+
+## Entry 8 — November 8, 2026 — Owner invitation email and invitation-flow verification
+
+**Prompt / fair summary:** I asked the AI to help complete and verify the Admin-to-Owner invitation flow, troubleshoot SMTP email delivery, and prepare the project for external testing without disturbing existing functionality.
+
+**AI output:** It helped review the Admin invitation route, email service, Flask mail configuration, and environment variables. It also guided SMTP connectivity checks and verification of the invitation email flow.
+
+**What was wrong / what I checked:** The invitation initially failed with a hostname-resolution error (`getaddrinfo failed`). I checked the configured SMTP server and port, confirmed that `smtp.gmail.com` resolved through DNS, and verified that TCP port 587 was reachable. The invitation email subsequently sent successfully. The exact cause of the earlier intermittent error was not conclusively established.
+
+**What I did instead:** Kept the existing email service and configuration, checked the SMTP settings, and retried the Owner invitation. I confirmed that the invitation email was being sent successfully.
+
+**Verification status:** Owner invitation email sending was manually verified. Full end-to-end testing by another user, including opening the official deployed invitation link and completing the invitation flow, is still pending.
+
+**Commit link:** Pending a real commit and push. Add the actual GitHub commit URL after committing these changes. No commit was fabricated.

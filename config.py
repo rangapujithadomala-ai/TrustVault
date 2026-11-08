@@ -1,5 +1,6 @@
 
 import os
+from datetime import timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,7 +13,17 @@ class Config:
 
     # PostgreSQL database
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+    if SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+    # Set COOKIE_SECURE=true on HTTPS deployment.
+    SESSION_COOKIE_SECURE = os.getenv("COOKIE_SECURE", "False").lower() == "true"
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=int(os.getenv("SESSION_TIMEOUT_MINUTES", "30")))
+    TRUSTVAULT_STORAGE = os.getenv("TRUSTVAULT_STORAGE")
+    TRUST_PROXY = os.getenv("TRUST_PROXY", "False").lower() == "true"
 
     # Gmail SMTP configuration
     MAIL_SERVER = os.getenv("MAIL_SERVER", "smtp.gmail.com")

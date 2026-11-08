@@ -1,0 +1,446 @@
+
+{% extends "base.html" %}
+
+{% block title %}Starred Documents | TrustVault{% endblock %}
+
+{% block extra_css %}
+<style>
+.starred-page {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.starred-heading h1 {
+    margin: 0 0 7px;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.starred-heading p {
+    margin: 0;
+    color: var(--text-secondary, #64748b);
+    font-size: 14px;
+}
+
+.starred-summary {
+    padding: 20px;
+    background: var(--surface, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 14px;
+}
+
+.starred-summary-label {
+    display: block;
+    color: var(--text-secondary, #64748b);
+    font-size: 13px;
+    margin-bottom: 7px;
+}
+
+.starred-summary-count {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-primary, #172033);
+}
+
+.starred-section {
+    padding: 22px;
+    background: var(--surface, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 14px;
+}
+
+.starred-section-heading {
+    margin-bottom: 20px;
+}
+
+.starred-section-heading h2 {
+    margin: 0 0 6px;
+    font-size: 19px;
+}
+
+.starred-section-heading p {
+    margin: 0;
+    color: var(--text-secondary, #64748b);
+    font-size: 14px;
+}
+
+.starred-filters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.starred-filters input {
+    width: 100%;
+    min-width: 0;
+}
+
+.starred-date-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--text-secondary, #64748b);
+    font-size: 13px;
+}
+
+.starred-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.starred-table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+}
+
+.starred-table th,
+.starred-table td {
+    padding: 15px 13px;
+    text-align: left;
+    border-bottom: 1px solid var(--border, #e2e8f0);
+    vertical-align: middle;
+}
+
+.starred-table th {
+    color: var(--text-secondary, #64748b);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.starred-table td {
+    color: var(--text-primary, #172033);
+    font-size: 14px;
+}
+
+.starred-table tbody tr:hover {
+    background: var(--surface-hover, rgba(100, 116, 139, .06));
+}
+
+.starred-document-name {
+    font-weight: 600;
+}
+
+.starred-permission {
+    display: inline-flex;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.starred-permission.read {
+    background: rgba(59, 130, 246, .12);
+    color: #2563eb;
+}
+
+.starred-permission.edit {
+    background: rgba(16, 185, 129, .12);
+    color: #059669;
+}
+
+.starred-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.starred-download {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 12px;
+    border-radius: 8px;
+    background: var(--primary, #3157d5);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.starred-download:hover {
+    opacity: .9;
+}
+
+.starred-revision {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 10px;
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 8px;
+    color: var(--text-primary, #172033);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.starred-revision input {
+    display: none;
+}
+
+.starred-toggle {
+    width: 35px;
+    height: 35px;
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-primary, #172033);
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.starred-toggle:hover {
+    background: var(--surface-hover, rgba(100, 116, 139, .08));
+}
+
+.starred-empty,
+.starred-no-matches {
+    padding: 22px;
+    text-align: center;
+    color: var(--text-secondary, #64748b);
+}
+
+.starred-no-matches {
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    background: var(--surface-secondary, rgba(100, 116, 139, .08));
+}
+
+@media (max-width: 850px) {
+    .starred-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .starred-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .starred-section {
+        padding: 15px;
+    }
+
+    .starred-heading h1 {
+        font-size: 22px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="starred-page">
+
+    <div class="starred-heading">
+        <h1>Starred Documents</h1>
+        <p>
+            Your saved documents in one place. Starred status does not grant
+            document access; current permissions are always checked.
+        </p>
+    </div>
+
+    <div class="starred-summary">
+        <span class="starred-summary-label">Starred Documents</span>
+        <strong class="starred-summary-count">{{ documents|length }}</strong>
+    </div>
+
+    <section class="starred-section">
+
+        <div class="starred-section-heading">
+            <h2>Your Starred Documents</h2>
+            <p>
+                Search your saved documents and check your current permissions.
+            </p>
+        </div>
+
+        <div class="starred-filters">
+            <input
+                type="search"
+                id="sharedDocumentSearch"
+                placeholder="Search document name..."
+                aria-label="Search document name"
+            >
+
+            <input
+                type="search"
+                id="sharedOwnerSearch"
+                placeholder="Search owner name..."
+                aria-label="Search owner name"
+            >
+
+            <input
+                type="search"
+                id="sharedCategorySearch"
+                placeholder="Search category..."
+                aria-label="Search category"
+            >
+
+            <label class="starred-date-filter">
+                From
+                <input type="date" id="sharedDateFrom">
+            </label>
+
+            <label class="starred-date-filter">
+                To
+                <input type="date" id="sharedDateTo">
+            </label>
+        </div>
+
+        <p id="sharedNoMatches" class="starred-no-matches" hidden>
+            No matching documents found.
+        </p>
+
+        <div class="starred-table-wrapper">
+            <table class="starred-table">
+                <thead>
+                    <tr>
+                        <th>Document Name</th>
+                        <th>Shared By</th>
+                        <th>Permission</th>
+                        <th>Date Shared</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for document in documents %}
+                    <tr
+                        class="shared-document-row"
+                        data-owner="{{ owners.get(document.owner_id, 'Owner')|lower }}"
+                        data-category="{{ document.category|lower }}"
+                        data-date="{{ grant_dates.get(document.id).strftime('%Y-%m-%d') if grant_dates.get(document.id) else document.created_at.strftime('%Y-%m-%d') if document.created_at else '' }}"
+                    >
+                        <td class="starred-document-name">
+                            {{ document.title }}
+                        </td>
+
+                        <td>
+                            {{ owners.get(document.owner_id, "Owner") }}
+                        </td>
+
+                        <td>
+                            <span class="starred-permission {{ grants.get(document.id, 'read') }}">
+                                {{ grants.get(document.id, 'read')|capitalize }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ grant_dates.get(document.id).strftime("%d %b %Y") if grant_dates.get(document.id) else "—" }}
+                        </td>
+
+                        <td>
+                            <div class="starred-actions">
+
+                                <a
+                                    href="/documents/{{ document.id }}/download"
+                                    class="starred-download"
+                                >
+                                    Download
+                                </a>
+
+                                {% if grants.get(document.id) == "edit" %}
+                                <label class="starred-revision">
+                                    Upload revision
+                                    <input
+                                        type="file"
+                                        data-version-document="{{ document.id }}"
+                                        accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.xlsx,.csv"
+                                        aria-label="Upload revision for {{ document.title }}"
+                                    >
+                                </label>
+                                {% endif %}
+
+                                <button
+                                    type="button"
+                                    class="starred-toggle"
+                                    data-star-document="{{ document.id }}"
+                                    aria-label="Remove {{ document.title }} from starred documents"
+                                    title="Remove from starred"
+                                >
+                                    ☆
+                                </button>
+
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="starred-empty">
+                            No accessible starred documents yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/document-actions.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const nameInput = document.getElementById("sharedDocumentSearch");
+
+    if (!nameInput) return;
+
+    const ownerInput = document.getElementById("sharedOwnerSearch");
+    const categoryInput = document.getElementById("sharedCategorySearch");
+    const fromInput = document.getElementById("sharedDateFrom");
+    const toInput = document.getElementById("sharedDateTo");
+    const noMatches = document.getElementById("sharedNoMatches");
+
+    const rows = [
+        ...document.querySelectorAll(".shared-document-row")
+    ];
+
+    function filterStarredDocuments() {
+        const name = nameInput.value.toLowerCase().trim();
+        const owner = ownerInput.value.toLowerCase().trim();
+        const category = categoryInput.value.toLowerCase().trim();
+
+        const from = fromInput.value;
+        const to = toInput.value;
+
+        let visible = 0;
+
+        rows.forEach(row => {
+            const documentName = row.cells[0].textContent.toLowerCase();
+            const date = row.dataset.date || "";
+
+            const matches =
+                documentName.includes(name) &&
+                (row.dataset.owner || "").includes(owner) &&
+                (row.dataset.category || "").includes(category) &&
+                (!from || date >= from) &&
+                (!to || date <= to);
+
+            row.hidden = !matches;
+
+            if (matches) visible++;
+        });
+
+        if (noMatches) {
+            noMatches.hidden = visible > 0 || rows.length === 0;
+        }
+    }
+
+    [nameInput, ownerInput, categoryInput].forEach(input => {
+        input.addEventListener("input", filterStarredDocuments);
+    });
+
+    [fromInput, toInput].forEach(input => {
+        input.addEventListener("change", filterStarredDocuments);
+    });
+});
+</script>
+{% endblock %}

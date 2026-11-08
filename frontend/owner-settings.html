@@ -1,546 +1,350 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings | TrustVault</title>
-    <link rel="stylesheet" href="dashboard.css">
+{% extends "base.html" %}
 
-    <style>
-        .settings-content {
-            max-width: 1050px;
-        }
+{% block title %}Settings | TrustVault{% endblock %}
+{% block page_heading %}Settings{% endblock %}
 
-        .settings-heading {
-            margin-bottom: 22px;
-        }
+{% block extra_css %}
+<style>
+.settings-page{max-width:1050px;margin:0 auto}
+.settings-intro{color:var(--text-secondary,#64748b);margin:0 0 24px;font-size:14px}
+.settings-section{background:var(--card-bg,#fff);border:1px solid var(--border-color,#e2e8f0);border-radius:14px;padding:22px;margin-bottom:18px}
+.settings-section h2{font-size:17px;margin:0 0 7px;color:var(--text-primary,#111827)}
+.settings-description{font-size:13px;color:var(--text-secondary,#64748b);margin:0 0 16px;line-height:1.6}
+.setting-row{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:15px 0;border-bottom:1px solid var(--border-color,#e2e8f0)}
+.setting-row:last-child{border-bottom:0;padding-bottom:0}
+.setting-info{flex:1;min-width:0}
+.setting-info strong{display:block;font-size:14px;margin-bottom:5px;color:var(--text-primary,#111827)}
+.setting-info p{font-size:12px;color:var(--text-secondary,#64748b);margin:0;line-height:1.5}
+.setting-control{width:210px;max-width:42%;display:flex;justify-content:flex-end;align-items:center}
+.setting-control select{width:100%;padding:10px 12px;border:1px solid var(--border-color,#cbd5e1);border-radius:8px;background:var(--input-bg,#fff);color:var(--text-primary,#111827);font-size:13px}
+.setting-control input[type=checkbox]{width:18px;height:18px;accent-color:var(--primary-color,#2563eb);cursor:pointer}
+.settings-note{font-size:12px;color:var(--text-secondary,#64748b);line-height:1.6;margin:14px 0 0}
+.settings-actions{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}
+.settings-actions button,.password-submit{border:0;border-radius:8px;padding:11px 18px;font-weight:600;font-size:13px;cursor:pointer}
+.save-button{background:var(--primary-color,#2563eb);color:white}
+.reset-button{background:var(--surface-muted,#e5e7eb);color:var(--text-primary,#111827)}
+.settings-actions button:hover,.password-submit:hover{filter:brightness(.96)}
+.settings-status{font-size:13px;margin:10px 0;color:var(--text-secondary,#64748b);min-height:20px}
+.settings-status.success{color:#15803d}
+.settings-status.error{color:#dc2626}
+.settings-info-box{padding:13px 15px;border-radius:9px;background:var(--surface-muted,#f1f5f9);color:var(--text-secondary,#475569);font-size:12px;line-height:1.6}
+.owner-password-form{display:grid;gap:9px;max-width:440px}
+.owner-password-form label{font-size:13px;font-weight:600;color:var(--text-primary,#111827)}
+.owner-password-form input{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--border-color,#cbd5e1);border-radius:8px;background:var(--input-bg,#fff);color:var(--text-primary,#111827);font-size:13px}
+.owner-password-form input:focus,.setting-control select:focus{outline:2px solid var(--primary-color,#2563eb);outline-offset:1px}
+.password-submit{margin-top:7px;width:max-content}
+.password-submit:disabled{opacity:.65;cursor:wait}
+.password-message{font-size:13px;margin:5px 0 0;min-height:18px}
+.password-message.success{color:#15803d}
+.password-message.error{color:#dc2626}
+@media(max-width:650px){
+ .settings-section{padding:17px}
+ .setting-row{align-items:flex-start;flex-direction:column;gap:11px}
+ .setting-control{width:100%;max-width:none;justify-content:flex-start}
+ .setting-control select{max-width:100%}
+ .settings-actions button{flex:1}
+}
+</style>
+{% endblock %}
 
-        .settings-section {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 22px;
-            margin-bottom: 18px;
-        }
+{% block content %}
+<div class="settings-page">
+    <p class="settings-intro">Manage your TrustVault preferences and account security.</p>
 
-        .settings-section h2 {
-            font-size: 18px;
-            margin: 0 0 7px;
-        }
+    <section class="settings-section">
+        <h2>Appearance</h2>
+        <p class="settings-description">Choose how TrustVault looks across your pages.</p>
+        <div class="settings-info-box">
+            Use the appearance controls in the top navigation to switch between Light, Dark and System modes. Your selected theme is managed by TrustVault's shared appearance settings.
+        </div>
+    </section>
 
-        .settings-description {
-            color: #6b7280;
-            font-size: 14px;
-            margin-bottom: 18px;
-        }
+    <section class="settings-section">
+        <h2>Notifications</h2>
+        <p class="settings-description">Choose your preferred document notification settings in this browser.</p>
 
-        .setting-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            padding: 14px 0;
-            border-bottom: 1px solid #e5e7eb;
-        }
+        <div class="setting-row">
+            <div class="setting-info"><strong>Document Viewed</strong><p>Preference for notifications when someone views your document.</p></div>
+            <div class="setting-control"><input type="checkbox" id="notifyView" checked aria-label="Document viewed notifications"></div>
+        </div>
+        <div class="setting-row">
+            <div class="setting-info"><strong>Document Downloaded</strong><p>Preference for notifications when someone downloads your document.</p></div>
+            <div class="setting-control"><input type="checkbox" id="notifyDownload" checked aria-label="Document downloaded notifications"></div>
+        </div>
+        <div class="setting-row">
+            <div class="setting-info"><strong>Document Edited</strong><p>Preference for notifications when someone edits your document.</p></div>
+            <div class="setting-control"><input type="checkbox" id="notifyEdit" checked aria-label="Document edited notifications"></div>
+        </div>
+        <div class="setting-row">
+            <div class="setting-info"><strong>Access Requests</strong><p>Preference for document access request notifications.</p></div>
+            <div class="setting-control"><input type="checkbox" id="notifyRequest" checked aria-label="Access request notifications"></div>
+        </div>
+        <div class="setting-row">
+            <div class="setting-info"><strong>Documents Shared With You</strong><p>Preference for notifications when another owner shares a document with you.</p></div>
+            <div class="setting-control"><input type="checkbox" id="notifyShared" checked aria-label="Shared document notifications"></div>
+        </div>
+    </section>
 
-        .setting-row:last-child {
-            border-bottom: none;
-        }
+    <section class="settings-section">
+        <h2>Security</h2>
+        <p class="settings-description">Review the security features currently available for your account.</p>
+        <div class="setting-row">
+            <div class="setting-info"><strong>Account Password</strong><p>Change your password using your current password.</p></div>
+            <div class="setting-control"><span>Available below</span></div>
+        </div>
+        <div class="setting-row">
+            <div class="setting-info"><strong>Two-Factor Authentication</strong><p>Additional sign-in verification is not currently configured.</p></div>
+            <div class="setting-control"><span>Not enabled</span></div>
+        </div>
+        <div class="setting-row">
+            <div class="setting-info"><strong>Session Management</strong><p>Advanced session review and logout-from-all-devices controls are not currently available here.</p></div>
+            <div class="setting-control"><span>Not available</span></div>
+        </div>
+        <div class="settings-info-box">
+            Security-critical controls are not presented as active when they are not connected to backend enforcement.
+        </div>
+    </section>
 
-        .setting-info {
-            flex: 1;
-        }
-
-        .setting-info strong {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        .setting-info p {
-            margin: 0;
-            color: #6b7280;
-            font-size: 13px;
-        }
-
-        .setting-control {
-            min-width: 180px;
-            max-width: 230px;
-        }
-
-        .setting-control select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #d1d5db;
-            border-radius: 7px;
-            background: #ffffff;
-            color: #111827;
-        }
-
-        .setting-control input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        .settings-actions {
-            display: flex;
-            gap: 12px;
-            margin: 22px 0;
-        }
-
-        .settings-actions button {
-            padding: 11px 20px;
-            border: none;
-            border-radius: 7px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .save-button {
-            background: #2563eb;
-            color: white;
-        }
-
-        .reset-button {
-            background: #e5e7eb;
-            color: #111827;
-        }
-
-        .settings-note {
-            color: #6b7280;
-            font-size: 12px;
-            margin-top: 12px;
-        }
-
-        @media (max-width: 650px) {
-            .setting-row {
-                align-items: flex-start;
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .setting-control {
-                width: 100%;
-                max-width: none;
-            }
-
-            .settings-actions {
-                flex-wrap: wrap;
-            }
-        }
-
-        body.dark-mode .settings-section {
-            background: #1f2937;
-            border-color: #374151;
-        }
-
-        body.dark-mode .setting-row {
-            border-color: #374151;
-        }
-
-        body.dark-mode .setting-info p,
-        body.dark-mode .settings-description,
-        body.dark-mode .settings-note {
-            color: #d1d5db;
-        }
-
-        body.dark-mode .setting-control select {
-            background: #273449;
-            color: #f9fafb;
-            border-color: #4b5563;
-        }
-
-        body.dark-mode .reset-button {
-            background: #374151;
-            color: #f9fafb;
-        }
-    </style>
-</head>
-
-<body class="dashboard-page">
-
-    <div class="dashboard-container">
-
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <h2>TrustVault</h2>
-                <span>Document Owner</span>
+    <section class="settings-section">
+        <h2>Privacy Preferences</h2>
+        <p class="settings-description">These preferences are stored locally in this browser. They do not change document permissions or backend access rules.</p>
+        <div class="setting-row">
+            <div class="setting-info"><strong>Profile Visibility</strong><p>Your preferred profile visibility setting.</p></div>
+            <div class="setting-control">
+                <select id="profileVisibility">
+                    <option value="visible">Visible</option>
+                    <option value="private">Private</option>
+                </select>
             </div>
-
-            <nav class="sidebar-nav">
-                <a href="owner-dashboard.html">Overview</a>
-                <a href="my-documents.html">My Documents</a>
-                <a href="owner-shared-document.html">Shared Documents</a>
-                <a href="owner-activity.html">Activity</a>
-                <a href="owner-profile.html">My Profile</a>
-                <a href="owner-settings.html" class="active">Settings</a>
-                <a href="login.html">Logout</a>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <div class="settings-content">
-
-                <div class="settings-heading">
-                    <h1>Settings</h1>
-                    <p>Manage your TrustVault preferences and account settings.</p>
-                </div>
-
-                <!-- 1. Appearance -->
-                <section class="settings-section">
-                    <h2>Appearance</h2>
-                    <p class="settings-description">
-                        Choose how TrustVault looks across your pages.
-                    </p>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Display Mode</strong>
-                            <p>Choose light, dark or system default appearance.</p>
-                        </div>
-                        <div class="setting-control">
-                            <select id="themeSelect">
-                                <option value="light">Light Mode</option>
-                                <option value="dark">Dark Mode</option>
-                                <option value="system">System Default</option>
-                            </select>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 2. Notifications -->
-                <section class="settings-section">
-                    <h2>Notifications</h2>
-                    <p class="settings-description">
-                        Choose which document-related notifications you want to receive.
-                    </p>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Document Viewed</strong>
-                            <p>Get notified when someone views your document.</p>
-                        </div>
-                        <div class="setting-control">
-                            <input type="checkbox" id="notifyView" checked>
-                        </div>
-                    </div>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Document Downloaded</strong>
-                            <p>Get notified when someone downloads your document.</p>
-                        </div>
-                        <div class="setting-control">
-                            <input type="checkbox" id="notifyDownload" checked>
-                        </div>
-                    </div>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Document Edited</strong>
-                            <p>Get notified when someone edits your document.</p>
-                        </div>
-                        <div class="setting-control">
-                            <input type="checkbox" id="notifyEdit" checked>
-                        </div>
-                    </div>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Access Requests</strong>
-                            <p>Get notified when someone requests document access.</p>
-                        </div>
-                        <div class="setting-control">
-                            <input type="checkbox" id="notifyRequest" checked>
-                        </div>
-                    </div>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Documents Shared With You</strong>
-                            <p>Get notified when another owner shares a document with you.</p>
-                        </div>
-                        <div class="setting-control">
-                            <input type="checkbox" id="notifyShared" checked>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 3. Security -->
-                <section class="settings-section">
-                    <h2>Security</h2>
-                    <p class="settings-description">
-                        Manage account security and active sessions.
-                    </p>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Two-Factor Authentication</strong>
-                            <p>Add another verification step when signing in.</p>
-                        </div>
-                        <div class="setting-control">
-                            <input type="checkbox" id="twoFactor">
-                        </div>
-                    </div>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Recent Login Activity</strong>
-                            <p>Review recent sign-in details for your account.</p>
-                        </div>
-                        <div class="setting-control">
-                            <span>Backend connection pending</span>
-                        </div>
-                    </div>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Logout From All Devices</strong>
-                            <p>End all other active sessions for your account.</p>
-                        </div>
-                        <div class="setting-control">
-                            <span>Backend connection pending</span>
-                        </div>
-                    </div>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Session Timeout</strong>
-                            <p>Choose how long an inactive session may remain open.</p>
-                        </div>
-                        <div class="setting-control">
-                            <select id="sessionTimeout">
-                                <option value="15">15 minutes</option>
-                                <option value="30" selected>30 minutes</option>
-                                <option value="60">1 hour</option>
-                            </select>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 4. Privacy -->
-                <section class="settings-section">
-                    <h2>Privacy</h2>
-                    <p class="settings-description">
-                        Control how your profile information is displayed.
-                    </p>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Profile Visibility</strong>
-                            <p>Allow other users to see your profile information.</p>
-                        </div>
-                        <div class="setting-control">
-                            <select id="profileVisibility">
-                                <option value="visible">Visible</option>
-                                <option value="private">Private</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Show My Name to Recipients</strong>
-                            <p>Allow document recipients to see your name.</p>
-                        </div>
-                        <div class="setting-control">
-                            <input type="checkbox" id="showName" checked>
-                        </div>
-                    </div>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Account Visibility</strong>
-                            <p>Choose whether your account can be discovered by other users.</p>
-                        </div>
-                        <div class="setting-control">
-                            <select id="accountVisibility">
-                                <option value="discoverable">Discoverable</option>
-                                <option value="private">Private</option>
-                            </select>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 5. Document Preferences -->
-                <section class="settings-section">
-                    <h2>Document Preferences</h2>
-                    <p class="settings-description">
-                        Set your default document-sharing preferences.
-                    </p>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Default Sharing Permission</strong>
-                            <p>Choose the permission selected by default when sharing.</p>
-                        </div>
-                        <div class="setting-control">
-                            <select id="defaultPermission">
-                                <option value="read">Read Only</option>
-                                <option value="edit">Edit</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Confirm Before Revoking Access</strong>
-                            <p>Ask for confirmation before removing someone's access.</p>
-                        </div>
-                        <div class="setting-control">
-                            <input type="checkbox" id="confirmRevoke" checked>
-                        </div>
-                    </div>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Confirm Before Deleting Documents</strong>
-                            <p>Ask for confirmation before deleting a document.</p>
-                        </div>
-                        <div class="setting-control">
-                            <input type="checkbox" id="confirmDelete" checked>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 6. Account Preferences -->
-                <section class="settings-section">
-                    <h2>Account Preferences</h2>
-                    <p class="settings-description">
-                        Manage your general application preferences.
-                    </p>
-
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <strong>Language</strong>
-                            <p>Choose your preferred display language.</p>
-                        </div>
-                        <div class="setting-control">
-                            <select id="language">
-                                <option value="en">English</option>
-                            </select>
-                        </div>
-                    </div>
-                </section>
-
-                <div class="settings-actions">
-                    <button type="button" class="save-button" id="saveSettings">
-                        Save Settings
-                    </button>
-
-                    <button type="button" class="reset-button" id="resetSettings">
-                        Reset Defaults
-                    </button>
-                </div>
-
-                <p class="settings-note" id="settingsMessage">
-                    Appearance is applied using your saved theme preference.
-                    Other preferences are frontend controls until backend integration.
-                </p>
-
+        </div>
+        <div class="setting-row">
+            <div class="setting-info"><strong>Show My Name to Recipients</strong><p>Your preferred display setting for shared documents.</p></div>
+            <div class="setting-control"><input type="checkbox" id="showName" checked aria-label="Show my name to recipients"></div>
+        </div>
+        <div class="setting-row">
+            <div class="setting-info"><strong>Account Visibility</strong><p>Your preferred account discoverability setting.</p></div>
+            <div class="setting-control">
+                <select id="accountVisibility">
+                    <option value="discoverable">Discoverable</option>
+                    <option value="private">Private</option>
+                </select>
             </div>
-        </main>
+        </div>
+    </section>
+
+    <section class="settings-section">
+        <h2>Document Preferences</h2>
+        <p class="settings-description">Set your preferred defaults for document sharing and confirmation prompts.</p>
+        <div class="setting-row">
+            <div class="setting-info"><strong>Default Sharing Permission</strong><p>Choose the permission you prefer when sharing documents.</p></div>
+            <div class="setting-control">
+                <select id="defaultPermission">
+                    <option value="read">Read Only</option>
+                    <option value="edit">Edit</option>
+                </select>
+            </div>
+        </div>
+        <div class="setting-row">
+            <div class="setting-info"><strong>Confirm Before Revoking Access</strong><p>Ask for confirmation before removing someone's access.</p></div>
+            <div class="setting-control"><input type="checkbox" id="confirmRevoke" checked aria-label="Confirm before revoking access"></div>
+        </div>
+        <div class="setting-row">
+            <div class="setting-info"><strong>Confirm Before Deleting Documents</strong><p>Ask for confirmation before deleting a document.</p></div>
+            <div class="setting-control"><input type="checkbox" id="confirmDelete" checked aria-label="Confirm before deleting documents"></div>
+        </div>
+    </section>
+
+    <section class="settings-section">
+        <h2>Account Preferences</h2>
+        <p class="settings-description">Manage your general application preferences.</p>
+        <div class="setting-row">
+            <div class="setting-info"><strong>Language</strong><p>Preferred display language.</p></div>
+            <div class="setting-control">
+                <select id="language">
+                    <option value="en">English</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <section class="settings-section">
+        <h2>Change Password</h2>
+        <p class="settings-description">Update your account password. Your current session will remain active after a successful update.</p>
+        <form id="ownerPasswordForm" class="owner-password-form">
+            <label for="ownerCurrentPassword">Current password</label>
+            <input id="ownerCurrentPassword" name="current_password" type="password" autocomplete="current-password" required>
+            <label for="ownerNewPassword">New password</label>
+            <input id="ownerNewPassword" name="new_password" type="password" autocomplete="new-password" required minlength="8">
+            <label for="ownerConfirmPassword">Confirm new password</label>
+            <input id="ownerConfirmPassword" name="confirm_password" type="password" autocomplete="new-password" required minlength="8">
+            <button type="submit" class="save-button password-submit" id="ownerPasswordSubmit">Update Password</button>
+            <p id="ownerPasswordMessage" class="password-message" role="status" aria-live="polite"></p>
+        </form>
+    </section>
+
+    <div class="settings-actions">
+        <button type="button" class="save-button" id="saveSettings">Save Settings</button>
+        <button type="button" class="reset-button" id="resetSettings">Reset Defaults</button>
     </div>
+    <p class="settings-status" id="settingsMessage" role="status" aria-live="polite">Your preferences are stored in this browser.</p>
+</div>
+{% endblock %}
 
-    <script src="settings.js"></script>
+{% block page_scripts %}
+<script>
+(() => {
+    "use strict";
 
-    <script>
-        const preferenceIds = [
-            "notifyView", "notifyDownload", "notifyEdit", "notifyRequest",
-            "notifyShared", "twoFactor", "sessionTimeout", "profileVisibility",
-            "showName", "accountVisibility", "defaultPermission",
-            "confirmRevoke", "confirmDelete", "language"
-        ];
+    const preferenceIds = [
+        "notifyView", "notifyDownload", "notifyEdit", "notifyRequest",
+        "notifyShared", "profileVisibility", "showName", "accountVisibility",
+        "defaultPermission", "confirmRevoke", "confirmDelete", "language"
+    ];
 
-        const defaults = {
-            notifyView: true,
-            notifyDownload: true,
-            notifyEdit: true,
-            notifyRequest: true,
-            notifyShared: true,
-            twoFactor: false,
-            sessionTimeout: "30",
-            profileVisibility: "visible",
-            showName: true,
-            accountVisibility: "discoverable",
-            defaultPermission: "read",
-            confirmRevoke: true,
-            confirmDelete: true,
-            language: "en"
-        };
+    const defaults = {
+        notifyView: true,
+        notifyDownload: true,
+        notifyEdit: true,
+        notifyRequest: true,
+        notifyShared: true,
+        profileVisibility: "visible",
+        showName: true,
+        accountVisibility: "discoverable",
+        defaultPermission: "read",
+        confirmRevoke: true,
+        confirmDelete: true,
+        language: "en"
+    };
 
-        function loadSettings() {
-            preferenceIds.forEach(function (id) {
+    const message = document.getElementById("settingsMessage");
+
+    function showSettingsMessage(text, type) {
+        message.textContent = text;
+        message.className = "settings-status" + (type ? " " + type : "");
+    }
+
+    function loadSettings() {
+        preferenceIds.forEach(id => {
+            const element = document.getElementById(id);
+            if (!element) return;
+
+            try {
+                const saved = localStorage.getItem("trustvault-setting-" + id);
+                if (saved === null) return;
+
+                if (element.type === "checkbox") {
+                    element.checked = saved === "true";
+                } else if ([...element.options].some(option => option.value === saved)) {
+                    element.value = saved;
+                }
+            } catch (error) {
+                showSettingsMessage("Browser storage is unavailable. Preferences may not persist.", "error");
+            }
+        });
+    }
+
+    document.getElementById("saveSettings").addEventListener("click", () => {
+        try {
+            preferenceIds.forEach(id => {
                 const element = document.getElementById(id);
                 if (!element) return;
 
-                let savedValue = null;
-
-                try {
-                    savedValue = localStorage.getItem("trustvault-setting-" + id);
-                } catch (error) {
-                    return;
-                }
-
-                if (savedValue === null) return;
-
-                if (element.type === "checkbox") {
-                    element.checked = savedValue === "true";
-                } else {
-                    element.value = savedValue;
-                }
+                const value = element.type === "checkbox" ? element.checked : element.value;
+                localStorage.setItem("trustvault-setting-" + id, String(value));
             });
+
+            showSettingsMessage("Your preferences have been saved in this browser.", "success");
+        } catch (error) {
+            showSettingsMessage("Unable to save preferences in this browser.", "error");
+        }
+    });
+
+    document.getElementById("resetSettings").addEventListener("click", () => {
+        preferenceIds.forEach(id => {
+            const element = document.getElementById(id);
+            if (!element) return;
+
+            const value = defaults[id];
+            if (element.type === "checkbox") {
+                element.checked = value;
+            } else {
+                element.value = value;
+            }
+
+            try {
+                localStorage.removeItem("trustvault-setting-" + id);
+            } catch (error) {
+                // Display defaults even if browser storage is unavailable.
+            }
+        });
+
+        showSettingsMessage("Default preferences restored. Click Save Settings to store them.", "");
+    });
+
+    loadSettings();
+
+    const form = document.getElementById("ownerPasswordForm");
+    const passwordMessage = document.getElementById("ownerPasswordMessage");
+    const passwordSubmit = document.getElementById("ownerPasswordSubmit");
+
+    form.addEventListener("submit", async event => {
+        event.preventDefault();
+        passwordMessage.textContent = "";
+        passwordMessage.className = "password-message";
+
+        const currentPassword = document.getElementById("ownerCurrentPassword").value;
+        const newPassword = document.getElementById("ownerNewPassword").value;
+        const confirmPassword = document.getElementById("ownerConfirmPassword").value;
+
+        if (newPassword.length < 8) {
+            passwordMessage.textContent = "New password must contain at least 8 characters.";
+            passwordMessage.classList.add("error");
+            return;
         }
 
-        document.getElementById("saveSettings").addEventListener("click", function () {
-            preferenceIds.forEach(function (id) {
-                const element = document.getElementById(id);
-                if (!element) return;
+        if (newPassword !== confirmPassword) {
+            passwordMessage.textContent = "New password and confirmation do not match.";
+            passwordMessage.classList.add("error");
+            return;
+        }
 
-                const value = element.type === "checkbox"
-                    ? element.checked
-                    : element.value;
+        passwordSubmit.disabled = true;
+        passwordSubmit.textContent = "Updating...";
 
-                try {
-                    localStorage.setItem("trustvault-setting-" + id, value);
-                } catch (error) {
-                    document.getElementById("settingsMessage").textContent =
-                        "Unable to save preferences in this browser.";
-                }
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.content || "";
+
+        try {
+            const response = await fetch("/auth/change-password", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrf
+                },
+                body: JSON.stringify({
+                    current_password: currentPassword,
+                    new_password: newPassword,
+                    confirm_password: confirmPassword
+                })
             });
 
-            document.getElementById("settingsMessage").textContent =
-                "Your frontend preferences have been saved in this browser. Security and notification actions still need backend integration.";
-        });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(result.error || "Password change failed.");
+            }
 
-        document.getElementById("resetSettings").addEventListener("click", function () {
-            preferenceIds.forEach(function (id) {
-                const element = document.getElementById(id);
-                if (!element) return;
-
-                const value = defaults[id];
-
-                if (element.type === "checkbox") {
-                    element.checked = value;
-                } else {
-                    element.value = value;
-                }
-
-                try {
-                    localStorage.removeItem("trustvault-setting-" + id);
-                } catch (error) {
-                    // Keep the displayed defaults even if storage is unavailable.
-                }
-            });
-
-            document.getElementById("settingsMessage").textContent =
-                "Default preferences restored. Select Save Settings to save them.";
-        });
-
-        loadSettings();
-    </script>
-
-</body>
-</html>
+            passwordMessage.textContent = result.message || "Password changed successfully.";
+            passwordMessage.classList.add("success");
+            form.reset();
+        } catch (error) {
+            passwordMessage.textContent = error.message || "Unable to update password. Please try again.";
+            passwordMessage.classList.add("error");
+        } finally {
+            passwordSubmit.disabled = false;
+            passwordSubmit.textContent = "Update Password";
+        }
+    });
+})();
+</script>
+{% endblock %}

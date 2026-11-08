@@ -1,555 +1,534 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Admin Dashboard | TrustVault</title>
-    <link rel="stylesheet" href="/dashboard.css">
+{% extends "base.html" %}
 
-    <style>
-        .admin-content {
-            max-width: 1200px;
-        }
+{% block title %}Admin Dashboard | TrustVault{% endblock %}
+{% block page_heading %}Admin Dashboard{% endblock %}
 
-        .admin-heading {
-            margin-bottom: 25px;
-        }
-
-        .admin-heading p {
-            color: #6b7280;
-            margin-top: 7px;
-        }
-
-        .admin-stats {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 18px;
-            margin-bottom: 25px;
-        }
-
-        .admin-stat-card {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 20px;
-        }
-
-        .admin-stat-card h3 {
-            font-size: 14px;
-            color: #6b7280;
-            font-weight: 500;
-            margin: 0 0 12px;
-        }
-
-        .admin-stat-card .stat-value {
-            font-size: 27px;
-            font-weight: 700;
-            color: #111827;
-        }
-
-        .admin-stat-card small {
-            display: block;
-            margin-top: 8px;
-            color: #6b7280;
-            font-size: 12px;
-        }
-
-        .admin-panel {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 22px;
-        }
-
-        .admin-panel h2 {
-            font-size: 17px;
-            margin: 0 0 8px;
-        }
-
-        .admin-panel-description {
-            color: #6b7280;
-            font-size: 13px;
-            margin-bottom: 18px;
-        }
-
-        .admin-activity-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .admin-activity-table th,
-        .admin-activity-table td {
-            text-align: left;
-            padding: 13px 12px;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 13px;
-        }
-
-        .admin-activity-table th {
-            background: #f3f4f6;
-            font-weight: 600;
-        }
-
-        .admin-empty {
-            text-align: center;
-            padding: 25px 10px;
-            color: #6b7280;
-            font-size: 14px;
-        }
-
-        .admin-status {
-            display: inline-block;
-            padding: 5px 9px;
-            border-radius: 5px;
-            background: #f3f4f6;
-            color: #4b5563;
-            font-size: 11px;
-        }
-
-        /* Admin sidebar branding */
-
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-brand {
-            position: relative;
-            flex: 0 0 auto;
-            display: block;
-            margin: 0 0 28px;
-            padding: 0;
-            transform: none;
-        }
-
-        .sidebar-brand h2 {
-            margin: 0;
-            padding: 0;
-            line-height: 1.3;
-        }
-
-        .sidebar-brand span {
-            display: block;
-            position: static;
-            margin-top: 9px;
-            padding: 0;
-            line-height: 1.4;
-        }
-
-        .sidebar-nav {
-            flex: 0 0 auto;
-            margin-top: 0;
-        }
-
-        /* Dark mode */
-
-        body.dark-mode .admin-heading p,
-        body.dark-mode .admin-stat-card h3,
-        body.dark-mode .admin-stat-card small,
-        body.dark-mode .admin-panel-description,
-        body.dark-mode .admin-empty {
-            color: #d1d5db;
-        }
-
-        body.dark-mode .admin-stat-card,
-        body.dark-mode .admin-panel {
-            background: #1f2937;
-            border-color: #374151;
-        }
-
-        body.dark-mode .admin-stat-card .stat-value {
-            color: #f9fafb;
-        }
-
-        body.dark-mode .admin-activity-table th {
-            background: #273449;
-        }
-
-        body.dark-mode .admin-activity-table th,
-        body.dark-mode .admin-activity-table td {
-            border-color: #374151;
-        }
-
-        body.dark-mode .admin-status {
-            background: #374151;
-            color: #e5e7eb;
-        }
-
-        /* Admin Notification Bell */
-
-        .admin-heading {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            position: relative;
-        }
-
-        .notification-wrapper {
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .notification-bell {
-            width: 42px;
-            height: 42px;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            background: #ffffff;
-            color: #374151;
-            font-size: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .notification-bell:hover {
-            background: #f3f4f6;
-        }
-
-        .notification-count {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            min-width: 18px;
-            height: 18px;
-            padding: 0 4px;
-            border-radius: 50%;
-            background: #ef4444;
-            color: #ffffff;
-            font-size: 11px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .notification-dropdown {
-            display: none;
-            position: absolute;
-            top: 50px;
-            right: 0;
-            width: 300px;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-            z-index: 1000;
-        }
-
-        .notification-dropdown[hidden] {
-    display: none !important;
+{% block extra_css %}
+<style>
+.admin-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    max-width: 1500px;
+    margin: 0 auto;
 }
 
-.notification-dropdown.show {
+/* Welcome banner */
+.admin-welcome {
+    position: relative;
+    overflow: hidden;
+    padding: 34px;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 20px;
+    background:
+        radial-gradient(circle at 88% 12%, rgba(112,153,220,.25), transparent 32%),
+        linear-gradient(125deg, #142943, #1c3b61 58%, #294f7d);
+    color: #fff;
+    box-shadow: 0 12px 30px rgba(18,39,67,.13);
+}
+
+.admin-welcome::after {
+    content: "";
+    position: absolute;
+    width: 240px;
+    height: 240px;
+    right: -75px;
+    top: -125px;
+    border: 36px solid rgba(255,255,255,.055);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.admin-welcome-content {
+    position: relative;
+    z-index: 1;
+}
+
+.admin-welcome-label {
+    display: inline-block;
+    margin-bottom: 13px;
+    color: #c8d9ef;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.admin-welcome h2 {
+    margin: 0 0 10px;
+    color: #fff;
+    font-size: clamp(23px, 3vw, 31px);
+    font-weight: 750;
+    letter-spacing: -.5px;
+}
+
+.admin-welcome p {
+    max-width: 650px;
+    margin: 0;
+    color: #dce7f5;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* Statistics */
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.admin-stat {
+    min-width: 0;
+    padding: 23px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 3px 12px rgba(25,45,75,.045);
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.admin-stat:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    box-shadow: 0 9px 22px rgba(25,45,75,.09);
+}
+
+.admin-stat-label {
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.admin-stat-value {
     display: block;
+    margin-top: 15px;
+    font-size: 32px;
+    font-weight: 780;
+    color: var(--text);
+    overflow-wrap: anywhere;
 }
 
-        .notification-dropdown h3 {
-            margin: 0;
-            padding: 15px;
-            font-size: 15px;
-            border-bottom: 1px solid #e5e7eb;
-            color: #111827;
-        }
+.admin-stat-description {
+    display: block;
+    margin-top: 7px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
 
-        .notification-empty {
-            padding: 20px 15px;
-            text-align: center;
-            color: #6b7280;
-            font-size: 13px;
-        }
+/* Section headings */
+.admin-section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 15px;
+}
 
-        body.dark-mode .notification-bell {
-            background: #1f2937;
-            color: #f9fafb;
-            border-color: #374151;
-        }
+.admin-section-heading h2 {
+    margin: 0;
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 750;
+}
 
-        body.dark-mode .notification-bell:hover {
-            background: #273449;
-        }
+.admin-section-heading p {
+    margin: 5px 0 0;
+    color: var(--text-muted);
+    font-size: 13px;
+}
 
-        body.dark-mode .notification-dropdown {
-            background: #1f2937;
-            border-color: #374151;
-        }
+/* Main sections */
+.admin-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(25,45,75,.045);
+}
 
-        body.dark-mode .notification-dropdown h3 {
-            color: #f9fafb;
-            border-color: #374151;
-        }
+.admin-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--border);
+}
 
-        body.dark-mode .notification-empty {
-            color: #d1d5db;
-        }
+.admin-section-header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 750;
+    color: var(--text);
+}
 
-        @media (max-width: 900px) {
-            .admin-stats {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
+.admin-section-header p {
+    margin: 5px 0 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
 
-        @media (max-width: 550px) {
-            .admin-stats {
-                grid-template-columns: 1fr;
-            }
+/* Quick links */
+.admin-quick-links {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
 
-            .admin-panel {
-                overflow-x: auto;
-            }
+.admin-quick-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    background: var(--surface);
+    color: var(--text);
+    text-decoration: none;
+    box-shadow: 0 3px 12px rgba(25,45,75,.045);
+    transition: border-color .2s, transform .2s, box-shadow .2s;
+}
 
-            .notification-dropdown {
-                width: 270px;
-            }
-        }
-    </style>
-</head>
+.admin-quick-link:hover {
+    border-color: var(--primary);
+    transform: translateY(-3px);
+    box-shadow: 0 9px 22px rgba(25,45,75,.09);
+}
 
-<body class="dashboard-page">
+.admin-quick-icon {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    border-radius: 13px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 21px;
+}
 
-    <div class="dashboard-container">
+.admin-quick-link strong {
+    display: block;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
+}
 
-        <aside class="sidebar">
+.admin-quick-link small {
+    display: block;
+    margin-top: 5px;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
 
-            <div class="sidebar-brand">
-                <h2>TrustVault</h2>
-                <span>Administrator</span>
+/* Activity table */
+.admin-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 16px 21px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text);
+}
+
+.admin-table th {
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .45px;
+    text-transform: uppercase;
+    background: var(--surface-soft);
+}
+
+.admin-table tbody tr {
+    transition: background .18s ease;
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.admin-table tbody tr:hover {
+    background: var(--surface-hover);
+}
+
+.admin-outcome {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--surface-soft);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* Empty state */
+.admin-empty {
+    padding: 36px 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.admin-empty strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text);
+    font-size: 14px;
+}
+
+.admin-empty p {
+    margin: 0;
+    font-size: 12px;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+    .admin-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-quick-links {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    .admin-dashboard {
+        gap: 19px;
+    }
+
+    .admin-welcome {
+        padding: 24px 20px;
+    }
+
+    .admin-stats {
+        gap: 12px;
+    }
+
+    .admin-stat {
+        padding: 18px;
+    }
+
+    .admin-stat-value {
+        font-size: 27px;
+    }
+
+    .admin-quick-links {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-section-header {
+        padding: 17px;
+    }
+}
+
+@media (max-width: 380px) {
+    .admin-stats {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="admin-dashboard">
+
+    <!-- Welcome -->
+    <section class="admin-welcome">
+        <div class="admin-welcome-content">
+            <span class="admin-welcome-label">TrustVault · Administration</span>
+            <h2>Welcome back, {{ current_user.name }}!</h2>
+            <p>
+                Monitor your TrustVault workspace, manage users and review
+                security activity from one place.
+            </p>
+        </div>
+    </section>
+
+    <!-- System statistics -->
+    <section aria-label="System statistics">
+        <div class="admin-section-heading">
+            <div>
+                <h2>System Overview</h2>
+                <p>A summary of users, documents and recorded security events.</p>
+            </div>
+        </div>
+
+        <div class="admin-stats">
+
+            <article class="admin-stat">
+                <span class="admin-stat-label">Total Viewers</span>
+                <strong class="admin-stat-value">{{ total_viewers }}</strong>
+                <span class="admin-stat-description">Registered Viewer accounts</span>
+            </article>
+
+            <article class="admin-stat">
+                <span class="admin-stat-label">Total Owners</span>
+                <strong class="admin-stat-value">{{ total_owners }}</strong>
+                <span class="admin-stat-description">Registered Owner accounts</span>
+            </article>
+
+            <article class="admin-stat">
+                <span class="admin-stat-label">Total Documents</span>
+                <strong class="admin-stat-value">{{ total_documents }}</strong>
+                <span class="admin-stat-description">Documents in the system</span>
+            </article>
+
+            <article class="admin-stat">
+                <span class="admin-stat-label">Audit Events</span>
+                <strong class="admin-stat-value">{{ total_audit_events }}</strong>
+                <span class="admin-stat-description">Recorded audit events</span>
+            </article>
+
+        </div>
+    </section>
+
+    <!-- Quick navigation -->
+    <section>
+        <div class="admin-section-heading">
+            <div>
+                <h2>Quick Access</h2>
+                <p>Navigate to important administration areas.</p>
+            </div>
+        </div>
+
+        <div class="admin-quick-links">
+
+            <a href="/admin/users" class="admin-quick-link">
+                <span class="admin-quick-icon" aria-hidden="true">♙</span>
+                <span>
+                    <strong>User Management</strong>
+                    <small>Review and manage accounts</small>
+                </span>
+            </a>
+
+            <a href="/admin/documents" class="admin-quick-link">
+                <span class="admin-quick-icon" aria-hidden="true">▤</span>
+                <span>
+                    <strong>Document Overview</strong>
+                    <small>Review document information</small>
+                </span>
+            </a>
+
+            <a href="/admin/audit-logs" class="admin-quick-link">
+                <span class="admin-quick-icon" aria-hidden="true">◷</span>
+                <span>
+                    <strong>Audit Logs</strong>
+                    <small>Review recorded activities</small>
+                </span>
+            </a>
+
+        </div>
+    </section>
+
+    <!-- Recent activity -->
+    <section class="admin-section">
+
+        <div class="admin-section-header">
+            <div>
+                <h2>Recent Activity</h2>
+                <p>Latest recorded activity in your workspace.</p>
             </div>
 
-            <nav class="sidebar-nav">
-                <a href="/admin/dashboard" class="active">Overview</a>
-                <a href="/admin/users">User Management</a>
-                <a href="admin-documents.html">Document Overview</a>
-                <a href="admin-audit-logs.html">Audit Logs</a>
-                <a href="admin-security-alerts.html">Security Alerts</a>
-                <a href="admin-notifications.html">Notifications</a>
-                <a href="admin-settings.html">Settings</a>
-                <a href="login.html">Logout</a>
-            </nav>
-
-        </aside>
-
-        <main class="main-content">
-
-            <div class="admin-content">
-
-                <div class="admin-heading">
-
-                    <div>
-                        <h1>Admin Dashboard</h1>
-                        <p>Monitor and manage the TrustVault platform.</p>
-                    </div>
-
-                    <div class="notification-wrapper">
-
-    <button type="button"
-            id="notificationBell"
-            class="notification-bell"
-            aria-label="Notifications">
-
-        <span>🔔</span>
-
-        <span id="notificationCount"
-              class="notification-count"
-              hidden>0</span>
-
-    </button>
-
-    <div id="notificationDropdown"
-         class="notification-dropdown"
-         hidden>
-
-        <div class="notification-header">
-            <h3>Notifications</h3>
-
-            <button type="button"
-                    id="markAllRead">
-                Mark all as read
-            </button>
+            <a href="/admin/audit-logs" class="btn btn-secondary btn-sm">
+                View All Logs
+            </a>
         </div>
 
-        <div class="notification-filters">
+        <div class="admin-table-wrap">
 
-            <button type="button"
-                    class="notification-filter active"
-                    data-filter="all">
-                All
-            </button>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Outcome</th>
+                        <th>Document</th>
+                        <th>Date &amp; Time</th>
+                    </tr>
+                </thead>
 
-            <button type="button"
-                    class="notification-filter"
-                    data-filter="unread">
-                Unread
-            </button>
+                <tbody>
 
-            <button type="button"
-                    class="notification-filter"
-                    data-filter="read">
-                Read
-            </button>
+                    {% for activity in recent_activity %}
+
+                    <tr>
+                        <td>{{ activity.user }}</td>
+
+                        <td>{{ activity.action }}</td>
+
+                        <td>
+                            {% if activity.outcome %}
+                                <span class="admin-outcome">
+                                    {{ activity.outcome }}
+                                </span>
+                            {% else %}
+                                <span class="admin-outcome">—</span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ activity.document or "—" }}</td>
+
+                        <td>{{ activity.date or "—" }}</td>
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="5">
+                            <div class="admin-empty">
+                                <strong>No activity recorded yet.</strong>
+                                <p>New workspace activity will appear here.</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>
 
         </div>
 
-        <div id="notificationList"
-             class="notification-list">
-            Loading notifications...
-        </div>
+    </section>
 
-    </div>
+    <!-- Security monitoring -->
+    <section class="admin-section">
+        <div class="admin-section-header">
+            <div>
+                <h2>Security Monitoring</h2>
+                <p>
+                    Review security alerts and audit records regularly
+                    to monitor access to protected documents.
+                </p>
+            </div>
+
+            <a href="/admin/security-alerts" class="btn btn-primary btn-sm">
+                Review Security Alerts
+            </a>
+        </div>
+    </section>
 
 </div>
 
-                </div>
-
-                <section class="admin-stats">
-
-                    <div class="admin-stat-card">
-                        <h3>Total Viewers</h3>
-                        <div class="stat-value">{{ total_viewers }}</div>
-                        <small>Registered viewer accounts</small>
-                    </div>
-
-                    <div class="admin-stat-card">
-                        <h3>Registered Owners</h3>
-                        <div class="stat-value">{{ total_owners }}</div>
-                        <small>Users with Owner role</small>
-                    </div>
-
-                    <div class="admin-stat-card">
-                        <h3>Total Documents</h3>
-                        <div class="stat-value">{{ total_documents }}</div>
-                        <small>Document records in database</small>
-                    </div>
-
-                    <div class="admin-stat-card">
-                        <h3>Total Audit Events</h3>
-                        <div class="stat-value">{{ total_audit_events }}</div>
-                        <small>Recorded platform audit events</small>
-                    </div>
-
-                </section>
-
-                <section class="admin-panel">
-
-                    <h2>Platform Overview</h2>
-
-                    <p class="admin-panel-description">
-                        A summary of the main administrative areas.
-                    </p>
-
-                    <div class="admin-stats">
-
-                        <div class="admin-stat-card">
-                            <h3>User Management</h3>
-                            <span class="admin-status">Database connected</span>
-                            <small>Manage user accounts and roles.</small>
-                        </div>
-
-                        <div class="admin-stat-card">
-                            <h3>Document Monitoring</h3>
-                            <span class="admin-status">Database connected</span>
-                            <small>Monitor document metadata and status.</small>
-                        </div>
-
-                        <div class="admin-stat-card">
-                            <h3>Audit Monitoring</h3>
-                            <span class="admin-status">Database connected</span>
-                            <small>Review document access records.</small>
-                        </div>
-
-                        <div class="admin-stat-card">
-                            <h3>Security Monitoring</h3>
-                            <span class="admin-status">Integration pending</span>
-                            <small>Review recorded security events.</small>
-                        </div>
-
-                    </div>
-
-                </section>
-
-                <section class="admin-panel">
-
-                    <h2>Recent System Activity</h2>
-
-                    <p class="admin-panel-description">
-                        Recent administrative and platform events recorded by TrustVault.
-                    </p>
-
-                    <table class="admin-activity-table">
-
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Activity</th>
-                                <th>Document</th>
-                                <th>Date &amp; Time</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {% for activity in recent_activity %}
-                            <tr>
-                                <td>{{ activity.user }}</td>
-                                <td>
-                                    {{ activity.action }}
-                                    {% if activity.outcome %}
-                                        <span class="admin-status">{{ activity.outcome }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ activity.document }}</td>
-                                <td>{{ activity.date }}</td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="4" class="admin-empty">
-                                    No activity records available yet.
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-
-                    </table>
-
-                </section>
-
-            </div>
-
-        </main>
-
-    </div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-
-            const bell = document.getElementById("notificationBell");
-            const dropdown = document.getElementById("notificationDropdown");
-
-            bell.addEventListener("click", function (event) {
-                event.stopPropagation();
-
-                const isOpen = dropdown.classList.toggle("show");
-
-                bell.setAttribute("aria-expanded", isOpen);
-            });
-
-            document.addEventListener("click", function (event) {
-                if (
-                    !dropdown.contains(event.target) &&
-                    !bell.contains(event.target)
-                ) {
-                    dropdown.classList.remove("show");
-                    bell.setAttribute("aria-expanded", "false");
-                }
-            });
-
-        });
-    </script>
-
-    <script src="/settings.js"></script>
-    <script src="/notifications.js"></script>
-
-</body>
-</html>
+{% endblock %}

@@ -7,7 +7,7 @@ class AuditLog(db.Model):
     __tablename__ = "audit_logs"
 
     id = db.Column(
-        db.BigInteger,
+        db.BigInteger().with_variant(db.Integer(), "sqlite"),
         primary_key=True,
         autoincrement=True
     )

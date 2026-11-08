@@ -5,3 +5,7 @@ from models.audit_log import AuditLog
 from models.document_version import DocumentVersion
 from models.notification import Notification
 from models.email_verification_token import EmailVerificationToken
+from models.starred_document import StarredDocument
+from models.password_reset_token import PasswordResetToken
+from models.document_invitation import DocumentInvitation
+from models.document_invitation_item import DocumentInvitationItem

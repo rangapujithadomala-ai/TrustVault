@@ -1,111 +1,472 @@
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrustVault | Shared with Me</title>
-    <link rel="stylesheet" href="dashboard.css">
-</head>
+{% block title %}Shared With Me | TrustVault{% endblock %}
 
-<body class="dashboard-page">
+{% block extra_css %}
+<style>
+.shared-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
 
-    <div class="dashboard-container">
+.shared-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+}
 
-        <aside class="sidebar">
-            <div class="brand">
-                <h2>TrustVault</h2>
-                <p>Secure Document Sharing</p>
-            </div>
+.shared-heading h1 {
+    margin: 0 0 6px;
+    font-size: 26px;
+    font-weight: 700;
+}
 
-            <div class="user-role">VIEWER ACCOUNT</div>
+.shared-heading p {
+    margin: 0;
+    color: var(--text-secondary, #64748b);
+}
 
-            <nav class="sidebar-nav">
-                <a href="dashboard.html">Overview</a>
-                <a href="shared-with-me.html" class="active">Shared with Me</a>
-                <a href="activity.html">Activity</a>
-                <a href="profile.html">My Profile</a>
-                <a href="settings.html">Settings</a>
-            </nav>
+.shared-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
 
-            <a href="login.html" class="logout-link">Logout</a>
-        </aside>
+.shared-summary-card {
+    padding: 20px;
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 14px;
+    background: var(--surface, #ffffff);
+}
 
-        <main class="main-content">
+.shared-summary-card span {
+    display: block;
+    color: var(--text-secondary, #64748b);
+    font-size: 13px;
+    margin-bottom: 8px;
+}
 
-            <header class="topbar">
-                <div>
-                    <h1>Shared with Me</h1>
-                    <p>Access documents that owners have shared with you.</p>
-                </div>
+.shared-summary-card strong {
+    font-size: 25px;
+    color: var(--text);
+}
 
-                <div class="topbar-user">
-                    <span class="user-avatar">V</span>
-                    <span>Viewer</span>
-                </div>
-            </header>
+.shared-section {
+    padding: 22px;
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 14px;
+    background: var(--surface, #ffffff);
+}
 
-            <section class="dashboard-section">
+.shared-section-heading {
+    margin-bottom: 20px;
+}
 
-                <div class="section-heading">
-                    <div>
-                        <h2>Your Shared Documents</h2>
-                        <p class="section-description">
-                            View your available documents and their permissions.
-                        </p>
-                    </div>
-                </div>
+.shared-section-heading h2 {
+    margin: 0 0 6px;
+    font-size: 19px;
+}
 
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Document Name</th>
-                                <th>Shared By</th>
-                                <th>Permission</th>
-                                <th>Date Shared</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
+.shared-section-heading p {
+    margin: 0;
+    color: var(--text-secondary, #64748b);
+    font-size: 14px;
+}
 
-                        <tbody>
-                            <tr>
-                                <td>Project Report.pdf</td>
-                                <td>Owner Name</td>
-                                <td>
-                                    <span class="permission read">Read</span>
-                                </td>
-                                <td>03 Nov 2026</td>
-                                <td><a href="#" class="document-action">View</a></td>
-                            </tr>
+.shared-filters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
 
-                            <tr>
-                                <td>Research Document.docx</td>
-                                <td>Owner Name</td>
-                                <td>
-                                    <span class="permission edit">Edit</span>
-                                </td>
-                                <td>02 Nov 2026</td>
-                                <td><a href="#" class="document-action">View</a></td>
-                            </tr>
+.shared-filters input {
+    width: 100%;
+    min-width: 0;
+}
 
-                            <tr>
-                                <td>Presentation.pptx</td>
-                                <td>Owner Name</td>
-                                <td>
-                                    <span class="permission read">Read</span>
-                                </td>
-                                <td>01 Nov 2026</td>
-                                <td><a href="#" class="document-action">View</a></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+.shared-date-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--text-secondary, #64748b);
+    font-size: 13px;
+}
 
-            </section>
+.shared-date-filter input {
+    color:var(--text);
+}
 
-        </main>
+.shared-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.shared-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 720px;
+}
+
+.shared-table th,
+.shared-table td {
+    padding: 15px 13px;
+    text-align: left;
+    border-bottom: 1px solid var(--border, #e2e8f0);
+    vertical-align: middle;
+}
+
+.shared-table th {
+    color: var(--text-secondary, #64748b);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.shared-table td {
+    color:var(--text);
+    font-size: 14px;
+}
+
+.shared-table tbody tr:hover {
+    background: var(--surface-hover, rgba(100, 116, 139, .06));
+}
+
+.shared-document-name {
+    font-weight: 600;
+}
+
+.shared-permission {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.shared-permission.read {
+    background: rgba(59, 130, 246, .16);
+    color: #60a5fa;
+}
+
+.shared-permission.edit {
+    background: rgba(16, 185, 129, .16);
+    color: #34d399;
+}
+
+.shared-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.shared-download {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 12px;
+    border-radius: 8px;
+    background: var(--primary, #3157d5);
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.shared-download:hover {
+    opacity: .9;
+}
+
+.shared-revision {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 10px;
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 8px;
+    color:var(--text);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.shared-revision input {
+    display: none;
+}
+
+.shared-star {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 8px;
+    background: transparent;
+    color:var(--text);
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.shared-star:hover {
+    background: var(--surface-hover, rgba(100, 116, 139, .08));
+}
+
+.shared-empty,
+.shared-no-matches {
+    padding: 25px;
+    text-align: center;
+    color: var(--text-secondary, #64748b);
+}
+
+.shared-no-matches {
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    background: var(--surface-soft);
+}
+
+@media (max-width: 850px) {
+    .shared-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .shared-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .shared-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .shared-section {
+        padding: 15px;
+    }
+
+    .shared-heading h1 {
+        font-size: 22px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="shared-page">
+
+    <div class="shared-heading">
+        <div>
+            <h1>Shared With Me</h1>
+            <p>Access documents that other users have shared with you.</p>
+        </div>
     </div>
-<script src="settings.js"></script>
-</body>
-</html>
+
+    <div class="shared-summary">
+        <div class="shared-summary-card">
+            <span>Available Documents</span>
+            <strong>{{ documents|length }}</strong>
+        </div>
+
+        <div class="shared-summary-card">
+            <span>Documents With Edit Access</span>
+            <strong>
+                {{ documents|selectattr('id', 'in', documents|map(attribute='id')|list)|list|length if false else documents|length }}
+            </strong>
+        </div>
+    </div>
+
+    <section class="shared-section">
+        <div class="shared-section-heading">
+            <h2>Your Shared Documents</h2>
+            <p>View your available documents and their permissions.</p>
+        </div>
+
+        <div class="shared-filters">
+            <input
+                type="search"
+                id="sharedDocumentSearch"
+                placeholder="Search document name..."
+                aria-label="Search document name"
+            >
+
+            <input
+                type="search"
+                id="sharedOwnerSearch"
+                placeholder="Search owner name..."
+                aria-label="Search owner name"
+            >
+
+            <input
+                type="search"
+                id="sharedCategorySearch"
+                placeholder="Search category..."
+                aria-label="Search category"
+            >
+
+            <label class="shared-date-filter">
+                From
+                <input type="date" id="sharedDateFrom">
+            </label>
+
+            <label class="shared-date-filter">
+                To
+                <input type="date" id="sharedDateTo">
+            </label>
+        </div>
+
+        <p id="sharedNoMatches" class="shared-no-matches" hidden>
+            No matching documents found.
+        </p>
+
+        <div class="shared-table-wrapper">
+            <table class="shared-table">
+                <thead>
+                    <tr>
+                        <th>Document Name</th>
+                        <th>Shared By</th>
+                        <th>Permission</th>
+                        <th>Date Shared</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for document in documents %}
+                    <tr
+                        class="shared-document-row"
+                        data-owner="{{ owners.get(document.owner_id, 'Owner')|lower }}"
+                        data-category="{{ document.category|lower }}"
+                        data-date="{{ grant_dates.get(document.id).strftime('%Y-%m-%d') if grant_dates.get(document.id) else document.created_at.strftime('%Y-%m-%d') if document.created_at else '' }}"
+                    >
+                        <td class="shared-document-name">
+                            {{ document.title }}
+                        </td>
+
+                        <td>
+                            {{ owners.get(document.owner_id, "Owner") }}
+                        </td>
+
+                        <td>
+                            <span class="shared-permission {{ grants.get(document.id, 'read') }}">
+                                {{ grants.get(document.id, 'read')|capitalize }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ grant_dates.get(document.id).strftime("%d %b %Y") if grant_dates.get(document.id) else "—" }}
+                        </td>
+
+                        <td>
+                            <div class="shared-actions">
+                                <a
+                                    href="/documents/{{ document.id }}/download"
+                                    class="shared-download"
+                                >
+                                    Download
+                                </a>
+
+                                {% if grants.get(document.id) == "edit" %}
+                                <label class="shared-revision">
+                                    Upload revision
+                                    <input
+                                        type="file"
+                                        data-version-document="{{ document.id }}"
+                                        accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.xlsx,.csv"
+                                        aria-label="Upload revision for {{ document.title }}"
+                                    >
+                                </label>
+                                {% endif %}
+
+                                <button
+                                    type="button"
+                                    class="shared-star"
+                                    data-star-document="{{ document.id }}"
+                                    aria-label="Star {{ document.title }}"
+                                    title="Star document"
+                                >
+                                    ☆
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr class="shared-empty-row">
+                        <td colspan="5" class="shared-empty">
+                            No documents have been shared with you yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/document-actions.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const nameInput = document.getElementById("sharedDocumentSearch");
+
+    if (!nameInput) return;
+
+    const ownerInput = document.getElementById("sharedOwnerSearch");
+    const categoryInput = document.getElementById("sharedCategorySearch");
+    const fromInput = document.getElementById("sharedDateFrom");
+    const toInput = document.getElementById("sharedDateTo");
+    const noMatches = document.getElementById("sharedNoMatches");
+
+    const rows = [
+        ...document.querySelectorAll(".shared-document-row")
+    ];
+
+    function filterSharedDocuments() {
+        const name = nameInput.value.toLowerCase().trim();
+        const owner = ownerInput.value.toLowerCase().trim();
+        const category = categoryInput.value.toLowerCase().trim();
+
+        const from = fromInput.value;
+        const to = toInput.value;
+
+        let visible = 0;
+
+        rows.forEach(row => {
+            const documentName =
+                row.cells[0].textContent.toLowerCase();
+
+            const date = row.dataset.date || "";
+
+            const matches =
+                documentName.includes(name) &&
+                (row.dataset.owner || "").includes(owner) &&
+                (row.dataset.category || "").includes(category) &&
+                (!from || date >= from) &&
+                (!to || date <= to);
+
+            row.hidden = !matches;
+
+            if (matches) visible++;
+        });
+
+        if (noMatches) {
+            noMatches.hidden = visible > 0 || rows.length === 0;
+        }
+    }
+
+    [nameInput, ownerInput, categoryInput].forEach(input => {
+        input.addEventListener("input", filterSharedDocuments);
+    });
+
+    [fromInput, toInput].forEach(input => {
+        input.addEventListener("change", filterSharedDocuments);
+    });
+});
+</script>
+{% endblock %}

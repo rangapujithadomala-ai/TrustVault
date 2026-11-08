@@ -1,217 +1,541 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrustVault | Viewer Dashboard</title>
-    <link rel="stylesheet" href="dashboard.css">
-</head>
+{% extends "base.html" %}
 
-<body class="dashboard-page">
+{% block title %}Viewer Dashboard | TrustVault{% endblock %}
 
-    <div class="dashboard-container">
+{% block page_heading %}Viewer Dashboard{% endblock %}
 
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="brand">
-                <h2>TrustVault</h2>
-                <p>Secure Document Sharing</p>
+{% block extra_css %}
+<style>
+.viewer-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Welcome banner */
+.viewer-welcome {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(28px, 4vw, 42px);
+    border-radius: 20px;
+    color: #fff;
+    background:
+        radial-gradient(circle at 88% 15%, rgba(111, 163, 220, .25), transparent 34%),
+        linear-gradient(145deg, #142943, #1c3b61 55%, #294f7d);
+    box-shadow: 0 12px 28px rgba(16, 35, 59, .14);
+}
+
+.viewer-welcome::after {
+    content: "";
+    position: absolute;
+    width: 190px;
+    height: 190px;
+    right: -55px;
+    bottom: -105px;
+    border: 1px solid rgba(255,255,255,.13);
+    border-radius: 50%;
+    box-shadow: 0 0 0 24px rgba(255,255,255,.035),
+                0 0 0 48px rgba(255,255,255,.025);
+    pointer-events: none;
+}
+
+.viewer-welcome h2 {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 10px;
+    color: #ffffff;
+    font-size: clamp(23px, 3vw, 31px);
+    font-weight: 750;
+    letter-spacing: -.5px;
+}
+
+.viewer-welcome p {
+    position: relative;
+    z-index: 1;
+    max-width: 650px;
+    margin: 0;
+    color: rgba(255,255,255,.84);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* Statistics */
+.viewer-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.viewer-stat {
+    min-width: 0;
+    padding: 23px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: 0 4px 14px rgba(25, 45, 75, .045);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.viewer-stat:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 22px rgba(25, 45, 75, .09);
+}
+
+.viewer-stat-label {
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.viewer-stat-value {
+    display: block;
+    margin-top: 13px;
+    color: var(--text);
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.viewer-stat-description {
+    display: block;
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* Sections */
+.viewer-section {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: 0 4px 15px rgba(25, 45, 75, .04);
+}
+
+.viewer-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 21px 23px;
+    border-bottom: 1px solid var(--border);
+}
+
+.viewer-section-header h2 {
+    margin: 0;
+    color: var(--text);
+    font-size: 17px;
+    font-weight: 750;
+}
+
+.viewer-section-header p {
+    margin: 6px 0 0;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* Table */
+.viewer-table-wrap {
+    overflow-x: auto;
+}
+
+.viewer-table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+}
+
+.viewer-table th,
+.viewer-table td {
+    padding: 16px 19px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    color: var(--text);
+    font-size: 13px;
+}
+
+.viewer-table th {
+    background: var(--surface-secondary, var(--surface));
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .45px;
+    text-transform: uppercase;
+}
+
+.viewer-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.viewer-table tbody tr {
+    transition: background .18s ease;
+}
+
+.viewer-table tbody tr:hover {
+    background: var(--surface-hover, transparent);
+}
+
+.viewer-document-name {
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+/* Permission labels */
+.viewer-permission {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 11px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--surface-secondary, var(--surface));
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.viewer-permission.edit {
+    border-color: rgba(49, 87, 200, .2);
+    color: var(--primary);
+    background: var(--primary-light, var(--surface-secondary, var(--surface)));
+}
+
+/* Actions */
+.viewer-action-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 9px;
+}
+
+.viewer-download-link {
+    color: var(--primary);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.viewer-download-link:hover {
+    text-decoration: underline;
+}
+
+.viewer-star-button {
+    display: inline-grid;
+    place-items: center;
+    width: 35px;
+    height: 35px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 19px;
+    cursor: pointer;
+    transition: border-color .2s ease, background .2s ease;
+}
+
+.viewer-star-button:hover {
+    border-color: var(--primary);
+    background: var(--surface-secondary, var(--surface));
+}
+
+.viewer-star-button:focus-visible,
+.viewer-version-input:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+}
+
+.viewer-version-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 11px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: border-color .2s ease, color .2s ease;
+}
+
+.viewer-version-label:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.viewer-version-input {
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+/* Empty state */
+.viewer-empty {
+    padding: 34px 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.viewer-empty strong {
+    color: var(--text);
+    font-size: 14px;
+}
+
+.viewer-empty p {
+    margin: 7px 0 0;
+    font-size: 12px;
+}
+
+/* Activity */
+.viewer-activity-list {
+    padding: 8px 23px;
+}
+
+.viewer-activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.viewer-activity-item:last-child {
+    border-bottom: 0;
+}
+
+.viewer-activity-item strong {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.viewer-activity-item p {
+    margin: 6px 0 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    text-transform: capitalize;
+}
+
+.viewer-activity-time {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+    .viewer-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .viewer-welcome {
+        padding: 23px;
+    }
+
+    .viewer-stat {
+        padding: 19px;
+    }
+
+    .viewer-section-header {
+        padding: 17px;
+    }
+
+    .viewer-activity-list {
+        padding: 8px 17px;
+    }
+
+    .viewer-activity-item {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="viewer-dashboard">
+
+    <!-- Welcome -->
+    <section class="viewer-welcome">
+        <h2>Welcome back, {{ current_user.name }}!</h2>
+        <p>
+            Access documents shared with you, review your permissions
+            and keep track of your document activity.
+        </p>
+    </section>
+
+    <!-- Statistics -->
+    <section class="viewer-stats" aria-label="Document access statistics">
+
+        <article class="viewer-stat">
+            <span class="viewer-stat-label">Shared Documents</span>
+            <strong class="viewer-stat-value">{{ total_documents }}</strong>
+            <span class="viewer-stat-description">Documents shared with you</span>
+        </article>
+
+        <article class="viewer-stat">
+            <span class="viewer-stat-label">Documents Viewed</span>
+            <strong class="viewer-stat-value">{{ viewed_count }}</strong>
+            <span class="viewer-stat-description">Recorded document views</span>
+        </article>
+
+        <article class="viewer-stat">
+            <span class="viewer-stat-label">Edit Access</span>
+            <strong class="viewer-stat-value">{{ edit_count }}</strong>
+            <span class="viewer-stat-description">Documents you can edit</span>
+        </article>
+
+    </section>
+
+    <!-- Recently shared documents -->
+    <section class="viewer-section">
+
+        <div class="viewer-section-header">
+            <div>
+                <h2>Recently Shared Documents</h2>
+                <p>Documents recently shared with your account.</p>
             </div>
 
-            <div class="user-role">
-                <span>VIEWER ACCOUNT</span>
-            </div>
-
-            <nav class="sidebar-nav">
-                <a href="dashboard.html" class="active">Overview</a>
-                <a href="shared-with-me.html">Shared with Me</a>
-                <a href="activity.html">Activity</a>
-                <a href="profile.html">My Profile</a>
-                <a href="settings.html">Settings</a>
-            </nav>
-
-            <a href="login.html" class="logout-link">Logout</a>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-
-            <header class="topbar">
-    <div>
-        <h1>Dashboard</h1>
-        <p>Welcome to your TrustVault workspace.</p>
-    </div>
-
-    <div class="topbar-user">
-        <span class="user-avatar">V</span>
-        <span>Viewer</span>
-
-        <div class="notification-wrapper">
-            <button type="button"
-                    class="notification-bell"
-                    id="notificationBell"
-                    aria-label="Open notifications"
-                    aria-expanded="false">
-                🔔
-            </button>
-
-            <span class="notification-count" id="notificationCount">0</span>
-
-            <div class="notification-dropdown" id="notificationDropdown">
-                <h3>Notifications</h3>
-                <div class="notification-empty">
-                    No notifications yet. Updates about documents shared with you will appear here.
-                </div>
-            </div>
+            <a href="/viewer/shared-with-me" class="btn btn-secondary btn-sm">
+                View All
+            </a>
         </div>
-    </div>
-</header>
 
-            <!-- Overview -->
-            <section class="dashboard-section">
-                <h2>Overview</h2>
-                <p class="section-description">
-                    Here is a summary of the documents shared with you.
-                </p>
+        <div class="viewer-table-wrap">
+            <table class="viewer-table">
+                <thead>
+                    <tr>
+                        <th>Document Name</th>
+                        <th>Shared By</th>
+                        <th>Permission</th>
+                        <th>Date Shared</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
 
-                <div class="stats-grid">
+                <tbody>
+                    {% for document in documents[:5] %}
+                    {% set permission = grants.get(document.id, 'read') %}
 
-                    <div class="stat-card">
-                        <div class="stat-icon">📄</div>
-                        <h3>Shared Documents</h3>
-                        <p class="stat-number">08</p>
-                        <span>Documents available to you</span>
-                    </div>
+                    <tr>
+                        <td class="viewer-document-name">
+                            {{ document.title }}
+                        </td>
 
-                    <div class="stat-card">
-                        <div class="stat-icon">👁️</div>
-                        <h3>Viewed Documents</h3>
-                        <p class="stat-number">05</p>
-                        <span>Documents you have accessed</span>
-                    </div>
+                        <td>
+                            {{ owners.get(document.owner_id, "Owner") }}
+                        </td>
 
-                    <div class="stat-card">
-                        <div class="stat-icon">✏️</div>
-                        <h3>Edit Access</h3>
-                        <p class="stat-number">02</p>
-                        <span>Documents with edit permission</span>
-                    </div>
+                        <td>
+                            <span class="viewer-permission {{ permission }}">
+                                {{ permission|capitalize }}
+                            </span>
+                        </td>
 
-                </div>
-            </section>
+                        <td>
+                            {{ grant_dates.get(document.id).strftime("%d %b %Y")
+                               if grant_dates.get(document.id) else "--" }}
+                        </td>
 
-            <!-- Recent Documents -->
-            <section class="dashboard-section">
-                <div class="section-heading">
-                    <div>
-                        <h2>Recently Shared Documents</h2>
-                        <p class="section-description">
-                            Documents recently shared with your account.
-                        </p>
-                    </div>
+                        <td>
+                            <div class="viewer-action-group">
+                                <a
+                                    href="/documents/{{ document.id }}/download"
+                                    class="viewer-download-link"
+                                >
+                                    Download
+                                </a>
 
-                    <a href="shared-with-me.html" class="view-all">
-                        View All
-                    </a>
-                </div>
+                                {% if permission == "edit" %}
+                                <label class="viewer-version-label">
+                                    Upload Revision
+                                    <input
+                                        type="file"
+                                        class="viewer-version-input"
+                                        data-version-document="{{ document.id }}"
+                                        accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.xlsx,.csv"
+                                        aria-label="Upload a new version of {{ document.title }}"
+                                    >
+                                </label>
+                                {% endif %}
 
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Document Name</th>
-                                <th>Shared By</th>
-                                <th>Permission</th>
-                                <th>Date Shared</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
+                                <button
+                                    type="button"
+                                    class="viewer-star-button"
+                                    data-star-document="{{ document.id }}"
+                                    aria-label="Star {{ document.title }}"
+                                    aria-pressed="false"
+                                >
+                                    ☆
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
 
-                        <tbody>
-                            <tr>
-                                <td>Project Report.pdf</td>
-                                <td>Owner Name</td>
-                                <td><span class="permission read">Read</span></td>
-                                <td>03 Nov 2026</td>
-                                <td><a href="shared-with-me.html">View</a></td>
-                            </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="viewer-empty">
+                                <strong>No documents have been shared with you yet.</strong>
+                                <p>Documents shared by owners will appear here.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-                            <tr>
-                                <td>Research Document.docx</td>
-                                <td>Owner Name</td>
-                                <td><span class="permission edit">Edit</span></td>
-                                <td>02 Nov 2026</td>
-                                <td><a href="shared-with-me.html">View</a></td>
-                            </tr>
+    <!-- Recent activity -->
+    <section class="viewer-section">
 
-                            <tr>
-                                <td>Presentation.pptx</td>
-                                <td>Owner Name</td>
-                                <td><span class="permission read">Read</span></td>
-                                <td>01 Nov 2026</td>
-                                <td><a href="shared-with-me.html">View</a></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+        <div class="viewer-section-header">
+            <div>
+                <h2>Recent Activity</h2>
+                <p>Your recent document access activity.</p>
+            </div>
 
-            <!-- Recent Activity -->
-            <section class="dashboard-section">
-                <div class="section-heading">
-                    <div>
-                        <h2>Recent Activity</h2>
-                        <p class="section-description">
-                            Your recent document access activity.
-                        </p>
-                    </div>
+            <a href="/viewer/activity" class="btn btn-secondary btn-sm">
+                View All Activity
+            </a>
+        </div>
 
-                    <a href="activity.html" class="view-all">
-                        View All
-                    </a>
-                </div>
+        <div class="viewer-activity-list">
+            {% for activity in recent_activity %}
+            <article class="viewer-activity-item">
+                <div>
+                    <strong>
+                        {{ doc_titles.get(activity.document_id, "Document") }}
+                    </strong>
 
-                <div class="activity-card">
-                    <p><strong>Project Report.pdf</strong> was viewed.</p>
-                    <span>Today</span>
-                </div>
-
-                <div class="activity-card">
-                    <p><strong>Research Document.docx</strong> was shared with you.</p>
-                    <span>Yesterday</span>
+                    <p>
+                        {{ activity.action.replace('_', ' ') }}
+                        ({{ activity.outcome }})
+                    </p>
                 </div>
 
-            </section>
+                <span class="viewer-activity-time">
+                    {{ activity.created_at.strftime("%d %b %Y, %I:%M %p")
+                       if activity.created_at else "--" }}
+                </span>
+            </article>
 
-        </main>
-    </div>
-    <script>
-document.addEventListener("DOMContentLoaded", function () {
+            {% else %}
+            <div class="viewer-empty">
+                <strong>No document activity recorded yet.</strong>
+                <p>Your document access activity will appear here.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
 
-    const bell = document.getElementById("notificationBell");
-    const dropdown = document.getElementById("notificationDropdown");
+</div>
+{% endblock %}
 
-    bell.addEventListener("click", function (event) {
-        event.stopPropagation();
-
-        const isOpen = dropdown.classList.toggle("show");
-
-        bell.setAttribute("aria-expanded", isOpen);
-    });
-
-    document.addEventListener("click", function (event) {
-        if (!dropdown.contains(event.target) &&
-            !bell.contains(event.target)) {
-
-            dropdown.classList.remove("show");
-            bell.setAttribute("aria-expanded", "false");
-        }
-    });
-
-});
-</script>
-<script src="settings.js"></script>
-<script src="/notifications.js"></script>
-</body>
-</html>
+{% block extra_js %}
+<script src="/document-actions.js" defer></script>
+{% endblock %}

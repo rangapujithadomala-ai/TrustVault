@@ -1,317 +1,490 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audit Logs | TrustVault</title>
+{% extends "base.html" %}
 
-    <link rel="stylesheet" href="/dashboard.css">
+{% block title %}Audit Logs | TrustVault{% endblock %}
+{% block page_heading %}Audit Logs{% endblock %}
 
-    <style>
-        .admin-content {
-            max-width: 1200px;
-        }
+{% block extra_css %}
+<style>
+.audit-page {
+    max-width: 1250px;
+    margin: 0 auto;
+}
 
-        /* Consistent Admin Sidebar */
+.audit-intro {
+    color: var(--text-secondary, #777);
+    margin: 8px 0 24px;
+    line-height: 1.6;
+}
 
-        body.dashboard-page .sidebar {
-            display: flex;
-            flex-direction: column;
-        }
+.audit-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
 
-        body.dashboard-page .sidebar .sidebar-brand {
-            position: relative;
-            flex: 0 0 auto;
-            display: block;
-            margin: 0 0 28px;
-            padding: 0;
-            transform: none;
-        }
+.audit-stat {
+    padding: 20px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 12px;
+    background: var(--card-bg, #fff);
+}
 
-        body.dashboard-page .sidebar .sidebar-brand h2 {
-            margin: 0;
-            padding: 0;
-            line-height: 1.3;
-        }
+.audit-stat h3 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: var(--text-secondary, #777);
+}
 
-        body.dashboard-page .sidebar .sidebar-brand span {
-            display: block;
-            position: static;
-            margin-top: 9px;
-            padding: 0;
-            line-height: 1.4;
-        }
+.audit-stat p {
+    margin: 0;
+    font-size: 27px;
+    font-weight: 700;
+}
 
-        body.dashboard-page .sidebar .sidebar-nav {
-            flex: 0 0 auto;
-            margin-top: 0;
-        }
+.audit-section {
+    padding: 22px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 12px;
+    background: var(--card-bg, #fff);
+}
 
-        /* Audit Logs page */
+.audit-section h2 {
+    margin: 0 0 8px;
+}
 
-        .page-heading {
-            margin-bottom: 24px;
-        }
+.audit-description {
+    color: var(--text-secondary, #777);
+    line-height: 1.6;
+    margin-bottom: 18px;
+}
 
-        .page-heading p {
-            color: #6b7280;
-            margin-top: 7px;
-        }
+.audit-security-note {
+    padding: 14px 16px;
+    margin: 20px 0;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 9px;
+    font-size: 13px;
+    line-height: 1.7;
+}
 
-        .content-section {
-            margin-top: 24px;
-        }
+.audit-verify-area {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 18px 0;
+}
 
-        .table-container td.empty-state {
-            text-align: center;
-            padding: 25px 15px;
-            color: #6b7280;
-        }
+.audit-verify-button {
+    padding: 11px 17px;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    background: var(--primary-color, #334155);
+    color: white;
+}
 
-        .security-note {
-            margin-top: 20px;
-            padding: 16px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            background: #f9fafb;
-            color: #4b5563;
-            font-size: 13px;
-            line-height: 1.6;
-        }
+.audit-verify-button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
 
-        /* Dark mode */
+.audit-integrity-message {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+}
 
-        body.dark-mode .page-heading p,
-        body.dark-mode .content-section > p {
-            color: #d1d5db;
-        }
+.audit-integrity-message.success {
+    color: #16834a;
+}
 
-        body.dark-mode .table-container td.empty-state {
-            color: #aab4c3;
-        }
+.audit-integrity-message.failure {
+    color: #dc4444;
+}
 
-        body.dark-mode .security-note {
-            background: #1f2937;
-            border-color: #374151;
-            color: #d1d5db;
-        }
+.audit-integrity-message.neutral {
+    color: var(--text-secondary, #777);
+}
 
-        @media (max-width: 650px) {
-            .content-section {
-                overflow-x: auto;
-            }
-        }
-    </style>
-</head>
+.audit-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+}
 
-<body class="dashboard-page">
+.audit-filters input,
+.audit-filters select {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 12px;
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 8px;
+    background: var(--input-bg, transparent);
+    color: var(--text-primary, inherit);
+}
 
-    <div class="dashboard-container">
+.audit-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
 
-        <aside class="sidebar">
+.audit-table {
+    width: 100%;
+    min-width: 850px;
+    border-collapse: collapse;
+}
 
-            <div class="sidebar-brand">
-                <h2>TrustVault</h2>
-                <span>Administrator</span>
-            </div>
+.audit-table th,
+.audit-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    text-align: left;
+    vertical-align: top;
+    font-size: 13px;
+}
 
-            <nav class="sidebar-nav">
-                <a href="/admin/dashboard">Overview</a>
-                <a href="/admin/users">User Management</a>
-                <a href="/admin/documents">Document Overview</a>
-                <a href="/admin/audit-logs" class="active">Audit Logs</a>
-                <a href="/admin/security-alerts">Security Alerts</a>
-                <a href="/admin/notifications">Notifications</a>
-                <a href="/admin/settings">Settings</a>
-                <a href="/login.html">Logout</a>
-            </nav>
+.audit-table th {
+    color: var(--text-secondary, #777);
+    font-weight: 600;
+}
 
-        </aside>
+.audit-table code {
+    display: block;
+    max-width: 300px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 11px;
+}
 
-        <main class="main-content">
+.audit-result {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    background: var(--surface-secondary, #f1f1f1);
+    font-size: 11px;
+    font-weight: 600;
+}
 
-            <div class="admin-content">
+.audit-empty {
+    text-align: center !important;
+    padding: 28px !important;
+    color: var(--text-secondary, #777);
+}
 
-                <div class="page-heading">
-                    <h1>Audit Logs</h1>
-                    <p>Review document-related activities and access events across TrustVault.</p>
-                </div>
+.audit-count {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--text-secondary, #777);
+}
 
-                {% set successful_count = namespace(value=0) %}
-                {% set denied_count = namespace(value=0) %}
+@media (max-width: 650px) {
+    .audit-section {
+        padding: 15px;
+    }
+}
+</style>
+{% endblock %}
 
-                {% for record in audit_logs %}
-                    {% set result = (record.outcome or '') | lower %}
-                    {% if 'success' in result %}
-                        {% set successful_count.value = successful_count.value + 1 %}
-                    {% elif 'denied' in result %}
-                        {% set denied_count.value = denied_count.value + 1 %}
-                    {% endif %}
-                {% endfor %}
+{% block content %}
+<div class="audit-page">
 
-                <div class="stats-container">
+    <p class="audit-intro">
+        Review recorded actions, document access events and security-related
+        activity across TrustVault.
+    </p>
 
-                    <div class="stat-card">
-                        <h3>Total Events</h3>
-                        <p>{{ audit_logs|length }}</p>
-                    </div>
+    {% set successful_count = namespace(value=0) %}
+    {% set denied_count = namespace(value=0) %}
 
-                    <div class="stat-card">
-                        <h3>Successful Actions</h3>
-                        <p>{{ successful_count.value }}</p>
-                    </div>
+    {% for record in audit_logs %}
+        {% set result = (record.outcome or '') | lower %}
+        {% if 'success' in result %}
+            {% set successful_count.value = successful_count.value + 1 %}
+        {% elif 'denied' in result %}
+            {% set denied_count.value = denied_count.value + 1 %}
+        {% endif %}
+    {% endfor %}
 
-                    <div class="stat-card">
-                        <h3>Denied Attempts</h3>
-                        <p>{{ denied_count.value }}</p>
-                    </div>
+    <div class="audit-stats">
 
-                </div>
+        <div class="audit-stat">
+            <h3>Total Events</h3>
+            <p>{{ audit_logs|length }}</p>
+        </div>
 
-                <section class="content-section">
+        <div class="audit-stat">
+            <h3>Successful Actions</h3>
+            <p>{{ successful_count.value }}</p>
+        </div>
 
-                    <h2>Activity History</h2>
-
-                    <p>
-                        Audit records help track who accessed which document,
-                        what action was performed, and when it happened.
-                    </p>
-
-                    <div class="filter-container">
-
-                        <input
-                            type="search"
-                            id="auditSearch"
-                            placeholder="Search user or document..."
-                        >
-
-                        <select id="actionFilter">
-                            <option value="">All Actions</option>
-                            <option value="view">View</option>
-                            <option value="download">Download</option>
-                            <option value="edit">Edit</option>
-                            <option value="share">Share</option>
-                            <option value="revoke">Revoke</option>
-                        </select>
-
-                        <select id="resultFilter">
-                            <option value="">All Results</option>
-                            <option value="success">Success</option>
-                            <option value="denied">Denied</option>
-                        </select>
-
-                    </div>
-
-                    <div class="table-container">
-
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>User</th>
-                                    <th>Document</th>
-                                    <th>Action</th>
-                                    <th>Date &amp; Time</th>
-                                    <th>Result</th>
-                                </tr>
-                            </thead>
-
-                            <tbody id="auditTableBody">
-
-                                {% for record in audit_logs %}
-                                <tr class="audit-row">
-
-                                    <td>
-                                        {{ record.actor_id or "System" }}
-                                    </td>
-
-                                    <td>
-                                        {{ record.document_id or "—" }}
-                                    </td>
-
-                                    <td>
-                                        {{ record.action or "Activity recorded" }}
-                                    </td>
-
-                                    <td>
-                                        {% if record.created_at %}
-                                            {{ record.created_at.strftime("%d %b %Y, %I:%M %p") }}
-                                        {% else %}
-                                            —
-                                        {% endif %}
-                                    </td>
-
-                                    <td>
-                                        {{ record.outcome or "Recorded" }}
-                                    </td>
-
-                                </tr>
-
-                                {% else %}
-                                <tr>
-                                    <td colspan="5" class="empty-state">
-                                        No audit records available yet.
-                                        Records will appear when actual
-                                        platform events are logged.
-                                    </td>
-                                </tr>
-                                {% endfor %}
-
-                            </tbody>
-                        </table>
-
-                    </div>
-
-                </section>
-
-                <p class="security-note">
-                    Audit records must be generated by backend events.
-                    They should be stored with timestamps and user details
-                    and protected against unauthorised modification.
-                </p>
-
-            </div>
-
-        </main>
+        <div class="audit-stat">
+            <h3>Denied Attempts</h3>
+            <p>{{ denied_count.value }}</p>
+        </div>
 
     </div>
 
-    <script src="/settings.js"></script>
+    <section class="audit-section">
 
-    <script>
-        const auditSearch = document.getElementById("auditSearch");
-        const actionFilter = document.getElementById("actionFilter");
-        const resultFilter = document.getElementById("resultFilter");
+        <h2>Activity History</h2>
 
-        const auditRows = document.querySelectorAll(".audit-row");
+        <p class="audit-description">
+            Each recorded event helps establish who performed an action,
+            which document was involved, when it occurred and its outcome.
+        </p>
 
-        function filterAuditLogs() {
-            const searchValue = auditSearch.value.toLowerCase().trim();
-            const selectedAction = actionFilter.value.toLowerCase();
-            const selectedResult = resultFilter.value.toLowerCase();
+        <div class="audit-verify-area">
+            <button
+                type="button"
+                id="verifyAuditButton"
+                class="audit-verify-button"
+            >
+                Verify Audit Chain
+            </button>
 
-            auditRows.forEach(row => {
-                const rowText = row.textContent.toLowerCase();
-                const action = row.cells[2].textContent.toLowerCase();
-                const result = row.cells[4].textContent.toLowerCase();
+            <p
+                id="auditIntegrityMessage"
+                class="audit-integrity-message neutral"
+                role="status"
+                aria-live="polite"
+            >
+                Verify the audit chain to check its integrity.
+            </p>
+        </div>
 
-                const matchesSearch = rowText.includes(searchValue);
-                const matchesAction =
-                    selectedAction === "" || action.includes(selectedAction);
-                const matchesResult =
-                    selectedResult === "" || result.includes(selectedResult);
+        <div class="audit-security-note">
+            <strong>Audit integrity:</strong>
+            Audit records should be generated by trusted backend events.
+            Their integrity must be verified by the server, and unauthorized
+            users must not be able to modify or delete historical records.
+        </div>
 
-                row.style.display =
-                    matchesSearch && matchesAction && matchesResult
-                        ? ""
-                        : "none";
+        <div class="audit-filters">
+
+            <input
+                type="search"
+                id="auditSearch"
+                placeholder="Search user or document..."
+                aria-label="Search audit records"
+            >
+
+            <select id="actionFilter" aria-label="Filter by action">
+                <option value="">All Actions</option>
+                <option value="view">View</option>
+                <option value="read">Read</option>
+                <option value="download">Download</option>
+                <option value="edit">Edit</option>
+                <option value="share">Share</option>
+                <option value="revoke">Revoke</option>
+            </select>
+
+            <select id="resultFilter" aria-label="Filter by result">
+                <option value="">All Results</option>
+                <option value="success">Success</option>
+                <option value="denied">Denied</option>
+            </select>
+
+        </div>
+
+        <div class="audit-table-wrap">
+
+            <table class="audit-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Document</th>
+                        <th>Action</th>
+                        <th>Date &amp; Time</th>
+                        <th>Result</th>
+                        <th>Event Details</th>
+                    </tr>
+                </thead>
+
+                <tbody id="auditTableBody">
+
+                    {% for record in audit_logs %}
+                    <tr class="audit-row">
+
+                        <td>
+                            {{ actor_names.get(record.actor_id) or ("Unauthenticated attempt for " ~ actor_names.get(record.target_user_id) if record.target_user_id else "Anonymous/System") }}
+                        </td>
+
+                        <td>
+                            {{ doc_titles.get(record.document_id, "—") }}
+                        </td>
+
+                        <td>
+                            {{ record.action or "Activity recorded" }}
+                        </td>
+
+                        <td>
+                            {% if record.created_at %}
+                                {{ record.created_at.strftime("%d %b %Y, %I:%M %p") }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <span class="audit-result">
+                                {{ record.outcome or "Recorded" }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <code>{{ record.details|tojson }}</code>
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="audit-empty">
+                            No audit records available yet.
+                            Records will appear when actual platform events
+                            are logged.
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+        </div>
+
+        <p class="audit-count" id="auditCount"></p>
+
+    </section>
+
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+(function () {
+    const verifyButton = document.getElementById("verifyAuditButton");
+    const integrityMessage = document.getElementById("auditIntegrityMessage");
+
+    const auditSearch = document.getElementById("auditSearch");
+    const actionFilter = document.getElementById("actionFilter");
+    const resultFilter = document.getElementById("resultFilter");
+    const auditCount = document.getElementById("auditCount");
+
+    const auditRows = Array.from(
+        document.querySelectorAll(".audit-row")
+    );
+
+    function showIntegrityMessage(message, status) {
+        integrityMessage.textContent = message;
+        integrityMessage.className =
+            "audit-integrity-message " + status;
+    }
+
+    verifyButton.addEventListener("click", async function () {
+        verifyButton.disabled = true;
+        verifyButton.textContent = "Verifying...";
+
+        showIntegrityMessage(
+            "Checking audit chain integrity...",
+            "neutral"
+        );
+
+        try {
+            const response = await fetch("/admin/audit-integrity", {
+                method: "GET",
+                credentials: "same-origin",
+                headers: {
+                    "Accept": "application/json"
+                }
             });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    result.message || "Audit integrity verification failed."
+                );
+            }
+
+            if (result.valid === true) {
+                showIntegrityMessage(
+                    result.message || "Audit chain integrity verified.",
+                    "success"
+                );
+            } else {
+                let message =
+                    result.message || "Audit chain integrity verification failed.";
+
+                if (result.failed_event_id) {
+                    message += " First failed event: " +
+                        result.failed_event_id;
+                }
+
+                showIntegrityMessage(message, "failure");
+            }
+
+        } catch (error) {
+            showIntegrityMessage(
+                error.message || "Unable to verify the audit chain.",
+                "failure"
+            );
+        } finally {
+            verifyButton.disabled = false;
+            verifyButton.textContent = "Verify Audit Chain";
         }
+    });
 
-        auditSearch.addEventListener("input", filterAuditLogs);
-        actionFilter.addEventListener("change", filterAuditLogs);
-        resultFilter.addEventListener("change", filterAuditLogs);
-    </script>
+    function filterAuditLogs() {
+        const searchValue =
+            auditSearch.value.toLowerCase().trim();
 
-</body>
-</html>
+        const selectedAction =
+            actionFilter.value.toLowerCase();
+
+        const selectedResult =
+            resultFilter.value.toLowerCase();
+
+        let visibleCount = 0;
+
+        auditRows.forEach(function (row) {
+            const rowText = row.textContent.toLowerCase();
+            const action = row.cells[2].textContent.toLowerCase();
+            const result = row.cells[4].textContent.toLowerCase();
+
+            const matchesSearch =
+                rowText.includes(searchValue);
+
+            const matchesAction =
+                !selectedAction || action.includes(selectedAction);
+
+            const matchesResult =
+                !selectedResult || result.includes(selectedResult);
+
+            const visible =
+                matchesSearch && matchesAction && matchesResult;
+
+            row.style.display = visible ? "" : "none";
+
+            if (visible) {
+                visibleCount++;
+            }
+        });
+
+        auditCount.textContent =
+            "Showing " + visibleCount +
+            " of " + auditRows.length + " audit events.";
+    }
+
+    auditSearch.addEventListener("input", filterAuditLogs);
+    actionFilter.addEventListener("change", filterAuditLogs);
+    resultFilter.addEventListener("change", filterAuditLogs);
+
+    filterAuditLogs();
+})();
+</script>
+{% endblock %}

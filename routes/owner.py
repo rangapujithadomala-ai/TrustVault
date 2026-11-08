@@ -3,10 +3,11 @@ import re
 
 from flask import Blueprint, render_template, abort, request, jsonify
 from flask_login import login_required, current_user
-from flask_wtf.csrf import generate_csrf
+from security.audit import append_audit
 
 from extensions import db
-from models import Document, Permission, AuditLog, Notification, User
+from models import Document, Permission, AuditLog, Notification, User, StarredDocument
+from security.authorization import can_access_document
 
 
 owner_bp = Blueprint("owner", __name__, url_prefix="/owner")
@@ -37,6 +38,7 @@ def dashboard():
         .join(Document, Permission.document_id == Document.id)
         .filter(
             Document.owner_id == current_user.id,
+            Document.deleted_at.is_(None),
             Permission.revoked_at.is_(None)
         )
         .all()
@@ -52,13 +54,15 @@ def dashboard():
         if permission.permission_type == "edit"
     )
 
+    owned_ids = [document.id for document in documents]
+
     recent_activities = (
         AuditLog.query
-        .filter_by(actor_id=current_user.id)
+        .filter(AuditLog.document_id.in_(owned_ids))
         .order_by(AuditLog.created_at.desc())
         .limit(5)
         .all()
-    )
+    ) if owned_ids else []
 
     return render_template(
         "owner-dashboard.html",
@@ -67,27 +71,89 @@ def dashboard():
         total_shared=total_shared,
         shared_permissions=shared_permissions,
         edit_access_count=edit_access_count,
-        recent_activities=recent_activities
+        recent_activities=recent_activities,
+        actor_names={u.id: u.name for u in User.query.all()},
+        doc_titles={d.id: d.title for d in documents}
     )
 
 
 # --------------------------------------------------
-# 2. OWNER ACTIVITY
+# 2. OWNER DOCUMENTS AND ACTIVITY
 # --------------------------------------------------
+
+@owner_bp.route("/my-documents")
+def my_documents():
+    documents = (
+        Document.query
+        .filter_by(owner_id=current_user.id, deleted_at=None)
+        .order_by(Document.created_at.desc())
+        .all()
+    )
+
+    grants = (
+        Permission.query
+        .filter(
+            Permission.document_id.in_([d.id for d in documents]),
+            Permission.revoked_at.is_(None)
+        )
+        .all()
+    ) if documents else []
+
+    shared_counts = {}
+
+    for grant in grants:
+        shared_counts[grant.document_id] = (
+            shared_counts.get(grant.document_id, 0) + 1
+        )
+
+    return render_template(
+        "my-documents.html",
+        documents=documents,
+        shared_counts=shared_counts
+    )
+
+
+@owner_bp.route("/upload-document")
+def upload_page():
+    return render_template("upload-document.html")
+
 
 @owner_bp.route("/activity")
 def activity():
+    owned_ids = [
+        row.id
+        for row in Document.query.filter_by(
+            owner_id=current_user.id
+        ).all()
+    ]
+
     activities = (
-        AuditLog.query
-        .filter_by(actor_id=current_user.id)
+        AuditLog.query.filter(
+            (AuditLog.actor_id == current_user.id)
+            | AuditLog.document_id.in_(owned_ids)
+        )
         .order_by(AuditLog.created_at.desc())
         .all()
+        if owned_ids
+        else AuditLog.query.filter_by(
+            actor_id=current_user.id
+        ).order_by(AuditLog.created_at.desc()).all()
     )
+
+    actor_names = {
+        u.id: u.name for u in User.query.all()
+    }
+
+    doc_titles = {
+        d.id: d.title for d in Document.query.all()
+    }
 
     return render_template(
         "owner-activity.html",
         activities=activities,
-        audit_logs=activities
+        audit_logs=activities,
+        actor_names=actor_names,
+        doc_titles=doc_titles
     )
 
 
@@ -129,7 +195,19 @@ def shared_documents():
         shared_items=shared_items
     )
 
+@owner_bp.route("/invite")
+def invite_page():
+    documents = (
+        Document.query
+        .filter_by(owner_id=current_user.id, deleted_at=None)
+        .order_by(Document.created_at.desc())
+        .all()
+    )
 
+    return render_template(
+        "owner-invite.html",
+        documents=documents
+    )
 # --------------------------------------------------
 # 4. OWNER PROFILE
 # --------------------------------------------------
@@ -138,8 +216,7 @@ def shared_documents():
 def profile():
     return render_template(
         "owner-profile.html",
-        user=current_user,
-        csrf_token=generate_csrf()
+        user=current_user
     )
 
 
@@ -182,3 +259,131 @@ def update_profile():
 @owner_bp.route("/settings")
 def settings():
     return render_template("owner-settings.html")
+
+
+# --------------------------------------------------
+# 6. STARRED DOCUMENTS
+# --------------------------------------------------
+
+@owner_bp.route("/starred")
+def starred():
+    ids = [
+        row.document_id
+        for row in StarredDocument.query.filter_by(
+            user_id=current_user.id
+        ).all()
+    ]
+
+    documents = (
+        Document.query
+        .filter(
+            Document.id.in_(ids),
+            Document.deleted_at.is_(None)
+        )
+        .all()
+        if ids else []
+    )
+
+    documents = [
+        doc for doc in documents
+        if can_access_document(doc, "read")
+    ]
+
+    owners = {
+        u.id: u.name
+        for u in User.query.filter(User.role == "owner").all()
+    }
+
+    active_grants = Permission.query.filter_by(
+        user_id=current_user.id,
+        revoked_at=None
+    ).all()
+
+    grants = {
+        p.document_id: p.permission_type
+        for p in active_grants
+    }
+
+    grant_dates = {
+        p.document_id: p.granted_at
+        for p in active_grants
+    }
+
+    return render_template(
+        "owner-starred.html",
+        documents=documents,
+        owners=owners,
+        grants=grants,
+        grant_dates=grant_dates
+    )
+
+
+# --------------------------------------------------
+# 7. ARCHIVED DOCUMENTS
+# --------------------------------------------------
+
+@owner_bp.route("/archived")
+def archived_documents():
+    documents = (
+        Document.query
+        .filter_by(owner_id=current_user.id)
+        .filter(Document.deleted_at.isnot(None))
+        .order_by(Document.updated_at.desc())
+        .all()
+    )
+
+    return render_template(
+        "owner-archived.html",
+        documents=documents,
+        shared_counts={}
+    )
+
+
+# --------------------------------------------------
+# 8. RECEIVED DOCUMENTS
+# --------------------------------------------------
+
+@owner_bp.route("/received-documents")
+def received_documents():
+    documents = (
+        Document.query
+        .join(Permission, Permission.document_id == Document.id)
+        .join(User, User.id == Document.owner_id)
+        .filter(
+            Document.owner_id != current_user.id,
+            Document.deleted_at.is_(None),
+            User.is_active.is_(True),
+            Permission.user_id == current_user.id,
+            Permission.revoked_at.is_(None)
+        )
+        .order_by(Permission.granted_at.desc())
+        .all()
+    )
+
+    owners = {
+        u.id: u.name
+        for u in User.query.filter(User.role == "owner").all()
+    }
+
+    active_grants = Permission.query.filter_by(
+        user_id=current_user.id,
+        revoked_at=None
+    ).all()
+
+    grants = {
+        p.document_id: p.permission_type
+        for p in active_grants
+    }
+
+    grant_dates = {
+        p.document_id: p.granted_at
+        for p in active_grants
+    }
+
+    return render_template(
+        "owner-received-documents.html",
+        documents=documents,
+        owners=owners,
+        grants=grants,
+        grant_dates=grant_dates
+    )

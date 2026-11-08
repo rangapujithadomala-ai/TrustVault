@@ -1,5 +1,5 @@
-document.addEventListener("DOMContentLoaded", () => {
 
+document.addEventListener("DOMContentLoaded", () => {
     const bell = document.getElementById("notificationBell");
     const dropdown = document.getElementById("notificationDropdown");
     const count = document.getElementById("notificationCount");
@@ -10,20 +10,55 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    const csrfToken = document.querySelector(
-        'meta[name="csrf-token"]'
-    )?.content || "";
+    const csrfToken =
+        document.querySelector('meta[name="csrf-token"]')?.content || "";
 
     let notifications = [];
     let currentFilter = "all";
+    let isLoading = false;
+
+    async function request(url, method = "POST") {
+        const options = {
+            method,
+            credentials: "same-origin",
+            headers: {
+                "X-CSRFToken": csrfToken
+            }
+        };
+
+        return fetch(url, options);
+    }
+
+    function updateUnreadCount(serverCount = null) {
+        const unreadCount =
+            Number.isFinite(Number(serverCount))
+                ? Math.max(0, Number(serverCount))
+                : notifications.filter(item => !item.read).length;
+
+        count.textContent = String(unreadCount);
+        count.hidden = unreadCount === 0;
+
+        bell.setAttribute(
+            "aria-label",
+            unreadCount > 0
+                ? `Notifications, ${unreadCount} unread`
+                : "Notifications"
+        );
+    }
 
     async function loadNotifications() {
+        if (isLoading) {
+            return;
+        }
+
+        isLoading = true;
 
         try {
-
             const response = await fetch("/notifications/", {
-                method: "GET",
-                credentials: "same-origin"
+                credentials: "same-origin",
+                headers: {
+                    "Accept": "application/json"
+                }
             });
 
             if (!response.ok) {
@@ -32,178 +67,282 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await response.json();
 
-            notifications = data.notifications || [];
+            notifications = Array.isArray(data.notifications)
+                ? data.notifications
+                : [];
 
-            updateCount(data.unread_count || 0);
+            updateUnreadCount(data.unread_count);
             renderNotifications();
-
         } catch (error) {
-
+            console.error("Notification loading error:", error);
             list.textContent = "Unable to load notifications.";
-
+        } finally {
+            isLoading = false;
         }
     }
 
-    function updateCount(unreadCount) {
-
-        count.textContent = unreadCount;
-        count.hidden = unreadCount === 0;
-
-    }
-
     function renderNotifications() {
-
         list.replaceChildren();
 
-        const filtered = notifications.filter(item => {
-
+        const filteredNotifications = notifications.filter(item => {
             if (currentFilter === "unread") {
                 return !item.read;
             }
 
             if (currentFilter === "read") {
-                return item.read;
+                return Boolean(item.read);
             }
 
             return true;
-
         });
 
-        if (filtered.length === 0) {
-
-            const empty = document.createElement("p");
-
-            empty.className = "notification-empty";
-            empty.textContent = "No notifications found.";
-
-            list.appendChild(empty);
-
+        if (filteredNotifications.length === 0) {
+            const emptyMessage = document.createElement("p");
+            emptyMessage.className = "notification-empty";
+            emptyMessage.textContent = "No notifications found.";
+            list.appendChild(emptyMessage);
             return;
         }
 
-        filtered.forEach(item => {
+        filteredNotifications.forEach(item => {
+            const row = document.createElement("div");
+            row.className = "notification-row";
 
-            const notification = document.createElement("button");
-
-            notification.type = "button";
-
-            notification.className =
-                "notification-item" +
-                (item.read ? " is-read" : " is-unread");
+            const notificationButton = document.createElement("button");
+            notificationButton.type = "button";
+            notificationButton.className =
+                "notification-item " +
+                (item.read ? "is-read" : "is-unread");
 
             const message = document.createElement("span");
-
             message.className = "notification-message";
-            message.textContent = item.message;
+            message.textContent = item.message || "Notification";
 
             const date = document.createElement("small");
-
             date.className = "notification-date";
 
-            date.textContent = item.created_at
-                ? new Date(item.created_at).toLocaleString()
-                : "";
+            if (item.created_at) {
+                const parsedDate = new Date(item.created_at);
 
-            notification.appendChild(message);
-            notification.appendChild(date);
+                date.textContent = Number.isNaN(parsedDate.getTime())
+                    ? ""
+                    : parsedDate.toLocaleString();
+            } else {
+                date.textContent = "";
+            }
 
-            notification.addEventListener("click", async () => {
+            notificationButton.append(message, date);
 
-                if (!item.read) {
-
-                    await fetch(
-                        `/notifications/${encodeURIComponent(item.id)}/read`,
-                        {
-                            method: "POST",
-                            credentials: "same-origin",
-                            headers: {
-                                "X-CSRFToken": csrfToken
-                            }
-                        }
-                    );
-
-                    await loadNotifications();
-
+            notificationButton.addEventListener("click", async () => {
+                if (item.read || notificationButton.disabled) {
+                    return;
                 }
 
+                notificationButton.disabled = true;
+
+                try {
+                    const response = await request(
+                        `/notifications/${encodeURIComponent(item.id)}/read`
+                    );
+
+                    if (!response.ok) {
+                        throw new Error("Unable to mark notification as read.");
+                    }
+
+                    await loadNotifications();
+                } catch (error) {
+                    console.error(error);
+                    notificationButton.disabled = false;
+                }
             });
 
-            list.appendChild(notification);
+            const deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.className = "notification-delete";
+            deleteButton.textContent = "Delete";
+            deleteButton.setAttribute(
+                "aria-label",
+                "Delete notification"
+            );
 
+            deleteButton.addEventListener("click", async () => {
+                if (deleteButton.disabled) {
+                    return;
+                }
+
+                deleteButton.disabled = true;
+
+                try {
+                    const response = await request(
+                        `/notifications/${encodeURIComponent(item.id)}`,
+                        "DELETE"
+                    );
+
+                    if (!response.ok) {
+                        throw new Error("Unable to delete notification.");
+                    }
+
+                    await loadNotifications();
+                } catch (error) {
+                    console.error(error);
+                    deleteButton.disabled = false;
+                }
+            });
+
+            row.append(notificationButton, deleteButton);
+            list.appendChild(row);
         });
-
     }
 
+    function closeDropdown() {
+        dropdown.hidden = true;
+        dropdown.classList.remove("show");
+        bell.setAttribute("aria-expanded", "false");
+    }
+
+    bell.setAttribute("aria-expanded", "false");
+
     bell.addEventListener("click", () => {
+        const shouldOpen = dropdown.hidden;
 
-        dropdown.hidden = !dropdown.hidden;
+        dropdown.hidden = !shouldOpen;
+        dropdown.classList.toggle("show", shouldOpen);
+        bell.setAttribute("aria-expanded", String(shouldOpen));
 
-        if (!dropdown.hidden) {
+        if (shouldOpen) {
             loadNotifications();
         }
-
     });
 
-    document.querySelectorAll(".notification-filter")
-        .forEach(button => {
+    document.querySelectorAll(".notification-filter").forEach(button => {
+        button.addEventListener("click", () => {
+            const selectedFilter = button.dataset.filter;
 
-            button.addEventListener("click", () => {
+            if (!["all", "unread", "read"].includes(selectedFilter)) {
+                return;
+            }
 
-                currentFilter = button.dataset.filter;
+            currentFilter = selectedFilter;
 
-                document.querySelectorAll(".notification-filter")
-                    .forEach(item => {
-                        item.classList.remove("active");
-                    });
+            document.querySelectorAll(".notification-filter").forEach(
+                filterButton => {
+                    const isActive = filterButton === button;
 
-                button.classList.add("active");
+                    filterButton.classList.toggle("active", isActive);
+                    filterButton.setAttribute(
+                        "aria-pressed",
+                        String(isActive)
+                    );
+                }
+            );
 
-                renderNotifications();
-
-            });
-
+            renderNotifications();
         });
+    });
 
-    if (markAllButton) {
+    markAllButton?.addEventListener("click", async () => {
+        if (markAllButton.disabled) {
+            return;
+        }
 
-        markAllButton.addEventListener("click", async () => {
+        markAllButton.disabled = true;
+
+        try {
+            const response = await request("/notifications/read-all");
+
+            if (!response.ok) {
+                throw new Error("Unable to mark all notifications as read.");
+            }
+
+            await loadNotifications();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            markAllButton.disabled = false;
+        }
+    });
+
+    document
+        .getElementById("clearReadNotifications")
+        ?.addEventListener("click", async event => {
+            const button = event.currentTarget;
+
+            if (button.disabled) {
+                return;
+            }
+
+            button.disabled = true;
 
             try {
-
-                const response = await fetch("/notifications/read-all", {
-                    method: "POST",
-                    credentials: "same-origin",
-                    headers: {
-                        "X-CSRFToken": csrfToken
-                    }
-                });
+                const response = await request(
+                    "/notifications/clear-read"
+                );
 
                 if (!response.ok) {
-                    throw new Error("Unable to update notifications.");
+                    throw new Error("Unable to clear read notifications.");
                 }
 
                 await loadNotifications();
-
             } catch (error) {
-
-                alert("Unable to mark notifications as read.");
-
+                console.error(error);
+            } finally {
+                button.disabled = false;
             }
-
         });
 
-    }
+    document
+        .getElementById("clearAllNotifications")
+        ?.addEventListener("click", async event => {
+            const button = event.currentTarget;
+
+            if (button.disabled) {
+                return;
+            }
+
+            const confirmed = window.confirm(
+                "Clear all your notifications? This does not delete documents or audit records."
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            button.disabled = true;
+
+            try {
+                const response = await request(
+                    "/notifications/clear-all"
+                );
+
+                if (!response.ok) {
+                    throw new Error("Unable to clear notifications.");
+                }
+
+                await loadNotifications();
+            } catch (error) {
+                console.error(error);
+            } finally {
+                button.disabled = false;
+            }
+        });
 
     document.addEventListener("click", event => {
+        const target = event.target;
 
         if (
-            !event.target.closest(".notification-wrapper")
+            target instanceof Element &&
+            !target.closest(".notification-wrapper")
         ) {
-            dropdown.hidden = true;
+            closeDropdown();
         }
+    });
 
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !dropdown.hidden) {
+            closeDropdown();
+            bell.focus();
+        }
     });
 
     loadNotifications();
-
 });

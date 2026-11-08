@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 # Load environment variables before loading Config
 load_dotenv()
 
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 from flask import (
     Flask,
     render_template,
@@ -23,7 +25,8 @@ from routes.admin import admin_bp
 from routes.owner import owner_bp
 from routes.viewer import viewer_bp
 from routes.notifications import notifications_bp
-
+from routes.documents import documents_bp
+from routes.invitations import invitations_bp
 import models
 import security.user_loader
 
@@ -38,12 +41,15 @@ def create_app(test_config=None):
 
     # Load existing application configuration
     app.config.from_object(Config)
+    # Test overrides must be applied before validating mandatory config.
+    if test_config:
+        app.config.update(test_config)
 
     # -----------------------------------
     # SECRET KEY CONFIGURATION
     # -----------------------------------
 
-    secret_key = os.getenv("SECRET_KEY") or app.config.get("SECRET_KEY")
+    secret_key = app.config.get("SECRET_KEY") or os.getenv("SECRET_KEY")
 
     if not secret_key:
         raise RuntimeError(
@@ -51,6 +57,9 @@ def create_app(test_config=None):
         )
 
     app.config["SECRET_KEY"] = secret_key
+    if app.config.get("TRUST_PROXY"):
+        # Trust one known reverse proxy (e.g. Render) for HTTPS URL generation.
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     # -----------------------------------
     # FLASK-MAIL SMTP CONFIGURATION
@@ -81,10 +90,6 @@ def create_app(test_config=None):
         os.getenv("MAIL_DEFAULT_SENDER")
         or app.config["MAIL_USERNAME"]
     )
-
-    # Apply test configuration when supplied
-    if test_config:
-        app.config.update(test_config)
 
     # -----------------------------------
     # DATABASE INITIALIZATION
@@ -121,6 +126,8 @@ def create_app(test_config=None):
     app.register_blueprint(owner_bp)
     app.register_blueprint(viewer_bp)
     app.register_blueprint(notifications_bp)
+    app.register_blueprint(documents_bp)
+    app.register_blueprint(invitations_bp)
 
     # -----------------------------------
     # FRONTEND DIRECTORY
@@ -145,7 +152,24 @@ def create_app(test_config=None):
 
     @app.route("/register.html")
     def register_page():
-        return render_template("register.html")
+        return redirect(url_for("login_page"))
+
+    # Route aliases for the existing HTML navigation; role checks live in blueprints.
+    @app.route("/email-verification.html")
+    def email_verification_page():
+        return render_template("email-verification.html")
+
+    @app.route("/forgot-password.html")
+    def forgot_password_page():
+        return render_template("forgot-password.html")
+
+    @app.route("/reset-password.html")
+    def reset_password_page():
+        return render_template("reset-password.html")
+
+    @app.route("/verification-pending.html")
+    def verification_pending_page():
+        return render_template("verification-pending.html")
 
     # -----------------------------------
     # FRONTEND CSS AND JAVASCRIPT
@@ -165,6 +189,16 @@ def create_app(test_config=None):
     # -----------------------------------
     # HOME PAGE
     # -----------------------------------
+
+    @app.route("/health")
+    def health():
+        from sqlalchemy import text
+        try:
+            db.session.execute(text("SELECT 1"))
+            return {"status":"ok"},200
+        except Exception:
+            app.logger.exception("Health check database query failed")
+            return {"status":"unavailable"},503
 
     @app.route("/")
     def home():

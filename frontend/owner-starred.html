@@ -1,0 +1,431 @@
+
+{% extends "base.html" %}
+
+{% block title %}Starred Documents | TrustVault{% endblock %}
+{% block page_heading %}Starred Documents{% endblock %}
+
+{% block extra_css %}
+<style>
+.starred-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.starred-intro {
+    color: var(--text-muted, #718096);
+    margin: 0 0 22px;
+    line-height: 1.6;
+}
+
+.starred-panel {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color, #e5eaf1);
+    border-radius: 14px;
+    padding: 22px;
+}
+
+.starred-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.starred-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--text-color, inherit);
+}
+
+.starred-count {
+    color: var(--text-muted, #718096);
+    font-size: 12px;
+}
+
+.starred-filters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.starred-filters input,
+.starred-dates input {
+    min-width: 0;
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color, #d5dde8);
+    border-radius: 8px;
+    background: var(--input-bg, var(--card-bg, #fff));
+    color: var(--text-color, inherit);
+    font: inherit;
+    outline: none;
+}
+
+.starred-filters input:focus,
+.starred-dates input:focus {
+    border-color: var(--primary, #356ae6);
+    box-shadow: 0 0 0 3px rgba(53, 106, 230, .12);
+}
+
+.starred-dates {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    color: var(--text-muted, #718096);
+    font-size: 13px;
+}
+
+.starred-dates input {
+    width: auto;
+    padding: 8px;
+}
+
+.starred-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.starred-table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+}
+
+.starred-table th,
+.starred-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--border-color, #e5eaf1);
+    text-align: left;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.starred-table th {
+    color: var(--text-muted, #718096);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    white-space: nowrap;
+}
+
+.starred-table tbody tr:hover {
+    background: var(--surface-hover, #f8fafc);
+}
+
+.starred-table tbody tr[hidden] {
+    display: none;
+}
+
+.starred-document {
+    display: block;
+    color: var(--text-color, inherit);
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+
+.starred-muted {
+    display: block;
+    color: var(--text-muted, #718096);
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.starred-permission {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: var(--surface-hover, #edf2ff);
+    color: var(--primary, #356ae6);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.starred-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.starred-actions a {
+    color: var(--primary, #356ae6);
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.starred-actions a:hover {
+    text-decoration: underline;
+}
+
+.starred-actions button {
+    width: 35px;
+    height: 35px;
+    border: 1px solid var(--border-color, #d5dde8);
+    border-radius: 8px;
+    background: var(--card-bg, #fff);
+    color: var(--text-color, inherit);
+    cursor: pointer;
+    font-size: 19px;
+}
+
+.starred-actions button:hover {
+    background: var(--surface-hover, #edf2f7);
+}
+
+.starred-empty {
+    padding: 35px 15px;
+    text-align: center;
+    color: var(--text-muted, #718096);
+}
+
+#starredNoMatches[hidden] {
+    display: none;
+}
+
+@media (max-width: 700px) {
+    .starred-panel {
+        padding: 14px;
+    }
+
+    .starred-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .starred-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="starred-page">
+
+    <p class="starred-intro">
+        Keep important documents close at hand. Your starred documents are listed here for quick access.
+    </p>
+
+    <section class="starred-panel">
+
+        <div class="starred-header">
+            <h2>Your starred documents</h2>
+            <span id="starredCount" class="starred-count">
+                {{ documents|length }} starred document(s)
+            </span>
+        </div>
+
+        <div class="starred-filters">
+            <input
+                type="search"
+                id="sharedDocumentSearch"
+                placeholder="Search documents..."
+                aria-label="Search documents"
+            >
+
+            <input
+                type="search"
+                id="sharedOwnerSearch"
+                placeholder="Search owner..."
+                aria-label="Search owner"
+            >
+
+            <input
+                type="search"
+                id="sharedCategorySearch"
+                placeholder="Search category..."
+                aria-label="Search category"
+            >
+        </div>
+
+        <div class="starred-dates">
+            <label for="sharedDateFrom">From</label>
+            <input type="date" id="sharedDateFrom">
+
+            <label for="sharedDateTo">To</label>
+            <input type="date" id="sharedDateTo">
+        </div>
+
+        <div class="starred-table-wrap">
+            <table class="starred-table">
+                <thead>
+                    <tr>
+                        <th>Document</th>
+                        <th>Owner</th>
+                        <th>Category</th>
+                        <th>Permission</th>
+                        <th>Added</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="starredTableBody">
+                    {% for document in documents %}
+                    <tr
+                        class="starred-document-row"
+                        data-owner="{{ owners.get(document.owner_id, 'Owner')|lower }}"
+                        data-category="{{ (document.category or '')|lower }}"
+                        data-date="{{ document.created_at.strftime('%Y-%m-%d') if document.created_at else '' }}"
+                    >
+                        <td>
+                            <span class="starred-document">
+                                {{ document.title or document.filename or 'Untitled document' }}
+                            </span>
+
+                            <span class="starred-muted">
+                                {{ document.filename or '' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ owners.get(document.owner_id, 'Owner') }}
+                        </td>
+
+                        <td>
+                            {{ document.category or 'Uncategorized' }}
+                        </td>
+
+                        <td>
+                            <span class="starred-permission">
+                                {{ grants.get(document.id, 'read')|capitalize }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ document.created_at.strftime('%d %b %Y') if document.created_at else '--' }}
+                        </td>
+
+                        <td>
+                            <div class="starred-actions">
+
+                                <a href="/documents/{{ document.id }}/download">
+                                    Download
+                                </a>
+
+                                <button
+                                    type="button"
+                                    data-star-document="{{ document.id }}"
+                                    aria-label="Remove star from {{ document.title or 'document' }}"
+                                    title="Remove star"
+                                >★</button>
+
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr class="starred-empty-row">
+                        <td colspan="6" class="starred-empty">
+                            <strong>No starred documents yet</strong>
+                            <span class="starred-muted">
+                                Star a document to find it here for quick access.
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <p id="starredNoMatches" class="starred-empty" hidden>
+            No documents match your search or selected date range.
+        </p>
+
+    </section>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="/document-actions.js"></script>
+
+<script>
+(() => {
+    const nameInput = document.getElementById("sharedDocumentSearch");
+    const ownerInput = document.getElementById("sharedOwnerSearch");
+    const categoryInput = document.getElementById("sharedCategorySearch");
+    const fromInput = document.getElementById("sharedDateFrom");
+    const toInput = document.getElementById("sharedDateTo");
+
+    const rows = [
+        ...document.querySelectorAll(".starred-document-row")
+    ];
+
+    const count = document.getElementById("starredCount");
+    const noMatches = document.getElementById("starredNoMatches");
+
+    if (
+        !nameInput ||
+        !ownerInput ||
+        !categoryInput ||
+        !fromInput ||
+        !toInput ||
+        !count ||
+        !noMatches
+    ) {
+        return;
+    }
+
+    function filterDocuments() {
+        const name = nameInput.value.trim().toLowerCase();
+        const owner = ownerInput.value.trim().toLowerCase();
+        const category = categoryInput.value.trim().toLowerCase();
+
+        const from = fromInput.value;
+        const to = toInput.value;
+
+        let visible = 0;
+
+        rows.forEach(row => {
+            const date = row.dataset.date || "";
+
+            const matchesName =
+                row.cells[0].textContent.toLowerCase().includes(name);
+
+            const matchesOwner =
+                (row.dataset.owner || "").includes(owner);
+
+            const matchesCategory =
+                (row.dataset.category || "").includes(category);
+
+            const matchesFrom =
+                !from || (date !== "" && date >= from);
+
+            const matchesTo =
+                !to || (date !== "" && date <= to);
+
+            const matches =
+                matchesName &&
+                matchesOwner &&
+                matchesCategory &&
+                matchesFrom &&
+                matchesTo;
+
+            row.hidden = !matches;
+
+            if (matches) {
+                visible++;
+            }
+        });
+
+        count.textContent =
+            `${visible} of ${rows.length} starred document(s) shown`;
+
+        noMatches.hidden = visible !== 0;
+    }
+
+    [nameInput, ownerInput, categoryInput].forEach(input => {
+        input.addEventListener("input", filterDocuments);
+    });
+
+    [fromInput, toInput].forEach(input => {
+        input.addEventListener("change", filterDocuments);
+    });
+
+})();
+</script>
+{% endblock %}

@@ -62,6 +62,7 @@ class Permission(db.Model):
             "document_id",
             "user_id",
             unique=True,
-            postgresql_where=text("revoked_at IS NULL")
+            postgresql_where=text("revoked_at IS NULL"),
+            sqlite_where=text("revoked_at IS NULL")
         )
     )

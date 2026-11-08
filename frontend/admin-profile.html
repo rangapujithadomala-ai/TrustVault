@@ -1,0 +1,301 @@
+
+{% extends "base.html" %}
+
+{% block title %}My Profile | TrustVault{% endblock %}
+{% block page_heading %}My Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+.admin-profile-page {
+    max-width: 1000px;
+    margin: auto;
+}
+
+.profile-intro {
+    color: var(--text-secondary, #6b7280);
+    margin: 6px 0 24px;
+    line-height: 1.6;
+}
+
+.profile-card {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.profile-card h2 {
+    color: var(--text-primary, #111827);
+    font-size: 18px;
+    margin: 0 0 8px;
+}
+
+.card-description {
+    color: var(--text-secondary, #6b7280);
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 0 0 22px;
+}
+
+.profile-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    color: var(--text-primary, #374151);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: 8px;
+    background: var(--input-bg, #fff);
+    color: var(--text-primary, #111827);
+    font: inherit;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color, #3157c8);
+}
+
+.form-group input:disabled {
+    background: var(--surface-bg, #f3f4f6);
+    color: var(--text-secondary, #6b7280);
+    cursor: not-allowed;
+}
+
+.field-error {
+    color: #dc2626;
+    font-size: 12px;
+    min-height: 15px;
+}
+
+.profile-button {
+    padding: 11px 20px;
+    border: none;
+    border-radius: 8px;
+    background: var(--primary-color, #3157c8);
+    color: white;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 20px;
+}
+
+.profile-button:hover {
+    opacity: 0.9;
+}
+
+.profile-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.profile-message {
+    font-size: 13px;
+    margin-top: 14px;
+    line-height: 1.5;
+}
+
+@media (max-width: 650px) {
+    .profile-form {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-card {
+        padding: 17px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-profile-page">
+
+    <p class="profile-intro">
+        View and manage your administrator account information securely.
+    </p>
+
+    <section class="profile-card">
+
+        <h2>Personal Information</h2>
+
+        <p class="card-description">
+            Update your name. Your registered email address and
+            administrator role cannot be changed from this page.
+        </p>
+
+        <form id="profileForm" novalidate>
+
+            <div class="profile-form">
+
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+
+                    <input
+                        type="text"
+                        id="fullName"
+                        value="{{ user.name }}"
+                        placeholder="Enter your full name"
+                        maxlength="100"
+                        autocomplete="name"
+                        required
+                    >
+
+                    <span class="field-error" id="nameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Registered Email Address</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        value="{{ user.email }}"
+                        disabled
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Account Role</label>
+
+                    <input
+                        type="text"
+                        id="role"
+                        value="{{ user.role|capitalize }}"
+                        disabled
+                    >
+                </div>
+
+            </div>
+
+            <button
+                type="submit"
+                class="profile-button"
+                id="saveProfileButton"
+            >
+                Save Changes
+            </button>
+
+            <p id="profileMessage" class="profile-message" aria-live="polite"></p>
+
+        </form>
+
+    </section>
+
+    <section class="profile-card">
+
+        <h2>Account Security</h2>
+
+        <p class="card-description">
+            Administrator access is protected through authentication
+            and role-based authorization. Private document access
+            remains subject to document-level permissions.
+        </p>
+
+    </section>
+
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+(() => {
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = csrfMeta ? csrfMeta.content : "";
+
+    // Profile update
+    const profileForm = document.getElementById("profileForm");
+    const fullName = document.getElementById("fullName");
+    const nameError = document.getElementById("nameError");
+    const profileMessage = document.getElementById("profileMessage");
+    const saveButton = document.getElementById("saveProfileButton");
+
+    function validateName() {
+        const name = fullName.value.trim();
+        const namePattern = /^[A-Za-z][A-Za-z\s'.-]{1,99}$/;
+
+        if (!name) {
+            nameError.textContent = "Full name is required.";
+            return false;
+        }
+
+        if (!namePattern.test(name)) {
+            nameError.textContent =
+                "Use only letters, spaces, apostrophes, hyphens and full stops.";
+            return false;
+        }
+
+        nameError.textContent = "";
+        return true;
+    }
+
+    fullName.addEventListener("input", () => {
+        fullName.value = fullName.value.replace(/[^A-Za-z .'-]/g, "");
+        validateName();
+    });
+
+    profileForm.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        profileMessage.textContent = "";
+
+        if (!validateName()) {
+            profileMessage.textContent = "Please correct your name before saving.";
+            profileMessage.style.color = "#dc2626";
+            return;
+        }
+
+        saveButton.disabled = true;
+        saveButton.textContent = "Saving...";
+
+        try {
+            const response = await fetch("/auth/profile/update", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+                body: JSON.stringify({
+                    name: fullName.value.trim()
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || "Unable to update profile.");
+            }
+
+            fullName.value = result.name;
+
+            profileMessage.textContent =
+                result.message || "Profile updated successfully.";
+
+            profileMessage.style.color = "#15803d";
+
+        } catch (error) {
+            profileMessage.textContent = error.message;
+            profileMessage.style.color = "#dc2626";
+        } finally {
+            saveButton.disabled = false;
+            saveButton.textContent = "Save Changes";
+        }
+    });
+})();
+</script>
+{% endblock %}

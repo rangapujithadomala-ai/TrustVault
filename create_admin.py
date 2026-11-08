@@ -1,10 +1,12 @@
 
 from getpass import getpass
+import os
 
 from app import create_app
 from extensions import db
 from models import User
-from security.password import hash_password
+from security.password import hash_password, validate_password
+from security.audit import append_audit
 
 
 app = create_app()
@@ -13,18 +15,19 @@ with app.app_context():
 
     print("\n===== TrustVault Initial Admin Setup =====\n")
 
-    name = input("Enter Admin name: ").strip()
-    email = input("Enter Admin email: ").strip().lower()
+    name = (os.getenv("ADMIN_NAME") or input("Enter Admin name: ")).strip()
+    email = (os.getenv("ADMIN_EMAIL") or input("Enter Admin email: ")).strip().lower()
 
-    password = getpass("Create Admin password: ")
-    confirm_password = getpass("Confirm Admin password: ")
+    password = os.getenv("ADMIN_PASSWORD") or getpass("Create Admin password: ")
+    confirm_password = os.getenv("ADMIN_PASSWORD") or getpass("Confirm Admin password: ")
 
     if not name or not email:
         print("Name and email are required.")
         raise SystemExit
 
-    if len(password) < 8:
-        print("Password must contain at least 8 characters.")
+    valid, message = validate_password(password)
+    if not valid:
+        print(message)
         raise SystemExit
 
     if password != confirm_password:
@@ -48,6 +51,8 @@ with app.app_context():
 
     try:
         db.session.add(admin)
+        db.session.flush()
+        append_audit(admin.id, "admin_bootstrap", "success", details={"email":admin.email})
         db.session.commit()
         print("\nAdmin account created successfully!")
         print("You can now log in through TrustVault.")

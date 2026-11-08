@@ -1,300 +1,350 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Security Alerts | TrustVault</title>
+{% extends "base.html" %}
 
-    <link rel="stylesheet" href="/dashboard.css">
+{% block title %}Security Alerts | TrustVault{% endblock %}
+{% block page_heading %}Security Alerts{% endblock %}
 
-    <style>
-        .admin-content {
-            max-width: 1200px;
-        }
+{% block extra_css %}
+<style>
+.security-alerts-page {
+    max-width: 1250px;
+    margin: 0 auto;
+}
 
-        /* Consistent Admin Sidebar */
+.alerts-intro {
+    color: var(--text-secondary, #777);
+    margin: 8px 0 24px;
+    line-height: 1.6;
+}
 
-        body.dashboard-page .sidebar {
-            display: flex;
-            flex-direction: column;
-        }
+.alert-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
 
-        body.dashboard-page .sidebar .sidebar-brand {
-            position: relative;
-            flex: 0 0 auto;
-            display: block;
-            margin: 0 0 28px;
-            padding: 0;
-            transform: none;
-        }
+.alert-stat {
+    padding: 20px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 12px;
+    background: var(--card-bg, #fff);
+}
 
-        body.dashboard-page .sidebar .sidebar-brand h2 {
-            margin: 0;
-            padding: 0;
-            line-height: 1.3;
-        }
+.alert-stat h3 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: var(--text-secondary, #777);
+}
 
-        body.dashboard-page .sidebar .sidebar-brand span {
-            display: block;
-            position: static;
-            margin-top: 9px;
-            padding: 0;
-            line-height: 1.4;
-        }
+.alert-stat p {
+    margin: 0;
+    font-size: 27px;
+    font-weight: 700;
+}
 
-        body.dashboard-page .sidebar .sidebar-nav {
-            flex: 0 0 auto;
-            margin-top: 0;
-        }
+.alerts-section {
+    padding: 22px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 12px;
+    background: var(--card-bg, #fff);
+}
 
-        /* Security Alerts page */
+.alerts-section h2 {
+    margin: 0 0 8px;
+}
 
-        .page-heading {
-            margin-bottom: 24px;
-        }
+.alerts-description {
+    color: var(--text-secondary, #777);
+    line-height: 1.6;
+    margin-bottom: 18px;
+}
 
-        .page-heading p {
-            color: #6b7280;
-            margin-top: 7px;
-        }
+.alert-security-note {
+    padding: 14px 16px;
+    margin: 18px 0;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 9px;
+    font-size: 13px;
+    line-height: 1.7;
+}
 
-        .content-section {
-            margin-top: 24px;
-        }
+.alert-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+}
 
-        .table-container td.empty-state {
-            text-align: center;
-            padding: 25px 15px;
-            color: #6b7280;
-        }
+.alert-filters input,
+.alert-filters select {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 12px;
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 8px;
+    background: var(--input-bg, transparent);
+    color: var(--text-primary, inherit);
+}
 
-        .security-note {
-            margin-top: 20px;
-            padding: 16px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            background: #f9fafb;
-            color: #4b5563;
-            font-size: 13px;
-            line-height: 1.6;
-        }
+.alert-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
 
-        body.dark-mode .page-heading p,
-        body.dark-mode .content-section > p {
-            color: #d1d5db;
-        }
+.alert-table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: collapse;
+}
 
-        body.dark-mode .table-container td.empty-state {
-            color: #aab4c3;
-        }
+.alert-table th,
+.alert-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    text-align: left;
+    vertical-align: top;
+    font-size: 13px;
+}
 
-        body.dark-mode .security-note {
-            background: #1f2937;
-            border-color: #374151;
-            color: #d1d5db;
-        }
+.alert-table th {
+    color: var(--text-secondary, #777);
+    font-weight: 600;
+}
 
-        @media (max-width: 650px) {
-            .content-section {
-                overflow-x: auto;
-            }
-        }
-    </style>
-</head>
+.alert-severity,
+.alert-status {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    background: var(--surface-secondary, #f1f1f1);
+    font-size: 11px;
+    font-weight: 600;
+}
 
-<body class="dashboard-page">
+.alert-empty {
+    text-align: center !important;
+    padding: 28px !important;
+    color: var(--text-secondary, #777);
+}
 
-    <div class="dashboard-container">
+.alert-count {
+    margin-top: 14px;
+    color: var(--text-secondary, #777);
+    font-size: 12px;
+}
 
-        <aside class="sidebar">
+@media (max-width: 650px) {
+    .alerts-section {
+        padding: 15px;
+    }
+}
+</style>
+{% endblock %}
 
-            <div class="sidebar-brand">
-                <h2>TrustVault</h2>
-                <span>Administrator</span>
-            </div>
+{% block content %}
+<div class="security-alerts-page">
 
-            <nav class="sidebar-nav">
-                <a href="/admin/dashboard">Overview</a>
-                <a href="/admin/users">User Management</a>
-                <a href="/admin/documents">Document Overview</a>
-                <a href="/admin/audit-logs">Audit Logs</a>
-                <a href="/admin/security-alerts" class="active">Security Alerts</a>
-                <a href="/admin/notifications">Notifications</a>
-                <a href="/admin/settings">Settings</a>
-                <a href="/login.html">Logout</a>
-            </nav>
+    <p class="alerts-intro">
+        Monitor suspicious activities, denied access attempts and potential
+        security risks recorded across TrustVault.
+    </p>
 
-        </aside>
+    <div class="alert-stats">
 
-        <main class="main-content">
+        <div class="alert-stat">
+            <h3>Total Alerts</h3>
+            <p>{{ alerts|length }}</p>
+        </div>
 
-            <div class="admin-content">
+        <div class="alert-stat">
+            <h3>High Severity</h3>
+            <p>{{ high_count }}</p>
+        </div>
 
-                <div class="page-heading">
-                    <h1>Security Alerts</h1>
-                    <p>Monitor suspicious activities and potential security risks.</p>
-                </div>
-
-                <div class="stats-container">
-
-                    <div class="stat-card">
-                        <h3>Total Alerts</h3>
-                        <p>{{ alerts|length }}</p>
-                    </div>
-
-                    <div class="stat-card">
-                        <h3>High Severity</h3>
-                        <p>--</p>
-                    </div>
-
-                    <div class="stat-card">
-                        <h3>Unresolved Alerts</h3>
-                        <p>--</p>
-                    </div>
-
-                </div>
-
-                <section class="content-section">
-
-                    <h2>Security Event History</h2>
-
-                    <p>
-                        Alerts will be generated from actual authentication
-                        and document access events.
-                    </p>
-
-                    <div class="filter-container">
-
-                        <input
-                            type="search"
-                            id="alertSearch"
-                            placeholder="Search user or event..."
-                        >
-
-                        <select id="severityFilter">
-                            <option value="">All Severities</option>
-                            <option value="High">High</option>
-                            <option value="Medium">Medium</option>
-                            <option value="Low">Low</option>
-                        </select>
-
-                        <select id="alertStatusFilter">
-                            <option value="">All Statuses</option>
-                            <option value="Unresolved">Unresolved</option>
-                            <option value="Resolved">Resolved</option>
-                        </select>
-
-                    </div>
-
-                    <div class="table-container">
-
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Alert ID</th>
-                                    <th>User</th>
-                                    <th>Security Event</th>
-                                    <th>Severity</th>
-                                    <th>Date &amp; Time</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-
-                            <tbody id="alertTableBody">
-
-                                {% for alert in alerts %}
-                                <tr class="alert-row">
-
-                                    <td>{{ alert.id }}</td>
-
-                                    <td>{{ alert.actor_id or "System" }}</td>
-
-                                    <td>
-                                        {{ alert.action or "Security event recorded" }}
-                                    </td>
-
-                                    <td>Unclassified</td>
-
-                                    <td>
-                                        {% if alert.created_at %}
-                                            {{ alert.created_at.strftime("%d %b %Y, %I:%M %p") }}
-                                        {% else %}
-                                            —
-                                        {% endif %}
-                                    </td>
-
-                                    <td>
-                                        {{ alert.outcome or "Recorded" }}
-                                    </td>
-
-                                </tr>
-
-                                {% else %}
-                                <tr>
-                                    <td colspan="6" class="empty-state">
-                                        No security alerts available yet.
-                                        Alerts will appear here when actual
-                                        security events are recorded.
-                                    </td>
-                                </tr>
-                                {% endfor %}
-
-                            </tbody>
-                        </table>
-
-                    </div>
-
-                </section>
-
-                <p class="security-note">
-                    Security alerts require backend event monitoring.
-                    Alert records and their statuses will be connected
-                    to the database later.
-                </p>
-
-            </div>
-
-        </main>
+        <div class="alert-stat">
+            <h3>Unresolved Alerts</h3>
+            <p>{{ unresolved_count }}</p>
+        </div>
 
     </div>
 
-    <script src="/settings.js"></script>
+    <section class="alerts-section">
 
-    <script>
-        const alertSearch = document.getElementById("alertSearch");
-        const severityFilter = document.getElementById("severityFilter");
-        const alertStatusFilter = document.getElementById("alertStatusFilter");
+        <h2>Security Event History</h2>
 
-        const alertRows = document.querySelectorAll(".alert-row");
+        <p class="alerts-description">
+            Review security events derived from recorded audit outcomes.
+            Severity labels are heuristic indicators and should be reviewed
+            by an administrator.
+        </p>
 
-        function filterAlerts() {
-            const searchValue = alertSearch.value.toLowerCase().trim();
-            const selectedSeverity = severityFilter.value.toLowerCase();
-            const selectedStatus = alertStatusFilter.value.toLowerCase();
+        <div class="alert-security-note">
+            <strong>Security monitoring:</strong>
+            Alert information is displayed from existing audit records.
+            This page does not modify audit events, grant document access,
+            or automatically mark alerts as resolved.
+        </div>
 
-            alertRows.forEach(row => {
-                const rowText = row.textContent.toLowerCase();
-                const severity = row.cells[3].textContent.toLowerCase();
-                const status = row.cells[5].textContent.toLowerCase();
+        <div class="alert-filters">
 
-                const matchesSearch = rowText.includes(searchValue);
-                const matchesSeverity =
-                    selectedSeverity === "" || severity.includes(selectedSeverity);
-                const matchesStatus =
-                    selectedStatus === "" || status.includes(selectedStatus);
+            <input
+                type="search"
+                id="alertSearch"
+                placeholder="Search user or event..."
+                aria-label="Search security alerts"
+            >
 
-                row.style.display =
-                    matchesSearch && matchesSeverity && matchesStatus
-                        ? ""
-                        : "none";
-            });
-        }
+            <select id="severityFilter" aria-label="Filter by severity">
+                <option value="">All Severities</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
 
-        alertSearch.addEventListener("input", filterAlerts);
-        severityFilter.addEventListener("change", filterAlerts);
-        alertStatusFilter.addEventListener("change", filterAlerts);
-    </script>
+            <select id="alertStatusFilter" aria-label="Filter by status">
+                <option value="">All Statuses</option>
+                <option value="denied">Denied</option>
+                <option value="error">Error</option>
+            </select>
 
-</body>
-</html>
+        </div>
+
+        <div class="alert-table-wrap">
+
+            <table class="alert-table">
+                <thead>
+                    <tr>
+                        <th>Alert ID</th>
+                        <th>User</th>
+                        <th>Security Event</th>
+                        <th>Severity</th>
+                        <th>Date &amp; Time</th>
+                        <th>Outcome</th>
+                    </tr>
+                </thead>
+
+                <tbody id="alertTableBody">
+
+                    {% for alert in alerts %}
+                    <tr class="alert-row">
+
+                        <td>{{ alert.id }}</td>
+
+                        <td>
+                            {{ actor_names.get(alert.actor_id) or ("Attempted account: " ~ actor_names.get(alert.target_user_id) if alert.target_user_id else "Anonymous/System") }}
+                        </td>
+
+                        <td>
+                            {{ alert.action or "Security event recorded" }}
+                        </td>
+
+                        <td>
+                            <span class="alert-severity">
+                                {{ severity_by_id.get(alert.id, "Medium") }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if alert.created_at %}
+                                {{ alert.created_at.strftime("%d %b %Y, %I:%M %p") }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <span class="alert-status">
+                                {{ alert.outcome or "Recorded" }}
+                            </span>
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="alert-empty">
+                            No security alerts available yet.
+                            Alerts will appear here when actual security
+                            events are recorded.
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+        </div>
+
+        <p class="alert-count" id="alertCount"></p>
+
+    </section>
+
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+(function () {
+    const alertSearch = document.getElementById("alertSearch");
+    const severityFilter = document.getElementById("severityFilter");
+    const alertStatusFilter = document.getElementById("alertStatusFilter");
+    const alertCount = document.getElementById("alertCount");
+
+    const alertRows = Array.from(
+        document.querySelectorAll(".alert-row")
+    );
+
+    function filterAlerts() {
+        const searchValue =
+            alertSearch.value.toLowerCase().trim();
+
+        const selectedSeverity =
+            severityFilter.value.toLowerCase();
+
+        const selectedStatus =
+            alertStatusFilter.value.toLowerCase();
+
+        let visibleCount = 0;
+
+        alertRows.forEach(function (row) {
+            const rowText = row.textContent.toLowerCase();
+            const severity = row.cells[3].textContent.toLowerCase();
+            const status = row.cells[5].textContent.toLowerCase();
+
+            const matchesSearch =
+                rowText.includes(searchValue);
+
+            const matchesSeverity =
+                !selectedSeverity ||
+                severity.includes(selectedSeverity);
+
+            const matchesStatus =
+                !selectedStatus ||
+                status.includes(selectedStatus);
+
+            const visible =
+                matchesSearch &&
+                matchesSeverity &&
+                matchesStatus;
+
+            row.style.display = visible ? "" : "none";
+
+            if (visible) {
+                visibleCount++;
+            }
+        });
+
+        alertCount.textContent =
+            "Showing " + visibleCount +
+            " of " + alertRows.length + " security alerts.";
+    }
+
+    alertSearch.addEventListener("input", filterAlerts);
+    severityFilter.addEventListener("change", filterAlerts);
+    alertStatusFilter.addEventListener("change", filterAlerts);
+
+    filterAlerts();
+})();
+</script>
+{% endblock %}

@@ -4,11 +4,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const verificationIcon = document.querySelector(".verification-icon");
     const verificationMessage = document.querySelector(".verification-message");
 
-    // Temporary frontend demonstration
-    // Actual verification will be handled by Flask using the email token.
+    // Flask verifies the token before redirecting here with a status parameter.
 
     const params = new URLSearchParams(window.location.search);
-    const status = params.get("status");
+    const status = params.get("status") || document.body.dataset.status;
 
     if (status === "success") {
         verificationIcon.textContent = "✓";
@@ -17,7 +16,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         verificationMessage.textContent = "Your email has been verified successfully.";
 
-        statusContainer.textContent = "Your TrustVault account is now ready to use.";
+        statusContainer.textContent = "Your TrustVault account is now ready to use. Redirecting you to login...";
+        window.setTimeout(() => { window.location.href = "/login.html?verified=1"; }, 2200);
     } 
     else if (status === "expired") {
         verificationIcon.textContent = "!";
