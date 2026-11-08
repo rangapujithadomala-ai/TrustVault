@@ -39,16 +39,12 @@ def create_app(test_config=None):
         static_folder=None
     )
 
-    # Load existing application configuration
     app.config.from_object(Config)
-    # Test overrides must be applied before validating mandatory config.
+
     if test_config:
         app.config.update(test_config)
 
-    # -----------------------------------
     # SECRET KEY CONFIGURATION
-    # -----------------------------------
-
     secret_key = app.config.get("SECRET_KEY") or os.getenv("SECRET_KEY")
 
     if not secret_key:
@@ -57,17 +53,18 @@ def create_app(test_config=None):
         )
 
     app.config["SECRET_KEY"] = secret_key
+
     if app.config.get("TRUST_PROXY"):
-        # Trust one known reverse proxy (e.g. Render) for HTTPS URL generation.
-        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+        app.wsgi_app = ProxyFix(
+            app.wsgi_app,
+            x_for=1,
+            x_proto=1,
+            x_host=1
+        )
 
-    # -----------------------------------
     # FLASK-MAIL SMTP CONFIGURATION
-    # -----------------------------------
-
     app.config["MAIL_SERVER"] = os.getenv(
-        "MAIL_SERVER",
-        "smtp.gmail.com"
+        "MAIL_SERVER", "smtp.gmail.com"
     )
 
     app.config["MAIL_PORT"] = int(
@@ -83,7 +80,6 @@ def create_app(test_config=None):
     )
 
     app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
-
     app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
 
     app.config["MAIL_DEFAULT_SENDER"] = (
@@ -91,36 +87,20 @@ def create_app(test_config=None):
         or app.config["MAIL_USERNAME"]
     )
 
-    # -----------------------------------
     # DATABASE INITIALIZATION
-    # -----------------------------------
-
     db.init_app(app)
 
-    # -----------------------------------
     # CSRF PROTECTION INITIALIZATION
-    # -----------------------------------
-
     csrf.init_app(app)
 
-    # -----------------------------------
     # FLASK-LOGIN INITIALIZATION
-    # -----------------------------------
-
     login_manager.init_app(app)
-
     login_manager.login_view = "login_page"
 
-    # -----------------------------------
     # FLASK-MAIL INITIALIZATION
-    # -----------------------------------
-
     mail.init_app(app)
 
-    # -----------------------------------
     # REGISTER BLUEPRINTS
-    # -----------------------------------
-
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(owner_bp)
@@ -129,32 +109,31 @@ def create_app(test_config=None):
     app.register_blueprint(documents_bp)
     app.register_blueprint(invitations_bp)
 
-    # -----------------------------------
     # FRONTEND DIRECTORY
-    # -----------------------------------
-
     frontend_folder = os.path.join(
         app.root_path,
         "frontend"
     )
 
-    # -----------------------------------
-    # LOGIN PAGE
-    # -----------------------------------
+    # GOOGLE SEARCH CONSOLE VERIFICATION
+    @app.route("/google475f0aed161d73b1.html")
+    def google_site_verification():
+        return send_from_directory(
+            app.root_path,
+            "google475f0aed161d73b1.html"
+        )
 
+    # LOGIN PAGE
     @app.route("/login.html")
     def login_page():
         return render_template("login.html")
 
-    # -----------------------------------
     # REGISTER PAGE
-    # -----------------------------------
-
     @app.route("/register.html")
     def register_page():
         return redirect(url_for("login_page"))
 
-    # Route aliases for the existing HTML navigation; role checks live in blueprints.
+    # FRONTEND PAGE ALIASES
     @app.route("/email-verification.html")
     def email_verification_page():
         return render_template("email-verification.html")
@@ -171,10 +150,7 @@ def create_app(test_config=None):
     def verification_pending_page():
         return render_template("verification-pending.html")
 
-    # -----------------------------------
     # FRONTEND CSS AND JAVASCRIPT
-    # -----------------------------------
-
     @app.route("/<path:filename>")
     def frontend_assets(filename):
 
@@ -186,20 +162,22 @@ def create_app(test_config=None):
             filename
         )
 
-    # -----------------------------------
-    # HOME PAGE
-    # -----------------------------------
-
+    # DATABASE HEALTH CHECK
     @app.route("/health")
     def health():
         from sqlalchemy import text
+
         try:
             db.session.execute(text("SELECT 1"))
-            return {"status":"ok"},200
-        except Exception:
-            app.logger.exception("Health check database query failed")
-            return {"status":"unavailable"},503
+            return {"status": "ok"}, 200
 
+        except Exception:
+            app.logger.exception(
+                "Health check database query failed"
+            )
+            return {"status": "unavailable"}, 503
+
+    # HOME PAGE
     @app.route("/")
     def home():
         return redirect(url_for("login_page"))
@@ -210,5 +188,4 @@ def create_app(test_config=None):
 if __name__ == "__main__":
 
     app = create_app()
-
     app.run(debug=True)
