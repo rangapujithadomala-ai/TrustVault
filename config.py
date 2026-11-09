@@ -1,4 +1,3 @@
-
 import os
 from datetime import timedelta
 
@@ -13,7 +12,7 @@ class Config:
     # Trusted public origin used when generating links sent by email.
     APP_BASE_URL = os.getenv(
         "APP_BASE_URL",
-        "https://trustvault-p85t.onrender.com"
+        "https://trustvault-production-e0fd.up.railway.app"
     ).rstrip("/")
 
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
@@ -35,6 +34,12 @@ class Config:
                     1
                 )
             )
+    else:
+        # Fallback to local instance database when DATABASE_URL is not set
+        _base_dir = os.path.abspath(os.path.dirname(__file__))
+        _instance_dir = os.path.join(_base_dir, "instance")
+        os.makedirs(_instance_dir, exist_ok=True)
+        SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(_instance_dir, 'trustvault.db')}"
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

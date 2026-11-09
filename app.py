@@ -1,6 +1,6 @@
-
 import os
-
+import uuid
+import hashlib
 from dotenv import load_dotenv
 
 # Load environment variables before loading Config
@@ -14,7 +14,8 @@ from flask import (
     send_from_directory,
     abort,
     redirect,
-    url_for
+    url_for,
+    Response
 )
 
 from config import Config
@@ -29,6 +30,101 @@ from routes.documents import documents_bp
 from routes.invitations import invitations_bp
 import models
 import security.user_loader
+
+
+def _init_db_and_seed(app):
+    with app.app_context():
+        try:
+            db.create_all()
+            from models import AuditLog
+            from security.audit import append_audit
+            if AuditLog.query.order_by(AuditLog.id.desc()).first() is None:
+                append_audit(None, "audit_chain_genesis", "success", details={"source": "system_initialization"})
+                db.session.commit()
+
+            from models import User
+            if User.query.filter_by(role="admin").first() is None:
+                from models import Document, DocumentVersion, Permission
+                from security.password import hash_password
+
+                admin_email = (os.getenv("ADMIN_EMAIL") or "demo-admin@example.com").strip().lower()
+                admin_pass = os.getenv("ADMIN_PASSWORD") or "TrustVaultDemoAdmin@2026"
+                admin = User(
+                    name=os.getenv("ADMIN_NAME") or "Demo Administrator",
+                    email=admin_email,
+                    password_hash=hash_password(admin_pass),
+                    role="admin",
+                    is_active=True,
+                    email_verified=True
+                )
+
+                owner_email = (os.getenv("DEMO_OWNER_EMAIL") or "demo-owner@example.com").strip().lower()
+                owner_pass = os.getenv("DEMO_OWNER_PASSWORD") or "TrustVaultDemoOwner@2026"
+                owner = User(
+                    name=os.getenv("DEMO_OWNER_NAME") or "Demo Owner",
+                    email=owner_email,
+                    password_hash=hash_password(owner_pass),
+                    role="owner",
+                    is_active=True,
+                    email_verified=True
+                )
+
+                viewer_email = (os.getenv("DEMO_VIEWER_EMAIL") or "demo-viewer@example.com").strip().lower()
+                viewer_pass = os.getenv("DEMO_VIEWER_PASSWORD") or "TrustVaultDemoViewer@2026"
+                viewer = User(
+                    name=os.getenv("DEMO_VIEWER_NAME") or "Demo Viewer",
+                    email=viewer_email,
+                    password_hash=hash_password(viewer_pass),
+                    role="viewer",
+                    is_active=True,
+                    email_verified=True
+                )
+
+                db.session.add_all([admin, owner, viewer])
+                db.session.flush()
+
+                append_audit(admin.id, "demo_admin_seed", "success", details={"email": admin.email, "demo_account": True})
+
+                storage = app.config.get("TRUSTVAULT_STORAGE") or os.path.join(app.instance_path, "private_documents")
+                os.makedirs(storage, mode=0o700, exist_ok=True)
+                sample = b"%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\n%%EOF\n"
+                doc = Document.query.filter_by(owner_id=owner.id, title="TrustVault Evaluation Sample").first()
+                if not doc:
+                    key = uuid.uuid4().hex
+                    with open(os.path.join(storage, key), "wb") as handle:
+                        handle.write(sample)
+                    doc = Document(
+                        owner_id=owner.id,
+                        title="TrustVault Evaluation Sample",
+                        description="Seeded sample PDF used to test protected access.",
+                        category="Demo",
+                        original_filename="trustvault-evaluation-sample.pdf",
+                        storage_key=key,
+                        mime_type="application/pdf",
+                        size_bytes=len(sample),
+                        current_version=1
+                    )
+                    db.session.add(doc)
+                    db.session.flush()
+                    db.session.add(DocumentVersion(
+                        document_id=doc.id,
+                        version_number=1,
+                        storage_key=key,
+                        uploaded_by=owner.id,
+                        checksum=hashlib.sha256(sample).hexdigest()
+                    ))
+                    db.session.add(Permission(
+                        document_id=doc.id,
+                        user_id=viewer.id,
+                        permission_type="read",
+                        granted_by=owner.id
+                    ))
+
+                db.session.commit()
+                app.logger.info("Database tables and demo accounts initialized successfully.")
+        except Exception as e:
+            db.session.rollback()
+            app.logger.warning(f"Database auto-initialization note: {e}")
 
 
 def create_app(test_config=None):
@@ -123,6 +219,11 @@ def create_app(test_config=None):
             "google475f0aed161d73b1.html"
         )
 
+    # ROBOTS.TXT
+    @app.route("/robots.txt")
+    def robots_txt():
+        return Response("User-agent: *\nAllow: /\n", mimetype="text/plain")
+
     # SECURITY HEADERS
     @app.after_request
     def add_security_headers(response):
@@ -144,7 +245,12 @@ def create_app(test_config=None):
         return response
 
     # PUBLIC PAGES
-    contact_email = os.getenv("CONTACT_EMAIL", "contact@example.com")
+    contact_email = (
+        os.getenv("CONTACT_EMAIL")
+        or os.getenv("MAIL_DEFAULT_SENDER")
+        or os.getenv("MAIL_USERNAME")
+        or "rangapujithadomala@gmail.com"
+    )
 
     @app.route("/privacy")
     def privacy_page():
@@ -157,7 +263,7 @@ def create_app(test_config=None):
     # LOGIN PAGE
     @app.route("/login.html")
     def login_page():
-        return render_template("login.html")
+        return render_template("login.html", contact_email=contact_email)
 
     # REGISTER PAGE
     @app.route("/register.html")
@@ -212,6 +318,9 @@ def create_app(test_config=None):
     @app.route("/")
     def home():
         return render_template("landing.html", contact_email=contact_email)
+
+    if not app.config.get("TESTING"):
+        _init_db_and_seed(app)
 
     return app
 

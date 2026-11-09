@@ -296,9 +296,9 @@ def logout():
     logout_user()
     session.pop("_trustvault_password_snapshot", None)
     return jsonify({
-    "message": "Logged out successfully.",
-    "redirect": "/login.html?logout=1"
-}), 200
+        "message": "Logged out successfully.",
+        "redirect": "/login.html?logout=1"
+    }), 200
 
 
 @auth_bp.route("/profile/update", methods=["POST"])

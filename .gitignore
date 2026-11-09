@@ -27,3 +27,10 @@ uploads/
 *.db
 *.dump
 *.sql
+
+# Backups and reviews
+*.backup
+*.zip
+Backend_*.txt
+test_db.py
+test_mail.py

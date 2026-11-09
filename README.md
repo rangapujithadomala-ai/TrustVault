@@ -2,6 +2,12 @@
 
 TrustVault is a Flask/PostgreSQL document-sharing prototype for the Snovasys RISE challenge. Its core design is **deny by default**: the server checks a live document-specific grant for every metadata read/download/edit request. No document bytes are placed in the public frontend folder or exposed through a public bearer URL.
 
+## Live Deployment & Evaluator Access
+
+- **Live Application URL:** https://trustvault-production-e0fd.up.railway.app/
+- **Status / Health Endpoint:** https://trustvault-production-e0fd.up.railway.app/health
+- **Author & Contact:** Ranga Pujitha (rangapujithadomala@gmail.com)
+
 ## Roles
 
 - **Admin:** invite Owner accounts, manage account activation/offboarding, inspect document metadata and audit/security events, verify the audit hash chain. Admin is not a document content superuser.

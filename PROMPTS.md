@@ -1,7 +1,7 @@
+﻿
+# TrustVault â€“ AI Usage Log
 
-# TrustVault – AI Usage Log
-
-## Entry 1 – November 2, 2026
+## Entry 1 â€“ November 2, 2026
 
 **Task:** Creating the initial project folder structure.
 
@@ -20,7 +20,7 @@
 
 
 
-### 2026-11-02 — Authentication and email verification
+### 2026-11-02 â€” Authentication and email verification
 
 **Work completed:** Implemented user registration, password validation and hashing, email verification using single-use tokens, login, and logout.
 
@@ -38,7 +38,7 @@
 
 
 
-## Entry 3 – November 3, 2026**
+## Entry 3 â€“ November 3, 2026**
 
 **Task:** Developing the frontend pages for the Viewer role.
 
@@ -57,7 +57,7 @@
 
 
 
-## Entry 4 – November 4, 2026
+## Entry 4 â€“ November 4, 2026
 
 **Task:** Developing the frontend pages for the Owner role.
 
@@ -77,7 +77,7 @@
 
 
 
-## Entry 5 — November 6, 2026 — Server-side document authorization and file routes
+## Entry 5 â€” November 6, 2026 â€” Server-side document authorization and file routes
 
 **Prompt / fair summary:** I asked the AI to inspect my uploaded TrustVault source archive and connect document upload, named per-document read/edit grants, protected downloads, revocation, version uploads, archive/restore, and audit evidence while preserving my existing UI and keeping the security decision on the server.
 
@@ -93,7 +93,7 @@
 
 
 
-## Entry 6 — November 6, 2026 — Audit chain and offboarding review
+## Entry 6 â€” November 6, 2026 â€” Audit chain and offboarding review
 
 **Prompt / fair summary:** I asked AI to check the official threat model standard and wire a tamper-evident audit chain, denied-attempt logging, audit verification, account offboarding, and immediate access revocation into the existing code.
 
@@ -111,7 +111,7 @@
 
 
 
-## Entry 7 — November 6, 2026 — Authentication token and session hardening
+## Entry 7 â€” November 6, 2026 â€” Authentication token and session hardening
 
 **Prompt / fair summary:** I asked the AI to connect the remaining account flows (verification resend, password reset, profile/password updates, Admin invitation resend and offboarding) while preserving one-use token semantics, role boundaries, CSRF, audit logging, and the current pages.
 
@@ -127,7 +127,7 @@
 
 
 
-## Entry 8 — November 8, 2026 — Owner invitation email and invitation-flow verification
+## Entry 8 â€” November 8, 2026 â€” Owner invitation email and invitation-flow verification
 
 **Prompt / fair summary:** I asked the AI to help complete and verify the Admin-to-Owner invitation flow, troubleshoot SMTP email delivery, and prepare the project for external testing without disturbing existing functionality.
 
@@ -140,3 +140,28 @@
 **Verification status:** Owner invitation email sending was manually verified. Full end-to-end testing by another user, including opening the official deployed invitation link and completing the invitation flow, is still pending.
 
 **Commit link:** https://github.com/rangapujithadomala-ai/TrustVault/commit/f4b203764ce43d6ba1c4f0dcd2e1f2eb7012e993
+
+## Entry 9 - November 9, 2026 - Phishing investigation, session logout response format, hosting legal transparency, and resilient database initialization
+
+**Task / Prompt:** Investigated Google Safe Browsing's "Warning - phishing (web forgery) suspected" warning on the Railway deployment (https://trustvault-production-e0fd.up.railway.app/), resolved test failure on /auth/logout, corrected placeholder contact information and hosting provider legal mismatches, and hardened production initialization.
+
+**AI output:** Suggested redirecting /auth/logout directly with an HTTP 302 redirect to /login.html?logout=1. Also suggested that Google Safe Browsing would clear immediately if text was rewritten.
+
+**What was wrong specifically:**
+1. Returning an HTTP 302 redirect from /auth/logout broke test_user_can_logout (which asserts status 200 OK with JSON response) and broke frontend/settings.js fetch handling, leading to test failure.
+2. The AI previously left APP_BASE_URL defaulting to https://trustvault-p85t.onrender.com in config.py. On Railway, any email verification, password reset, or invitation link generated without an explicit environment override would contain a cross-domain URL pointing to Render, creating a severe phishing signal.
+3. landing.html hardcoded contact@example.com, and privacy.html claimed the app was hosted on Render while deployed on Railway. Automated Safe Browsing crawlers heavily penalize new .up.railway.app subdomains presenting login forms with template placeholder emails and conflicting hosting assertions.
+4. If DATABASE_URL was unconfigured or tables unmigrated on Railway, the app failed with 500/503 on database health queries and login attempts.
+
+**What I did instead:**
+1. Fixed routes/auth.py to return JSON 200 with { "message": "Logged out successfully.", "redirect": "/login.html?logout=1" }, restoring full compatibility with both the frontend fetch client and test_user_can_logout.
+2. Updated config.py default APP_BASE_URL to https://trustvault-production-e0fd.up.railway.app and added an instance SQLite fallback for development/fallback resilience while preserving PostgreSQL for production.
+3. Added automatic database table initialization and demo account seeding in app.py for evaluation readiness.
+4. Added a clean /robots.txt endpoint (Allow: /) for crawler transparency.
+5. Corrected privacy.html and terms.html to reflect Railway and Supabase infrastructure, attributed the application explicitly to the Snovasys RISE 2026 challenge by Ranga Pujitha, and replaced placeholder emails with the genuine contact address rangapujithadomala@gmail.com.
+6. Added clear educational prototype disclaimers on both landing.html and login.html to eliminate deceptive branding appearance.
+7. Added automated tests for /robots.txt and /health in tests/test_app.py.
+
+**Verification:** Ran pytest -v; all 26 tests passed.
+
+**Commit link:** https://github.com/rangapujithadomala-ai/TrustVault/commit/02cd66f
