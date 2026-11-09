@@ -15,27 +15,36 @@ class Config:
         "https://trustvault-production-e0fd.up.railway.app"
     ).rstrip("/")
 
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+    _db_url = os.getenv("DATABASE_URL")
 
-    if SQLALCHEMY_DATABASE_URI:
-        if SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
-            SQLALCHEMY_DATABASE_URI = (
-                SQLALCHEMY_DATABASE_URI.replace(
-                    "postgres://",
-                    "postgresql+psycopg2://",
-                    1
-                )
+    # If running in cloud deployment (such as Railway or Render) but DATABASE_URL points to localhost,
+    # localhost is unreachable inside the container; fall back to SQLite unless remote DB is supplied.
+    is_cloud_deploy = bool(
+        os.getenv("RAILWAY_ENVIRONMENT")
+        or os.getenv("RAILWAY_PROJECT_ID")
+        or os.getenv("RENDER")
+    )
+
+    if _db_url and is_cloud_deploy and ("@localhost" in _db_url or "@127.0.0.1" in _db_url):
+        _db_url = None
+
+    if _db_url:
+        if _db_url.startswith("postgres://"):
+            SQLALCHEMY_DATABASE_URI = _db_url.replace(
+                "postgres://",
+                "postgresql+psycopg2://",
+                1
             )
-        elif SQLALCHEMY_DATABASE_URI.startswith("postgresql://"):
-            SQLALCHEMY_DATABASE_URI = (
-                SQLALCHEMY_DATABASE_URI.replace(
-                    "postgresql://",
-                    "postgresql+psycopg2://",
-                    1
-                )
+        elif _db_url.startswith("postgresql://"):
+            SQLALCHEMY_DATABASE_URI = _db_url.replace(
+                "postgresql://",
+                "postgresql+psycopg2://",
+                1
             )
+        else:
+            SQLALCHEMY_DATABASE_URI = _db_url
     else:
-        # Fallback to local instance database when DATABASE_URL is not set
+        # Fallback to local instance database when DATABASE_URL is not set or unreachable in container
         _base_dir = os.path.abspath(os.path.dirname(__file__))
         _instance_dir = os.path.join(_base_dir, "instance")
         os.makedirs(_instance_dir, exist_ok=True)

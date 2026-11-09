@@ -122,7 +122,7 @@ def _init_db_and_seed(app):
 
                 db.session.commit()
                 app.logger.info("Database tables and demo accounts initialized successfully.")
-        except Exception as e:
+        except Exception:
             db.session.rollback()
             app.logger.warning(f"Database auto-initialization note: {e}")
 
@@ -308,11 +308,11 @@ def create_app(test_config=None):
             db.session.execute(text("SELECT 1"))
             return {"status": "ok"}, 200
 
-        except Exception as e:
+        except Exception:
             app.logger.exception(
                 "Health check database query failed"
             )
-            return {"status": "unavailable", "error": str(e)}, 503
+            return {"status": "unavailable"}, 503
 
     # HOME PAGE
     @app.route("/")
