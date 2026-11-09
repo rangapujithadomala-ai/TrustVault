@@ -164,4 +164,4 @@
 
 **Verification:** Ran pytest -v; all 26 tests passed.
 
-**Commit link:** https://github.com/rangapujithadomala-ai/TrustVault/commit/02cd66f
+**Commit link:** https://github.com/rangapujithadomala-ai/TrustVault/commit/8966f3a
