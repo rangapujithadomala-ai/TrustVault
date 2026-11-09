@@ -2,12 +2,68 @@ import os
 from datetime import timedelta
 
 from dotenv import load_dotenv
+from sqlalchemy.engine import make_url
+from sqlalchemy.exc import ArgumentError
 
 load_dotenv()
 
 
+def is_production_environment(environ=None):
+    environ = os.environ if environ is None else environ
+    app_environment = (
+        environ.get("APP_ENV")
+        or environ.get("FLASK_ENV")
+        or environ.get("ENVIRONMENT")
+        or ""
+    ).strip().lower()
+    return (
+        app_environment in {"production", "prod"}
+        or bool(
+            environ.get("RAILWAY_ENVIRONMENT")
+            or environ.get("RAILWAY_PROJECT_ID")
+            or environ.get("RENDER")
+        )
+    )
+
+
+def validate_production_database(database_uri):
+    message = (
+        "Production requires DATABASE_URL to reference a remote "
+        "PostgreSQL database."
+    )
+    if not database_uri:
+        raise RuntimeError(message)
+
+    try:
+        parsed = make_url(database_uri)
+    except (ArgumentError, TypeError, ValueError):
+        raise RuntimeError(message) from None
+
+    if (
+        parsed.get_backend_name() != "postgresql"
+        or not parsed.host
+        or parsed.host.lower() in {"localhost", "127.0.0.1", "::1"}
+    ):
+        raise RuntimeError(message)
+
+
+def require_nonproduction_demo_mode(environ=None):
+    environ = os.environ if environ is None else environ
+    if (environ.get("TRUSTVAULT_DEMO_MODE") or "").strip().lower() != "true":
+        raise RuntimeError(
+            "Demo seeding is disabled. Set TRUSTVAULT_DEMO_MODE=true "
+            "only in an isolated non-production environment."
+        )
+    if is_production_environment(environ):
+        raise RuntimeError("Demo seeding is not allowed in production.")
+
+
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY")
+    IS_PRODUCTION = is_production_environment()
+    TRUSTVAULT_DEMO_MODE = (
+        os.getenv("TRUSTVAULT_DEMO_MODE", "False").lower() == "true"
+    )
 
     # Trusted public origin used when generating links sent by email.
     APP_BASE_URL = os.getenv(
@@ -17,16 +73,18 @@ class Config:
 
     _db_url = os.getenv("DATABASE_URL")
 
-    # If running in cloud deployment (such as Railway or Render) but DATABASE_URL points to localhost,
-    # localhost is unreachable inside the container; fall back to SQLite unless remote DB is supplied.
-    is_cloud_deploy = bool(
-        os.getenv("RAILWAY_ENVIRONMENT")
-        or os.getenv("RAILWAY_PROJECT_ID")
-        or os.getenv("RENDER")
-    )
-
-    if _db_url and is_cloud_deploy and ("@localhost" in _db_url or "@127.0.0.1" in _db_url):
-        _db_url = None
+    if _db_url and IS_PRODUCTION:
+        try:
+            _parsed_db_url = make_url(_db_url)
+        except (ArgumentError, TypeError, ValueError):
+            _parsed_db_url = None
+        if (
+            _parsed_db_url is None
+            or not _parsed_db_url.host
+            or _parsed_db_url.host.lower()
+            in {"localhost", "127.0.0.1", "::1"}
+        ):
+            _db_url = None
 
     if _db_url:
         if _db_url.startswith("postgres://"):
@@ -43,8 +101,9 @@ class Config:
             )
         else:
             SQLALCHEMY_DATABASE_URI = _db_url
+    elif IS_PRODUCTION:
+        SQLALCHEMY_DATABASE_URI = None
     else:
-        # Fallback to local instance database when DATABASE_URL is not set or unreachable in container
         _base_dir = os.path.abspath(os.path.dirname(__file__))
         _instance_dir = os.path.join(_base_dir, "instance")
         os.makedirs(_instance_dir, exist_ok=True)
@@ -57,7 +116,9 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = (
-        os.getenv("COOKIE_SECURE", "False").lower() == "true"
+        True
+        if IS_PRODUCTION
+        else os.getenv("COOKIE_SECURE", "False").lower() == "true"
     )
 
     PERMANENT_SESSION_LIFETIME = timedelta(

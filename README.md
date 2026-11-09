@@ -18,7 +18,7 @@ TrustVault is a Flask/PostgreSQL document-sharing prototype for the Snovasys RIS
 
 - Password hashing, Viewer email verification, invited Owner password setup, and single-use email password-reset tokens.
 - Flask-Login sessions, CSRF protection, active-account reload, process-local login throttle.
-- Private storage under `instance/private_documents` (configurable), filename/extension/size validation.
+- Private Supabase Storage bucket for uploaded documents; filename/extension/size validation. The optional demo sample is stored under a private local path.
 - Document-specific live grants, grant/revoke, notification events, secure download route, revision uploads, archive/restore.
 - Audit records for successful and denied access paths, with SHA-256 hash chain and Admin chain-verification endpoint.
 - Search endpoint filters by title/category/owner/date; Owner/Viewer data scopes are enforced.
@@ -36,7 +36,6 @@ TrustVault is a Flask/PostgreSQL document-sharing prototype for the Snovasys RIS
    pip install -r requirements.txt
    python create_tables.py
    python create_admin.py
-   python seed_demo.py
    python app.py
    ```
    macOS/Linux:
@@ -46,34 +45,21 @@ TrustVault is a Flask/PostgreSQL document-sharing prototype for the Snovasys RIS
    pip install -r requirements.txt
    python create_tables.py
    python create_admin.py
-   python seed_demo.py
    python app.py
    ```
 4. Open `http://127.0.0.1:5000/login.html`. The public `/health` endpoint checks DB connectivity for deployment monitoring.
 5. Run automated tests: `pytest -v`.
-6. The dedicated demo credentials are prefilled in `.env.example`. Verify they match the credential table below after provisioning. If you change them, update the README and submission form to match.
-
-The `.env.example` includes dedicated **public demo-only** account credentials required for the challenge README. The initial Admin is created by `create_admin.py` (it uses those environment values when present); `seed_demo.py` idempotently provisions the demo Admin, Owner, and Viewer and a private sample PDF. These accounts are intentionally published for evaluator access—never reuse these passwords for a production account. An Admin can invite additional Owners; a Viewer registers and verifies their own email link.
-
-## Evaluation demo credentials
-
-These are dedicated demo accounts and are deliberately public for evaluator access. They are not production credentials.
-
-| Role | Email | Password |
-|---|---|---|
-| Admin | `demo-admin@example.com` | `TrustVaultDemoAdmin@2026` |
-| Owner | `demo-owner@example.com` | `TrustVaultDemoOwner@2026` |
-| Viewer | `demo-viewer@example.com` | `TrustVaultDemoViewer@2026` |
-
-Provision these accounts on the deployed database by copying `.env.example`, configuring the database and secret key, running `python create_tables.py`, `python create_admin.py`, and `python seed_demo.py`. The seed script shares the sample PDF with the demo Viewer using a read grant. If you change the demo credentials, update this README and the submission form accordingly.
+To create challenge demo accounts, use `seed_demo.py` only against an isolated **non-production** database. Set `TRUSTVAULT_DEMO_MODE=true` and provide unique account values through the `ADMIN_*`, `DEMO_OWNER_*`, and `DEMO_VIEWER_*` environment variables. There are no built-in demo credentials; the script refuses production environments and refuses to modify an account that already exists. Never enable this mode or reuse demo credentials with production data. An Admin can invite additional Owners; a Viewer registers and verifies their own email link.
 
 ## Deployment
 
 - Deploy with a production WSGI server, e.g. `gunicorn wsgi:app` after installing `requirements-deploy.txt`. Do not use Flask's debug server in production.
-- Configure PostgreSQL, `SECRET_KEY`, SMTP, `COOKIE_SECURE=True` behind HTTPS, and a persistent **private** volume for `TRUSTVAULT_STORAGE`. Never expose that path through a static web server.
+- Configure `APP_ENV=production` (Railway/Render are detected automatically), Supabase PostgreSQL as `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `SUPABASE_BUCKET`, `SECRET_KEY`, and SMTP. Production startup rejects missing, malformed, local-only, or non-PostgreSQL database URLs; it does not fall back to SQLite. `SESSION_COOKIE_SECURE` is forced on in production; keep HTTPS enabled. If the optional demo sample uses `TRUSTVAULT_STORAGE`, keep that path on a persistent **private** volume and never expose it through a static web server. Verify the Supabase bucket is private; the application uses the server-side Supabase key to access it.
+- Removing automatic demo seeding does not remove demo accounts already present in an existing database. Before deploying this code, use the Supabase dashboard or another approved administrative process to review any previously seeded demo accounts and disable or rotate them. This project does not modify production users or data automatically.
 - Run `python create_tables.py` for initial schema creation. This project uses `db.create_all`; it is not a migration engine. For schema evolution use Flask-Migrate/Alembic and review migrations before production.
 - Confirm the deployment URL in a private/incognito window, test email verification/invitation delivery, run the security tests against the deployed environment, and check the `/admin/audit-integrity` endpoint as Admin.
 - Keep Git repository private before the challenge deadline per the challenge rules. Verify no `.env`, secrets, database dumps, or uploaded files exist in git history before making it public.
+- Google Transparency Report currently marks the listed Railway URL unsafe for pages that may trick visitors into sharing personal information or downloading software. This audit did not establish the cause. Review Google Search Console's Security Issues report, inspect/clean the deployed site, and request a Google review when appropriate; application changes do not themselves clear a Safe Browsing warning.
 
 ## Security notes and known limitations
 
@@ -83,7 +69,7 @@ See [`THREATS.md`](THREATS.md) for mitigations and accepted risks, and [`API.md`
 
 - [ ] Public GitHub repo at the appropriate time, meaningful real commits through the week
 - [ ] Live URL opens in private window; persistent DB and private storage
-- [ ] Seeded evaluation accounts for Admin, Owner, Viewer; exact credentials included in evaluator README/form
+- [ ] If demo accounts are needed, provision unique credentials only on an isolated non-production database; do not publish or reuse production credentials
 - [ ] `THREATS.md`, `PROMPTS.md`, `API.md`, schema/setup scripts, automated tests
 - [ ] Five-minute demo video, concise write-up, honest unfinished items
 - [ ] My Submission form filled, links verified, and “I am done” submitted before deadline

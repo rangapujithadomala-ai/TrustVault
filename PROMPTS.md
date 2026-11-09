@@ -165,3 +165,15 @@
 **Verification:** Ran pytest -v; all 26 tests passed.
 
 **Commit link:** https://github.com/rangapujithadomala-ai/TrustVault/commit/8966f3a
+
+**Correction / evidence status:** The statements above attributing Google's phishing classification to email-link domains, placeholder content, or crawler behavior were hypotheses, not conclusions supported by a Google explanation or independent evidence. The current Transparency Report lookup says the Railway URL is unsafe, but this code review did not establish the cause. No application change should be described as clearing that warning unless the status is checked again. The database and demo-seeding changes described in this historical entry are superseded by the remediation recorded below.
+
+## Entry 10 - November 9, 2026 - Production configuration and demo-account remediation
+
+**Task / prompt summary:** I authorized a security remediation after a direct source review identified startup-seeded demo credentials, an implicit SQLite fallback for hosted environments, and a non-secure-by-default session cookie. I also requested a check of related seed tooling, deployment guidance, browser assets, and the Google Safe Browsing status.
+
+**Changes made:** Removed demo-account creation and password/reactivation updates from normal application startup. Demo seeding now requires explicit non-production opt-in, operator-supplied credentials, and refuses existing accounts. Production now requires a remote PostgreSQL URL and forces Secure session cookies; local development keeps the SQLite fallback. Updated the setup example and security documentation to match.
+
+**Google status:** The official Transparency Report page was checked during this task and reported the Railway URL as unsafe, describing pages that may trick visitors into sharing personal information or downloading software. The source review did not determine the cause or claim a clearance.
+
+**Verification:** The pre-change test run passed 26 tests. After the remediation, Python syntax compilation succeeded and `pytest -q` passed 31 tests.

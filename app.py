@@ -1,6 +1,4 @@
 import os
-import uuid
-import hashlib
 from dotenv import load_dotenv
 
 # Load environment variables before loading Config
@@ -18,7 +16,7 @@ from flask import (
     Response
 )
 
-from config import Config
+from config import Config, validate_production_database
 from extensions import db, csrf, login_manager, mail
 
 from routes.auth import auth_bp
@@ -32,104 +30,25 @@ import models
 import security.user_loader
 
 
-def _init_db_and_seed(app):
+def _initialize_database(app):
     with app.app_context():
         try:
             db.create_all()
-            from models import AuditLog, User, Document, DocumentVersion, Permission
+            from models import AuditLog
             from security.audit import append_audit
-            from security.password import hash_password
 
             if AuditLog.query.order_by(AuditLog.id.desc()).first() is None:
                 append_audit(None, "audit_chain_genesis", "success", details={"source": "system_initialization"})
                 db.session.commit()
-
-            demo_accounts = [
-                ("Demo Administrator", "demo-admin@example.com", "TrustVaultDemoAdmin@2026", "admin"),
-                ("Demo Owner", "demo-owner@example.com", "TrustVaultDemoOwner@2026", "owner"),
-                ("Demo Viewer", "demo-viewer@example.com", "TrustVaultDemoViewer@2026", "viewer")
-            ]
-
-            admin_user = None
-            owner_user = None
-            viewer_user = None
-
-            for name, email, demo_pass, role in demo_accounts:
-                user = User.query.filter_by(email=email).first()
-                if not user:
-                    user = User(
-                        name=name,
-                        email=email,
-                        password_hash=hash_password(demo_pass),
-                        role=role,
-                        is_active=True,
-                        email_verified=True
-                    )
-                    db.session.add(user)
-                    db.session.flush()
-                    if role == "admin":
-                        append_audit(user.id, "demo_admin_seed", "success", details={"email": user.email, "demo_account": True})
-                else:
-                    user.name = name
-                    user.password_hash = hash_password(demo_pass)
-                    user.role = role
-                    user.is_active = True
-                    user.email_verified = True
-
-                if role == "admin":
-                    admin_user = user
-                elif role == "owner":
-                    owner_user = user
-                elif role == "viewer":
-                    viewer_user = user
-
-            # Create sample PDF document if not present
-            if owner_user and viewer_user:
-                doc = Document.query.filter_by(owner_id=owner_user.id, title="TrustVault Evaluation Sample").first()
-                if not doc:
-                    storage = app.config.get("TRUSTVAULT_STORAGE") or os.path.join(app.instance_path, "private_documents")
-                    os.makedirs(storage, mode=0o700, exist_ok=True)
-                    sample = b"%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\n%%EOF\n"
-                    key = uuid.uuid4().hex
-                    with open(os.path.join(storage, key), "wb") as handle:
-                        handle.write(sample)
-
-                    doc = Document(
-                        owner_id=owner_user.id,
-                        title="TrustVault Evaluation Sample",
-                        description="Seeded sample PDF used to test protected access.",
-                        category="Demo",
-                        original_filename="trustvault-evaluation-sample.pdf",
-                        storage_key=key,
-                        mime_type="application/pdf",
-                        size_bytes=len(sample),
-                        current_version=1
-                    )
-                    db.session.add(doc)
-                    db.session.flush()
-
-                    db.session.add(DocumentVersion(
-                        document_id=doc.id,
-                        version_number=1,
-                        storage_key=key,
-                        uploaded_by=owner_user.id,
-                        checksum=hashlib.sha256(sample).hexdigest()
-                    ))
-
-                    existing_perm = Permission.query.filter_by(document_id=doc.id, user_id=viewer_user.id).first()
-                    if not existing_perm:
-                        db.session.add(Permission(
-                            document_id=doc.id,
-                            user_id=viewer_user.id,
-                            permission_type="read",
-                            granted_by=owner_user.id
-                        ))
-
-            db.session.commit()
-            app.logger.info("Demo evaluation accounts ensured successfully.")
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            app.logger.warning(f"Database auto-initialization note: {e}")
+            if app.config.get("IS_PRODUCTION"):
+                app.logger.exception("Production database initialization failed.")
+                raise
+            app.logger.warning(
+                "Local database initialization failed; startup will continue.",
+                exc_info=True
+            )
 
 
 def create_app(test_config=None):
@@ -144,6 +63,15 @@ def create_app(test_config=None):
 
     if test_config:
         app.config.update(test_config)
+
+    if app.config.get("IS_PRODUCTION"):
+        validate_production_database(
+            app.config.get("SQLALCHEMY_DATABASE_URI")
+        )
+        app.config["SESSION_COOKIE_SECURE"] = True
+
+    app.config["SESSION_COOKIE_HTTPONLY"] = True
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
     # SECRET KEY CONFIGURATION
     secret_key = app.config.get("SECRET_KEY") or os.getenv("SECRET_KEY")
@@ -325,7 +253,7 @@ def create_app(test_config=None):
         return render_template("landing.html", contact_email=contact_email)
 
     if not app.config.get("TESTING"):
-        _init_db_and_seed(app)
+        _initialize_database(app)
 
     return app
 
