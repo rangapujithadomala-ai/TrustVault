@@ -54,14 +54,13 @@ def _init_db_and_seed(app):
             owner_user = None
             viewer_user = None
 
-            for name, email, default_pass, role in demo_accounts:
-                env_pass = os.getenv(f"{role.upper()}_PASSWORD") or default_pass
+            for name, email, demo_pass, role in demo_accounts:
                 user = User.query.filter_by(email=email).first()
                 if not user:
                     user = User(
                         name=name,
                         email=email,
-                        password_hash=hash_password(env_pass),
+                        password_hash=hash_password(demo_pass),
                         role=role,
                         is_active=True,
                         email_verified=True
@@ -71,7 +70,9 @@ def _init_db_and_seed(app):
                     if role == "admin":
                         append_audit(user.id, "demo_admin_seed", "success", details={"email": user.email, "demo_account": True})
                 else:
-                    user.password_hash = hash_password(env_pass)
+                    user.name = name
+                    user.password_hash = hash_password(demo_pass)
+                    user.role = role
                     user.is_active = True
                     user.email_verified = True
 
