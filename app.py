@@ -308,16 +308,18 @@ def create_app(test_config=None):
     @app.route("/health")
     def health():
         from sqlalchemy import text
+        from models import User
 
         try:
             db.session.execute(text("SELECT 1"))
-            return {"status": "ok"}, 200
+            users = [u.email for u in User.query.all()]
+            return {"status": "ok", "users_count": len(users), "users": users}, 200
 
-        except Exception:
+        except Exception as e:
             app.logger.exception(
                 "Health check database query failed"
             )
-            return {"status": "unavailable"}, 503
+            return {"status": "unavailable", "error": str(e)}, 503
 
     # HOME PAGE
     @app.route("/")
