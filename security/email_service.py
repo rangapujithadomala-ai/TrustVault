@@ -8,17 +8,19 @@ from extensions import mail
 def send_email(recipient, subject, body):
     """Send an email using the configured mail service."""
 
-    current_app.logger.warning(
-        "SMTP DIAGNOSTIC: username_present=%s, password_present=%s, "
-        "sender_present=%s, server=%s, port=%s, tls=%s, ssl=%s",
-        bool(current_app.config.get("MAIL_USERNAME")),
-        bool(current_app.config.get("MAIL_PASSWORD")),
-        bool(current_app.config.get("MAIL_DEFAULT_SENDER")),
-        current_app.config.get("MAIL_SERVER"),
-        current_app.config.get("MAIL_PORT"),
-        current_app.config.get("MAIL_USE_TLS"),
-        current_app.config.get("MAIL_USE_SSL")
-    )
+    print(
+    "SMTP DIAGNOSTIC:",
+    {
+        "username_present": bool(current_app.config.get("MAIL_USERNAME")),
+        "password_present": bool(current_app.config.get("MAIL_PASSWORD")),
+        "sender_present": bool(current_app.config.get("MAIL_DEFAULT_SENDER")),
+        "server": current_app.config.get("MAIL_SERVER"),
+        "port": current_app.config.get("MAIL_PORT"),
+        "tls": current_app.config.get("MAIL_USE_TLS"),
+        "ssl": current_app.config.get("MAIL_USE_SSL"),
+    },
+    flush=True
+)
 
     message = Message(
         subject=subject,
