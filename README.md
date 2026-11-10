@@ -77,3 +77,21 @@ See [`THREATS.md`](THREATS.md) for mitigations and accepted risks, and [`API.md`
 ## AI usage
 
 AI assistance is documented in `PROMPTS.md`. It includes errors/rejected approaches and pending commit-link fields; replace those fields with actual commit links after making the corresponding genuine commits. Do not fabricate prompt history or backdate commits.
+
+
+## Evaluator Access
+
+The project includes an Admin dashboard for reviewing user management,
+document management and administrative functionality.
+
+**Demo Admin Credentials**
+
+- Login URL: http://127.0.0.1:5000/login.html
+- Email: admintrustvault@gmail.com
+- Password: TrustVault@2026
+
+**Important:** These credentials are for evaluation purposes only.
+The application must first be configured and started locally using
+the setup instructions provided above.
+
+The live deployment is currently experiencing a runtime issue.
