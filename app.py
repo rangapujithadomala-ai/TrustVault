@@ -126,6 +126,15 @@ def create_app(test_config=None):
     login_manager.init_app(app)
     login_manager.login_view = "login_page"
 
+    app.logger.warning(
+    "MAIL CHECK: username=%s, password=%s, sender=%s, server=%s, port=%s",
+    bool(app.config.get("MAIL_USERNAME")),
+    bool(app.config.get("MAIL_PASSWORD")),
+    bool(app.config.get("MAIL_DEFAULT_SENDER")),
+    app.config.get("MAIL_SERVER"),
+    app.config.get("MAIL_PORT")
+)
+
     # FLASK-MAIL INITIALIZATION
     mail.init_app(app)
 
